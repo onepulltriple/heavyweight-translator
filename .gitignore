@@ -1,0 +1,11 @@
+#ignore .docx files
+*.docx
+
+#ignore legacy files
+legacy/
+
+#ignore private files
+private/
+
+#ignore python cache
+__pycache__/
