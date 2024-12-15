@@ -1,0 +1,12 @@
+{
+    "<full_paragraph_plain_text>": { // "Mit hilfe der Schaltfläche Neu Aufträge in fancyprogram können neue Aufträge erstellt werden."
+        "full_paragraph_translated_text": "With the help of the New Orders button in fancyprogram, new orders can be created.", 
+        "consolidated_runs": {
+            "<cons_run_plain_text>": { // Neue Aufträge
+                "cons_run_translated_text": "New Orders", 
+                "cons_run_style": "Button", 
+                "cons_run_is_to_translate": true // default = true
+            }
+        }
+    }
+}
