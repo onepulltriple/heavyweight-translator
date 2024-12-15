@@ -1,10 +1,14 @@
-import sys
-import getpass
-import os
+if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
+    import sys
+    import getpass
+    import os
+    import constants # type: ignore
+    import input_parameters as IP # type: ignore
+    import file_paths as FP # type: ignore
+    print("\n")
 
 #__________________________________________________________________________
 ###########################################################################
-# GET SHARED FUNCTIONALITY
 if 'GET SHARED FUNCTIONALITY':
     # Get the absolute, user-specific file path of the directory which hosts the shared functionality files
     username = getpass.getuser()
@@ -16,20 +20,20 @@ if 'GET SHARED FUNCTIONALITY':
         raise FileNotFoundError(f"Path does not exist: {absolute_path_to_shared_functionality}")
         
     # Optionally list the contents of that directory as confirmation that it was found
-    list_of_contents = os.listdir(absolute_path_to_shared_functionality)
-    print("Contents of shared functionality directory:")
-    for item in list_of_contents : print(f"{item}")
-    print()
+    # list_of_contents = os.listdir(absolute_path_to_shared_functionality)
+    # print("Contents of shared functionality directory:")
+    # for item in list_of_contents : print(f"{item}")
+    # print()
 
     # Add the directory to the python path, if it's not already there
     if absolute_path_to_shared_functionality not in sys.path:
         sys.path.append(absolute_path_to_shared_functionality)
 
     # Optionally list the contents of the python path
-    list_of_contents = sys.path
-    print("Contents of python environment path:")
-    for item in list_of_contents : print(f"{item}")
-    print()
+    # list_of_contents = sys.path
+    # print("Contents of python environment path:")
+    # for item in list_of_contents : print(f"{item}")
+    # print()
 
     # Import functions from the shared functionality directory
     from dict_operations import * # type: ignore
@@ -42,13 +46,9 @@ if 'GET SHARED FUNCTIONALITY':
 
 #__________________________________________________________________________
 ###########################################################################
-# IMPORT VARIABLES, FILE PATHS, AND SET MODE OF EXECUTION
-import constants # type: ignore
-import input_parameters as IP # type: ignore
-import file_paths as FP # type: ignore
-
-# Mode of execution: select one by commenting the others out
-step = constants.EXTRACT
+if 'SET MODE OF EXECUTION':
+    # Select one by commenting the others out
+    step = constants.EXTRACT_TEXT_AND_CREATE_NEW_DICTIONARY_FOR_DOCUMENT
 
 #__________________________________________________________________________
 ###########################################################################
