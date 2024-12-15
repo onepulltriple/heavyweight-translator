@@ -2,14 +2,17 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import sys
     import getpass
     import os
-    import constants # type: ignore
-    import input_parameters as IP # type: ignore
-    import file_paths as FP # type: ignore
+    import constants 
+    from dict_operations import *
+    from text_operations import *
+    from file_operations import *
+    import input_parameters as IP 
+    import file_paths as FP 
     print("\n")
 
 #__________________________________________________________________________
 ###########################################################################
-if 'GET SHARED FUNCTIONALITY':
+if not 'GET SHARED FUNCTIONALITY':
     # Get the absolute, user-specific file path of the directory which hosts the shared functionality files
     username = getpass.getuser()
     absolute_path_to_shared_functionality = "C:/Users/" + username + "/Documents/__Coding Projects/01__Translation Projects/00__translation-shared-functionality"
