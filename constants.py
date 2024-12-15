@@ -1,0 +1,3 @@
+EXTRACT_TEXT_AND_CREATE_NEW_DICTIONARY_FOR_DOCUMENT = "create_new_dictionary_from_scatch_for_a_particular_document"
+PREP_NEWEST_PARAGRAPHS_FOR_TRANSLATION = "prepare_newest_paragraphs_to_be_translated"
+ADD_NEWLY_TRANSLATED_PARAGRAPHS_TO_MAINTAINED_DICT = "add_newly_paragraphs_to_the_maintained_dictionary"
