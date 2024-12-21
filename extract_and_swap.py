@@ -159,12 +159,26 @@ def consolidate_then_extract_or_swap_text_runs(
 
         # If the current object is a hyperlink
         if isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
-            # rename object for clarity
+            # Rename object for clarity
             current_hyperlink = current_run_or_hyperlink
-            # don't consolidate, just get the text from each text-having run
+            # Don't consolidate, just deal with the text from each text-having run
             for current_run in current_hyperlink.runs:
                 if current_run.text:
-                    text_collecting_list, current_run, current_swap_count, current_no_swap_count = extract_or_swap(step, current_run, text_collecting_list, translation_dict, current_swap_count, current_no_swap_count)
+                    # collect or swap
+                    if step == constants.EXTRACT:
+                        consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
+                        text_collecting_list.extend(consolidated_run_split_at_line_breaks)
+                        current_swap_count += len(consolidated_run_split_at_line_breaks)
+                    if step == constants.SWAP:
+                        # Attempt to find translations in the dictionary
+                        result_of_translation_lookup_attempt = lookup_translations(current_run, translation_dict)
+                        # If the lookup succeeded
+                        if (result_of_translation_lookup_attempt is not None):
+                            # Proceed with swap
+                            current_run.text = result_of_translation_lookup_attempt
+                            current_swap_count +=1
+                        else:
+                            current_no_swap_count +=1
             previous_run = current_run_or_hyperlink
             continue
 
@@ -180,12 +194,25 @@ def consolidate_then_extract_or_swap_text_runs(
                 or weird_symbol_bracketed_by_blank_char_starts_in_the_current_run(current_run, next_run_or_hyperlink, text_consolidator) 
                 or weird_symbol_bracketed_by_blank_char_ends_in_the_current_run(previous_run, current_run, next_run_or_hyperlink, text_consolidator) 
                 ):
-                # collect this run's text
+                # collect text
                 text_consolidator += current_run.text
                 # dump consolidator into this run and reset
                 current_run.text = text_consolidator
                 # collect or swap
-                text_collecting_list, current_run, current_swap_count, current_no_swap_count = extract_or_swap(step, current_run, text_collecting_list, translation_dict, current_swap_count, current_no_swap_count)
+                if step == constants.EXTRACT:
+                    consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
+                    text_collecting_list.extend(consolidated_run_split_at_line_breaks)
+                    current_swap_count += len(consolidated_run_split_at_line_breaks)
+                if step == constants.SWAP:
+                    # Attempt to find translations in the dictionary
+                    result_of_translation_lookup_attempt = lookup_translations(current_run, translation_dict)
+                    # If the lookup succeeded
+                    if (result_of_translation_lookup_attempt is not None):
+                        # Proceed with swap
+                        current_run.text = result_of_translation_lookup_attempt
+                        current_swap_count +=1
+                    else:
+                        current_no_swap_count +=1
                 # clear the text consolidator and move on
                 text_consolidator = ""
                 previous_run = current_run_or_hyperlink
@@ -241,10 +268,23 @@ def consolidate_then_extract_or_swap_text_runs(
                 ): 
                 # collect text
                 text_consolidator += current_run.text
-                # dump and reset
+                # dump consolidator into this run and reset
                 current_run.text = text_consolidator
                 # collect or swap
-                text_collecting_list, current_run, current_swap_count, current_no_swap_count = extract_or_swap(step, current_run, text_collecting_list, translation_dict, current_swap_count, current_no_swap_count)
+                if step == constants.EXTRACT:
+                    consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
+                    text_collecting_list.extend(consolidated_run_split_at_line_breaks)
+                    current_swap_count += len(consolidated_run_split_at_line_breaks)
+                if step == constants.SWAP:
+                    # Attempt to find translations in the dictionary
+                    result_of_translation_lookup_attempt = lookup_translations(current_run, translation_dict)
+                    # If the lookup succeeded
+                    if (result_of_translation_lookup_attempt is not None):
+                        # Proceed with swap
+                        current_run.text = result_of_translation_lookup_attempt
+                        current_swap_count +=1
+                    else:
+                        current_no_swap_count +=1
                 # clear the text collector and move on
                 text_consolidator = ""                
                 previous_run = current_run_or_hyperlink
@@ -254,38 +294,6 @@ def consolidate_then_extract_or_swap_text_runs(
 
     return text_collecting_list, paragraph, current_swap_count, current_no_swap_count
 
-#__________________________________________________________________________
-###########################################################################
-# description
-def extract_or_swap(
-        step, 
-        consolidated_run,
-        text_collecting_list,
-        #translation_dict_with_paragraphs,
-        translation_dict,
-        current_swap_count,
-        current_no_swap_count
-    ):
-
-    if step == constants.EXTRACT:
-        consolidated_run_split_on_line_breaks = split_consolidated_run_at_line_breaks(consolidated_run)
-        text_collecting_list.extend(consolidated_run_split_on_line_breaks)
-        current_swap_count += len(consolidated_run_split_on_line_breaks)
-        #run_style = text_having_object.style
-
-    if step == constants.SWAP:
-        # Attempt to find translations in the dictionary
-        result_of_translation_lookup_attempt = lookup_translations(consolidated_run, translation_dict)
-        # If the lookup succeeded
-        if (result_of_translation_lookup_attempt is not None):
-            # Proceed with swap
-            consolidated_run.text = result_of_translation_lookup_attempt
-            current_swap_count +=1
-            #run_style = text_having_object.style
-        else:
-            current_no_swap_count +=1
-
-    return text_collecting_list, consolidated_run, current_swap_count, current_no_swap_count
 
 #__________________________________________________________________________
 ###########################################################################
@@ -321,7 +329,7 @@ def lookup_translations(consolidated_run, translation_dict):
 # Runs must be split on line breaks (line breaks are used as delimiters)
 # e.g. bullet lists where one bullet point spans multiple lines
 def split_consolidated_run_at_line_breaks(text_having_object):
-    
+    # This line kept in case further manipulation becomes necessary
     temp_list = text_having_object.text.splitlines(keepends = False)
 
     return temp_list
