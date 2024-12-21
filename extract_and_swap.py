@@ -274,57 +274,50 @@ def extract_or_swap(
         #run_style = text_having_object.style
 
     if step == constants.SWAP:
-        consolidated_run, current_swap_count, current_no_swap_count = swap_run(consolidated_run, translation_dict, current_swap_count, current_no_swap_count)
+        # Attempt to find translations in the dictionary
+        result_of_translation_lookup_attempt = lookup_translation(consolidated_run, translation_dict)
+        # If the lookup succeeded
+        if (result_of_translation_lookup_attempt is not None):
+            # Proceed with swap
+            consolidated_run.text = result_of_translation_lookup_attempt
+            current_swap_count +=1
+            #run_style = text_having_object.style
+        else:
+            current_no_swap_count +=1
 
     return text_collecting_list, consolidated_run, current_swap_count, current_no_swap_count
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to swap in translated text on a per-run basis
-def swap_run(
-        current_run, 
-        translation_dict, 
-        current_swap_count, 
-        current_no_swap_count
-    ):
-    
-    # if there are line breaks in the current run
-    if "\n" in current_run.text:
-        original_substrings = []
-        translated_substrings = []
+def lookup_translation(consolidated_run, translation_dict):
 
-        # split apart the original string
-        original_substrings = current_run.text.split("\n")
+    original_substrings = []
+    translated_substrings = []
 
-        # find the translations
-        for substring in original_substrings:
-            result = translation_dict.get(substring)
-            if result is not None:
-                translated_substrings.append(result)
-            else:
-                print(f"The text element \"{substring}\" was not found in the translation dictionary's keys.")
-        
-        # assemble the translated string and swap in
-        if len(original_substrings) == len(translated_substrings):
-            current_run.text = "\n".join(translated_substrings)
-            current_swap_count +=1
-        else:
-            #print(f"The text element \"{original_substrings}\" was not found in the dictionary's keys.")
-            # the above line would print the list in brackets
-            current_no_swap_count +=1
+    # split apart the original string
+    original_substrings = consolidated_run.text.split("\n")
 
-    # the current run has no line breaks
-    else:
-        temp_original = current_run.text
-        result = translation_dict.get(current_run.text)
+    # find the translations
+    for substring in original_substrings:
+        result = translation_dict.get(substring)
         if result is not None:
-            current_run.text = result
-            current_swap_count +=1
+            translated_substrings.append(result)
         else:
-            print(f"The text element \"{temp_original}\" was not found in the translation dictionary's keys.")
-            current_no_swap_count +=1
+            print(f"The text element \"{substring}\" was not found in the translation dictionary's keys.")
+    
+    # if all substrings have been found
+    if len(original_substrings) == len(translated_substrings):
+        # the swap can proceed
+        return "\n".join(translated_substrings)
+    
+    return None
 
-    return current_run, current_swap_count, current_no_swap_count
+#__________________________________________________________________________
+###########################################################################
+# Function to swap text elements
+
+
 
 #__________________________________________________________________________
 ###########################################################################
