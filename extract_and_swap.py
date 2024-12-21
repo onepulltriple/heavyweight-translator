@@ -275,7 +275,7 @@ def extract_or_swap(
 
     if step == constants.SWAP:
         # Attempt to find translations in the dictionary
-        result_of_translation_lookup_attempt = lookup_translation(consolidated_run, translation_dict)
+        result_of_translation_lookup_attempt = lookup_translations(consolidated_run, translation_dict)
         # If the lookup succeeded
         if (result_of_translation_lookup_attempt is not None):
             # Proceed with swap
@@ -289,35 +289,31 @@ def extract_or_swap(
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to swap in translated text on a per-run basis
-def lookup_translation(consolidated_run, translation_dict):
+# Function to lookup translated text on a per-consolidated_run basis
+# Also reassembles translated strings that were broken apart because their source text contained line breaks
+def lookup_translations(consolidated_run, translation_dict):
 
-    original_substrings = []
-    translated_substrings = []
+    # Split apart the source consolidated run into a list of substrings 
+    # (consolidated runs without line breaks become single-item lists)
+    source_substrings_list = consolidated_run.text.split("\n")
 
-    # split apart the original string
-    original_substrings = consolidated_run.text.split("\n")
+    translated_substrings_list = []
 
-    # find the translations
-    for substring in original_substrings:
+    # Find the translations
+    for substring in source_substrings_list:
         result = translation_dict.get(substring)
         if result is not None:
-            translated_substrings.append(result)
+            translated_substrings_list.append(result)
         else:
             print(f"The text element \"{substring}\" was not found in the translation dictionary's keys.")
     
-    # if all substrings have been found
-    if len(original_substrings) == len(translated_substrings):
-        # the swap can proceed
-        return "\n".join(translated_substrings)
+    # If all substrings have been found
+    if len(source_substrings_list) == len(translated_substrings_list):
+        # The swap can proceed
+        # (Joining a single-item list of strings returns a string)
+        return "\n".join(translated_substrings_list)
     
     return None
-
-#__________________________________________________________________________
-###########################################################################
-# Function to swap text elements
-
-
 
 #__________________________________________________________________________
 ###########################################################################
