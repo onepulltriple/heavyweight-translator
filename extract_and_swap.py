@@ -268,7 +268,11 @@ def extract_or_swap(
     ):
 
     if step == constants.EXTRACT:
-        text_collecting_list, current_swap_count = add_to_text_collecting_list(consolidated_run, text_collecting_list, current_swap_count)
+        consolidated_run_split_on_line_breaks = split_consolidated_run_at_line_breaks(consolidated_run)
+        text_collecting_list.extend(consolidated_run_split_on_line_breaks)
+        current_swap_count += len(consolidated_run_split_on_line_breaks)
+        #run_style = text_having_object.style
+
     if step == constants.SWAP:
         consolidated_run, current_swap_count, current_no_swap_count = swap_run(consolidated_run, translation_dict, current_swap_count, current_no_swap_count)
 
@@ -324,24 +328,14 @@ def swap_run(
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to add text elements to the list while accommodating line breaks
-def add_to_text_collecting_list(
-        text_having_object, 
-        text_collecting_list,
-        translation_dict_with_paragraphs,
-        current_swap_count
-    ):
+# Function to break text elements at line breaks
+# Runs must be split on line breaks (line breaks are used as delimiters)
+# e.g. bullet lists where one bullet point spans multiple lines
+def split_consolidated_run_at_line_breaks(text_having_object):
+    
+    temp_list = text_having_object.text.splitlines(keepends = False)
 
-    temp_list = text_having_object.text.splitlines(keepends = False) # splits text elements at line breaks
-    run_style = text_having_object.style
-    for element in temp_list:
-        #text_collecting_list.append(element)
-
-        text_collecting_list.append([element,run_style])
-        #translation_dict_with_paragraphs.append(element)
-        current_swap_count +=1
-
-    return text_collecting_list, current_swap_count
+    return temp_list
 
 #__________________________________________________________________________
 ###########################################################################
