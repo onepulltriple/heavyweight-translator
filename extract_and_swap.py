@@ -5,6 +5,8 @@ from docx import Document
 from itertools import pairwise, zip_longest, tee
 from conditions_checks import *
 
+#__________________________________________________________________________
+###########################################################################
 # Function to extract text elements from a docx file
 def extract_or_swap_text_in_docx(
         input_file, 
@@ -31,7 +33,6 @@ def extract_or_swap_text_in_docx(
     for paragraph in doc.paragraphs:
         if paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace():
             if step == constants.EXTRACT:
-                pass#text_elements = add_to_text_element_list(paragraph, text_elements)
                 # use full paragraph text as a key
                 if paragraph.text not in translation_dict_with_paragraphs:
                     translation_dict_with_paragraphs[paragraph.text] = {
@@ -40,6 +41,27 @@ def extract_or_swap_text_in_docx(
                     }
             if step == constants.SWAP:
                 pass#total_swap_count, total_no_swap_count = consolidate_then_extract_or_swap_text_runs(step, paragraph, text_elements, translation_dict, total_swap_count, total_no_swap_count)
+
+    # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
+    # This should help later to preserve all special formatting
+
+    # We need: the plain text and style of all consolidated runs from this paragraph
+    # [[consolidated_run_plain_text_000001,style_000001],[etc.]]
+        (
+            text_elements, 
+            paragraph, 
+            total_swap_count, 
+            total_no_swap_count
+        ) = consolidate_then_extract_or_swap_text_runs(
+                step, 
+                paragraph, 
+                text_elements, # replacement element after old element
+                translation_dict_with_paragraphs[paragraph.text], 
+                translation_dict, 
+                total_swap_count, 
+                total_no_swap_count
+            )
+        
 
     # for table in doc.tables:
     #     for row in table.rows:
@@ -51,59 +73,41 @@ def extract_or_swap_text_in_docx(
     #                     if step == constants.SWAP:
     #                         pass#total_swap_count, total_no_swap_count = consolidate_then_extract_or_swap_text_runs(step, paragraph, text_elements, translation_dict, total_swap_count, total_no_swap_count)
 
-
-    # Iterate again over paragraphs in the document to extract or swap text on a per-run basis
-    # This should help later to preserve all special formatting
-    for paragraph in doc.paragraphs:
-        (
-            text_elements, 
-            paragraph, 
-            total_swap_count, 
-            total_no_swap_count
-        ) = consolidate_then_extract_or_swap_text_runs(
-                step, 
-                paragraph, 
-                text_elements, 
-                translation_dict, 
-                total_swap_count, 
-                total_no_swap_count
-            )
-
-    # Iterate over tables in the document and extract text
-    for table in doc.tables:
-        for row in table.rows:
-            for cell in row.cells:
-                for paragraph in cell.paragraphs:
-                    (
-                        text_elements, 
-                        paragraph, 
-                        total_swap_count, 
-                        total_no_swap_count
-                    ) = consolidate_then_extract_or_swap_text_runs(
-                            step, 
-                            paragraph, 
-                            text_elements, 
-                            translation_dict, 
-                            total_swap_count, 
-                            total_no_swap_count
-                        )
-                for table in cell.tables:
-                    for row in table.rows:
-                        for cell in row.cells:
-                            for paragraph in cell.paragraphs:
-                                (
-                                    text_elements, 
-                                    paragraph, 
-                                    total_swap_count, 
-                                    total_no_swap_count
-                                ) = consolidate_then_extract_or_swap_text_runs(
-                                        step, 
-                                        paragraph, 
-                                        text_elements, 
-                                        translation_dict, 
-                                        total_swap_count, 
-                                        total_no_swap_count
-                                    )
+    # # Iterate over tables in the document and extract text
+    # for table in doc.tables:
+    #     for row in table.rows:
+    #         for cell in row.cells:
+    #             for paragraph in cell.paragraphs:
+    #                 (
+    #                     text_elements, 
+    #                     paragraph, 
+    #                     total_swap_count, 
+    #                     total_no_swap_count
+    #                 ) = consolidate_then_extract_or_swap_text_runs(
+    #                         step, 
+    #                         paragraph, 
+    #                         text_elements, 
+    #                         translation_dict, 
+    #                         total_swap_count, 
+    #                         total_no_swap_count
+    #                     )
+    #             for table in cell.tables:
+    #                 for row in table.rows:
+    #                     for cell in row.cells:
+    #                         for paragraph in cell.paragraphs:
+    #                             (
+    #                                 text_elements, 
+    #                                 paragraph, 
+    #                                 total_swap_count, 
+    #                                 total_no_swap_count
+    #                             ) = consolidate_then_extract_or_swap_text_runs(
+    #                                     step, 
+    #                                     paragraph, 
+    #                                     text_elements, 
+    #                                     translation_dict, 
+    #                                     total_swap_count, 
+    #                                     total_no_swap_count
+    #                                 )
 
 
     if step == constants.EXTRACT:
@@ -114,12 +118,15 @@ def extract_or_swap_text_in_docx(
         doc.save(output_docx)
         print(f"There were {total_swap_count} swaps and {total_no_swap_count} no-swaps.\n")
 
-
+#__________________________________________________________________________
+###########################################################################
 # Function to consolidate and extract text from paragraphs and hyperlinks
+# 
 def consolidate_then_extract_or_swap_text_runs(
         step, 
         paragraph, 
         text_collecting_list, 
+        #translation_dict_with_paragraphs[paragraph.text],
         translation_dict, 
         current_swap_count, 
         current_no_swap_count
@@ -157,16 +164,16 @@ def consolidate_then_extract_or_swap_text_runs(
             # don't consolidate, just get the text from each text-having run
             for current_run in current_hyperlink.runs:
                 if current_run.text:
-                    text_collecting_list, current_run, current_swap_count, current_no_swap_count = collect_or_swap( step, current_run, text_collecting_list, translation_dict, current_swap_count, current_no_swap_count)
+                    text_collecting_list, current_run, current_swap_count, current_no_swap_count = extract_or_swap(step, current_run, text_collecting_list, translation_dict, current_swap_count, current_no_swap_count)
             previous_run = current_run_or_hyperlink
             continue
 
         # Otherwise, if the current object is a run    
         elif isinstance(current_run_or_hyperlink, docx.text.run.Run):
-            # rename object for clarity and to avoid mutating the current_run_or_hyperlink
+            # Rename object for clarity and to avoid mutating the current_run_or_hyperlink
             current_run = current_run_or_hyperlink
 
-            # conditions under which to collect and dump immediately
+            # Conditions under which to collect and dump immediately
             if (the_current_run_has_an_R_character(current_run)
                 or button_like_formatting_starts_and_ends_in_the_current_run(current_run, text_consolidator)
                 or button_like_formatting_starts_and_ends_in_the_next_run(next_run_or_hyperlink, text_consolidator)
@@ -178,7 +185,7 @@ def consolidate_then_extract_or_swap_text_runs(
                 # dump consolidator into this run and reset
                 current_run.text = text_consolidator
                 # collect or swap
-                text_collecting_list, current_run, current_swap_count, current_no_swap_count = collect_or_swap( step, current_run, text_collecting_list, translation_dict, current_swap_count, current_no_swap_count)
+                text_collecting_list, current_run, current_swap_count, current_no_swap_count = extract_or_swap(step, current_run, text_collecting_list, translation_dict, current_swap_count, current_no_swap_count)
                 # clear the text consolidator and move on
                 text_consolidator = ""
                 previous_run = current_run_or_hyperlink
@@ -237,7 +244,7 @@ def consolidate_then_extract_or_swap_text_runs(
                 # dump and reset
                 current_run.text = text_consolidator
                 # collect or swap
-                text_collecting_list, current_run, current_swap_count, current_no_swap_count = collect_or_swap( step, current_run, text_collecting_list, translation_dict, current_swap_count, current_no_swap_count)
+                text_collecting_list, current_run, current_swap_count, current_no_swap_count = extract_or_swap(step, current_run, text_collecting_list, translation_dict, current_swap_count, current_no_swap_count)
                 # clear the text collector and move on
                 text_consolidator = ""                
                 previous_run = current_run_or_hyperlink
@@ -247,23 +254,28 @@ def consolidate_then_extract_or_swap_text_runs(
 
     return text_collecting_list, paragraph, current_swap_count, current_no_swap_count
 
-
-def collect_or_swap(
+#__________________________________________________________________________
+###########################################################################
+# description
+def extract_or_swap(
         step, 
-        current_run,
+        consolidated_run,
         text_collecting_list,
+        #translation_dict_with_paragraphs,
         translation_dict,
         current_swap_count,
         current_no_swap_count
     ):
 
     if step == constants.EXTRACT:
-        text_collecting_list, current_swap_count = add_to_text_element_list(current_run, text_collecting_list, current_swap_count)
+        text_collecting_list, current_swap_count = add_to_text_collecting_list(consolidated_run, text_collecting_list, current_swap_count)
     if step == constants.SWAP:
-        current_run, current_swap_count, current_no_swap_count = swap_run(current_run, translation_dict, current_swap_count, current_no_swap_count)
+        consolidated_run, current_swap_count, current_no_swap_count = swap_run(consolidated_run, translation_dict, current_swap_count, current_no_swap_count)
 
-    return text_collecting_list, current_run, current_swap_count, current_no_swap_count
+    return text_collecting_list, consolidated_run, current_swap_count, current_no_swap_count
 
+#__________________________________________________________________________
+###########################################################################
 # Function to swap in translated text on a per-run basis
 def swap_run(
         current_run, 
@@ -272,6 +284,7 @@ def swap_run(
         current_no_swap_count
     ):
     
+    # if there are line breaks in the current run
     if "\n" in current_run.text:
         original_substrings = []
         translated_substrings = []
@@ -296,6 +309,7 @@ def swap_run(
             # the above line would print the list in brackets
             current_no_swap_count +=1
 
+    # the current run has no line breaks
     else:
         temp_original = current_run.text
         result = translation_dict.get(current_run.text)
@@ -308,22 +322,29 @@ def swap_run(
 
     return current_run, current_swap_count, current_no_swap_count
 
-
+#__________________________________________________________________________
+###########################################################################
 # Function to add text elements to the list while accommodating line breaks
-def add_to_text_element_list(
+def add_to_text_collecting_list(
         text_having_object, 
         text_collecting_list,
+        translation_dict_with_paragraphs,
         current_swap_count
     ):
 
     temp_list = text_having_object.text.splitlines(keepends = False) # splits text elements at line breaks
+    run_style = text_having_object.style
     for element in temp_list:
-        text_collecting_list.append(element)
+        #text_collecting_list.append(element)
+
+        text_collecting_list.append([element,run_style])
+        #translation_dict_with_paragraphs.append(element)
         current_swap_count +=1
 
     return text_collecting_list, current_swap_count
 
-
+#__________________________________________________________________________
+###########################################################################
 # Function to extend pairwise to include a "wrap-around" effect 
 # This is done to be able to recognize and access the last run in a paragraph
 def pairwise_circular(iterable):
