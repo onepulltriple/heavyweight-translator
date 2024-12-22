@@ -23,14 +23,14 @@ if 'SET MODE OF EXECUTION':
 if step == constants.EXTRACT:
     # Extract the text elements from the source docx file
     print(f"Beginning {step} operations...")
-    original_txt_data = extract_or_swap_text_in_docx(FP.source_document_path, step)
+    extract_or_swap_text_in_docx(FP.source_document_path, step)
 
     # Deduplicate the extracted text elements and store them in a list
-    list_of_deduplicated_source_text_elements = list(OrderedDict.fromkeys(original_txt_data))
+    #list_of_deduplicated_source_text_elements = list(OrderedDict.fromkeys(original_txt_data))
 
     # Dump deduplicated list into a text file so it can be translated
-    save_to_text_file(FP.source_language_deduplicated_file_path, 
-                      list_of_deduplicated_source_text_elements)
+    # save_to_text_file(FP.source_language_deduplicated_file_path, 
+    #                   list_of_deduplicated_source_text_elements)
 
     # Print confirmation message to the console
     print(f"The text file containing the untranslated source text has been written to: \n{FP.source_language_deduplicated_file_path}\n")

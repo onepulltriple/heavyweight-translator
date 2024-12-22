@@ -19,9 +19,6 @@ def extract_or_swap_text_in_docx(
 
     # Read the unmodified input .docx document into memory
     doc = Document(input_file)
-
-    # create an empty list to host the found text elements
-    text_elements = []
     
     # Initialize operation counters
     total_op_count = 0 
@@ -43,11 +40,11 @@ def extract_or_swap_text_in_docx(
                         "consolidated_runs": {}
                     }
 
-            # # Indicate progress
-            # total_op_count += 1
-            # if (total_op_count > newest_print_progress_threshold):
-            #     print(f"{newest_print_progress_threshold} {step} operations...")
-            #     newest_print_progress_threshold += 1000
+            # Indicate progress
+            total_op_count += 1
+            if (total_op_count > newest_print_progress_threshold):
+                print(f"{newest_print_progress_threshold} {step} operations...")
+                newest_print_progress_threshold += 1000
 
             if step == constants.SWAP:
                 pass#total_swap_count, total_no_swap_count = consolidate_then_extract_or_swap_text_runs(step, paragraph, text_elements, translation_dict, total_swap_count, total_no_swap_count)
@@ -57,25 +54,20 @@ def extract_or_swap_text_in_docx(
     # This should help later to preserve all special formatting
     # Next we need: the plain text and style of all consolidated runs from this paragraph
     # [[consolidated_run_plain_text_000001,style_000001],[etc.]]
-        current_size_of_text_elements_list = len(text_elements)
+        current_size_of_translation_dict = len(translation_dict)
         (
-            text_elements, 
             paragraph, 
-            current_no_op_count
+            current_no_swap_count
         ) = consolidate_then_extract_or_swap_text_runs(
                 step, 
                 paragraph, 
-                text_elements, 
                 translation_dict
             )
-        total_no_swap_count += current_no_op_count
+        total_no_swap_count += current_no_swap_count
         
-        #indicate that something was done while extracting consolitdated runs
         # Indicate progress
-        if len(text_elements) > current_size_of_text_elements_list:
-            # somethign happened
-             # Indicate progress
-            total_op_count += len(text_elements) - current_size_of_text_elements_list
+        if len(translation_dict) > current_size_of_translation_dict:
+            total_op_count += len(translation_dict) - current_size_of_translation_dict
             if (total_op_count > newest_print_progress_threshold):
                 print(f"{newest_print_progress_threshold} {step} operations...")
                 newest_print_progress_threshold += 1000
@@ -94,11 +86,12 @@ def extract_or_swap_text_in_docx(
                                     "consolidated_runs": {}
                                 }
 
-                        # # Indicate progress
-                        # total_op_count += 1
-                        # if (total_op_count > newest_print_progress_threshold):
-                        #     print(f"{newest_print_progress_threshold} {step} operations...")
-                        #     newest_print_progress_threshold += 1000
+                        # Indicate progress
+                        if len(translation_dict) > current_size_of_translation_dict:
+                            total_op_count += len(translation_dict) - current_size_of_translation_dict
+                            if (total_op_count > newest_print_progress_threshold):
+                                print(f"{newest_print_progress_threshold} {step} operations...")
+                                newest_print_progress_threshold += 1000
 
                         if step == constants.SWAP:
                             pass#total_swap_count, total_no_swap_count = consolidate_then_extract_or_swap_text_runs(step, paragraph, text_elements, translation_dict, total_swap_count, total_no_swap_count)
@@ -108,39 +101,48 @@ def extract_or_swap_text_in_docx(
         for row in table.rows:
             for cell in row.cells:
                 for paragraph in cell.paragraphs:
+                    current_size_of_translation_dict = len(translation_dict)
                     (
-                        text_elements, 
                         paragraph, 
-                        current_no_op_count
+                        current_no_swap_count
                     ) = consolidate_then_extract_or_swap_text_runs(
                             step, 
                             paragraph, 
-                            text_elements, 
                             translation_dict
                         )
-                    total_no_swap_count += current_no_op_count
+                    total_no_swap_count += current_no_swap_count
+                    # Indicate progress
+                    if len(translation_dict) > current_size_of_translation_dict:
+                        total_op_count += len(translation_dict) - current_size_of_translation_dict
+                        if (total_op_count > newest_print_progress_threshold):
+                            print(f"{newest_print_progress_threshold} {step} operations...")
+                            newest_print_progress_threshold += 1000
 
                 for table in cell.tables:
                     for row in table.rows:
                         for cell in row.cells:
                             for paragraph in cell.paragraphs:
+                                current_size_of_translation_dict = len(translation_dict)
                                 (
-                                    text_elements, 
                                     paragraph, 
-                                    current_no_op_count
+                                    current_no_swap_count
                                 ) = consolidate_then_extract_or_swap_text_runs(
                                         step, 
                                         paragraph, 
-                                        text_elements, 
                                         translation_dict
                                     )
-                                total_no_swap_count += current_no_op_count
+                                total_no_swap_count += current_no_swap_count
+                                # Indicate progress
+                                if len(translation_dict) > current_size_of_translation_dict:
+                                    total_op_count += len(translation_dict) - current_size_of_translation_dict
+                                    if (total_op_count > newest_print_progress_threshold):
+                                        print(f"{newest_print_progress_threshold} {step} operations...")
+                                        newest_print_progress_threshold += 1000
 
 
     print(f"There were {total_op_count} {step} operations.\n")
     if step == constants.EXTRACT:
         print_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
-        return text_elements
 
     if step == constants.SWAP:
         # Save the modified document to the output file
@@ -150,13 +152,7 @@ def extract_or_swap_text_in_docx(
 #__________________________________________________________________________
 ###########################################################################
 # Function to consolidate and extract text from paragraphs and hyperlinks
-# 
-def consolidate_then_extract_or_swap_text_runs(
-        step, 
-        paragraph, 
-        text_collecting_list, 
-        translation_dict
-    ):
+def consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict):
 
     # Initialize operation counters
     current_no_swap_count = 0
@@ -186,7 +182,6 @@ def consolidate_then_extract_or_swap_text_runs(
                     # collect or swap
                     if step == constants.EXTRACT:
                         consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
-                        #text_collecting_list.extend(consolidated_run_split_at_line_breaks)
                         
                     # Add each consolidated run to the paragraph's sub-dictionary
                     for run_segment in consolidated_run_split_at_line_breaks:
@@ -229,7 +224,6 @@ def consolidate_then_extract_or_swap_text_runs(
                 # collect or swap
                 if step == constants.EXTRACT:
                     consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
-                    #text_collecting_list.extend(consolidated_run_split_at_line_breaks)
                     
                     # Add each consolidated run to the paragraph's sub-dictionary
                     for run_segment in consolidated_run_split_at_line_breaks:
@@ -310,7 +304,6 @@ def consolidate_then_extract_or_swap_text_runs(
                 # collect or swap
                 if step == constants.EXTRACT:
                     consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
-                    #text_collecting_list.extend(consolidated_run_split_at_line_breaks)
                     
                     # Add each consolidated run to the paragraph's sub-dictionary
                     for run_segment in consolidated_run_split_at_line_breaks:
@@ -338,7 +331,7 @@ def consolidate_then_extract_or_swap_text_runs(
 
             print(f"The text-having run \"{current_run_or_hyperlink.text}\" was not handled.\n")
 
-    return text_collecting_list, paragraph, current_no_swap_count
+    return paragraph, current_no_swap_count
 
 
 #__________________________________________________________________________
