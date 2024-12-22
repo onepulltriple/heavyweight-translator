@@ -18,4 +18,4 @@ source_language_deduplicated_file_path = document_components_path + "/" + "01__e
 target_language_translations_file_path = document_components_path + "/" + "02__translated_text_elements_" + IP.target_lang_cult + ".txt"
 poor_deepl_translations_file_path      = document_components_path + "/" + "03__poor_deepl_translations_" + IP.target_lang_cult + ".txt"
 corrected_deepl_translations_file_path = document_components_path + "/" + "04__corrected_deepl_translations_" + IP.target_lang_cult + ".txt"
-
+TEMP_translation_dict_file_path        = document_components_path + "/" + "05__TEMP_translation_dict_" + IP.target_lang_cult + ".json"
