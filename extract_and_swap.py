@@ -37,6 +37,7 @@ def extract_or_swap_text_in_docx(
                     # Use full paragraph text as a key
                     translation_dict[paragraph.text] = {
                         "full_paragraph_translated_text": None,
+                        "full_paragraph_style": paragraph.style.name,
                         "consolidated_runs": {}
                     }
 
@@ -55,14 +56,7 @@ def extract_or_swap_text_in_docx(
     # Next we need: the plain text and style of all consolidated runs from this paragraph
     # [[consolidated_run_plain_text_000001,style_000001],[etc.]]
         current_size_of_translation_dict = len(translation_dict)
-        (
-            paragraph, 
-            current_no_swap_count
-        ) = consolidate_then_extract_or_swap_text_runs(
-                step, 
-                paragraph, 
-                translation_dict
-            )
+        (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict)
         total_no_swap_count += current_no_swap_count
         
         # Indicate progress
@@ -83,6 +77,7 @@ def extract_or_swap_text_in_docx(
                                 # Use full paragraph text as a key
                                 translation_dict[paragraph.text] = {
                                     "full_paragraph_translated_text": None,
+                                    "full_paragraph_style": paragraph.style.name,
                                     "consolidated_runs": {}
                                 }
 
@@ -102,15 +97,9 @@ def extract_or_swap_text_in_docx(
             for cell in row.cells:
                 for paragraph in cell.paragraphs:
                     current_size_of_translation_dict = len(translation_dict)
-                    (
-                        paragraph, 
-                        current_no_swap_count
-                    ) = consolidate_then_extract_or_swap_text_runs(
-                            step, 
-                            paragraph, 
-                            translation_dict
-                        )
+                    (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict)
                     total_no_swap_count += current_no_swap_count
+
                     # Indicate progress
                     if len(translation_dict) > current_size_of_translation_dict:
                         total_op_count += len(translation_dict) - current_size_of_translation_dict
@@ -123,15 +112,9 @@ def extract_or_swap_text_in_docx(
                         for cell in row.cells:
                             for paragraph in cell.paragraphs:
                                 current_size_of_translation_dict = len(translation_dict)
-                                (
-                                    paragraph, 
-                                    current_no_swap_count
-                                ) = consolidate_then_extract_or_swap_text_runs(
-                                        step, 
-                                        paragraph, 
-                                        translation_dict
-                                    )
+                                (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict)
                                 total_no_swap_count += current_no_swap_count
+
                                 # Indicate progress
                                 if len(translation_dict) > current_size_of_translation_dict:
                                     total_op_count += len(translation_dict) - current_size_of_translation_dict
@@ -183,15 +166,15 @@ def consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict
                     if step == constants.EXTRACT:
                         consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
                         
-                    # Add each consolidated run to the paragraph's sub-dictionary
-                    for run_segment in consolidated_run_split_at_line_breaks:
-                        if run_segment is not None and run_segment != "" and not run_segment.isspace():
-                            if run_segment not in translation_dict[paragraph.text]['consolidated_runs']:
-                                translation_dict[paragraph.text]['consolidated_runs'][run_segment] = {
-                                    'cons_run_translated_text': None,
-                                    'cons_run_style': None,
-                                    'cons_run_is_to_translate': True
-                                }
+                        # Add each consolidated run to the paragraph's sub-dictionary
+                        for run_segment in consolidated_run_split_at_line_breaks:
+                            if run_segment is not None and run_segment != "" and not run_segment.isspace():
+                                if run_segment not in translation_dict[paragraph.text]['consolidated_runs']:
+                                    translation_dict[paragraph.text]['consolidated_runs'][run_segment] = {
+                                        'cons_run_translated_text': None,
+                                        'cons_run_style': current_run.style.name,
+                                        'cons_run_is_to_translate': True
+                                    }
 
                     if step == constants.SWAP:
                         # Attempt to find translations in the dictionary
@@ -231,7 +214,7 @@ def consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict
                             if run_segment not in translation_dict[paragraph.text]['consolidated_runs']:
                                 translation_dict[paragraph.text]['consolidated_runs'][run_segment] = {
                                     'cons_run_translated_text': None,
-                                    'cons_run_style': None,
+                                    'cons_run_style': current_run.style.name,
                                     'cons_run_is_to_translate': True
                                 }
 
@@ -311,7 +294,7 @@ def consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict
                             if run_segment not in translation_dict[paragraph.text]['consolidated_runs']:
                                 translation_dict[paragraph.text]['consolidated_runs'][run_segment] = {
                                     'cons_run_translated_text': None,
-                                    'cons_run_style': None,
+                                    'cons_run_style': current_run.style.name,
                                     'cons_run_is_to_translate': True
                                 }
 
