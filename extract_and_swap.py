@@ -6,16 +6,12 @@ from docx import Document
 from itertools import pairwise, zip_longest, tee
 from conditions_checks import *
 from dict_operations import *
+from csv_write_operations import *
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract text elements from a docx file
-def extract_or_swap_text_in_docx(
-        input_file, 
-        step, 
-        translation_dict = None, 
-        output_docx = None
-    ):
+def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
 
     # Read the unmodified input .docx document into memory
     doc = Document(input_file)
@@ -126,6 +122,7 @@ def extract_or_swap_text_in_docx(
     print(f"There were {total_op_count} {step} operations.\n")
     if step == constants.EXTRACT:
         print_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
+        write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
 
     if step == constants.SWAP:
         # Save the modified document to the output file

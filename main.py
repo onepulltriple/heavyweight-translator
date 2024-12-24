@@ -33,7 +33,7 @@ if step == constants.EXTRACT:
     #                   list_of_deduplicated_source_text_elements)
 
     # Print confirmation message to the console
-    print(f"The text file containing the untranslated source text has been written to: \n{FP.source_language_deduplicated_file_path}\n")
+    print(f"The text file containing the untranslated source text has been written to: \n{FP.source_language_plain_texts_file_path}\n")
 
     # Create the remaining empty text files
     save_to_text_file(FP.target_language_translations_file_path, [])

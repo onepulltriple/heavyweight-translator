@@ -3,9 +3,13 @@ import csv
 import pprint
 import json
 
-#_____________________________________________________________________________________________________________________________#
+
+
+#__________________________________________________________________________
+###########################################################################
 # Function to read in the first two entries of each row of a csv file and store them as key-value pairs in a dictionary
 def read_csv_to_dict(file_path):
+
     data_dict  = {}
 
     with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
@@ -23,9 +27,11 @@ def read_csv_to_dict(file_path):
     return data_dict     
 
 
-#_____________________________________________________________________________________________________________________________#
+#__________________________________________________________________________
+###########################################################################
 # Function to read in the entries of each row of a csv file and store them in a dictionary
 def read_csv_and_save_to_translation_dict(file_path, target_lang_cult, translation_dict_file_path):
+
     translation_dict = {
         target_lang_cult : {}
     }
@@ -58,25 +64,17 @@ def read_csv_and_save_to_translation_dict(file_path, target_lang_cult, translati
     return translation_dict    
 
 
-#_____________________________________________________________________________________________________________________________#
+#__________________________________________________________________________
+###########################################################################
 # Function to pretty-print a dictionary to a json file
-# args = what, where
+# what to write, where to write it
 def print_dict_to_json(dict, file_path):
     with open(file_path, "w", encoding='utf-8-sig') as json_file:
         json.dump(dict, json_file, ensure_ascii=False, indent=4)
 
 
-#_____________________________________________________________________________________________________________________________#
-# Function to assemble the legacy dictionary by zipping together the previous English translations with its translated counterpart
-def legacy_translations_to_dict(txt_data_01, txt_data_02, legacy_dict_file_path):
-    legacy_dict = zip_to_lists_to_dict(txt_data_01, txt_data_02)
-           
-    print_dict_to_json(legacy_dict, legacy_dict_file_path)
-                   
-    return legacy_dict
-
-
-#_____________________________________________________________________________________________________________________________#
+#__________________________________________________________________________
+###########################################################################
 # Function to read in a maintained dictionary
 def read_json_dictionary(json_dictionary_file_path):
     try:
@@ -93,24 +91,3 @@ def read_json_dictionary(json_dictionary_file_path):
     except json.JSONDecodeError:
         print(f"Error decoding JSON file '{json_dictionary_file_path}'.\n")
         return None
-    
-#_____________________________________________________________________________________________________________________________#
-# Function to assemble a dictionary by zipping together two lists
-def zip_to_lists_to_dict(txt_data_01, txt_data_02):
-    new_dict = {}
-
-    # Check if the number of rows in each file is the same
-    if len(txt_data_01) != len(txt_data_02):
-        print("Error: The counts of rows in the input files are not equal.\n")
-        return None
-    else:
-        # Iterate over both files simultaneously
-        for row_01, row_02 in zip(txt_data_01, txt_data_02, strict=True):
-            if row_01 not in new_dict:
-                key = row_01
-                value = row_02
-
-                # Store each entry in the dictionary
-                new_dict[key] = value
-
-        return new_dict
