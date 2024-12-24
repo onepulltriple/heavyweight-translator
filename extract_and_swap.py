@@ -6,6 +6,7 @@ from docx import Document
 from itertools import pairwise, zip_longest, tee
 from conditions_checks import *
 from dict_operations import *
+from csv_read_operations import *
 from csv_write_operations import *
 
 #__________________________________________________________________________
@@ -123,6 +124,7 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
     if step == constants.EXTRACT:
         print_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
         write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
+        read_translation_dict_from_csv(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, translation_dict)
 
     if step == constants.SWAP:
         # Save the modified document to the output file

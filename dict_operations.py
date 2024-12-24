@@ -91,3 +91,26 @@ def read_json_dictionary(json_dictionary_file_path):
     except json.JSONDecodeError:
         print(f"Error decoding JSON file '{json_dictionary_file_path}'.\n")
         return None
+
+
+#__________________________________________________________________________
+###########################################################################
+# Function to assemble a dictionary by zipping together two lists
+def zip_to_lists_to_dict(csv_data_01, csv_data_02):
+    new_dict = {}
+
+    # Check if the number of rows in each file is the same
+    if len(csv_data_01) != len(csv_data_02):
+        print("Error: The counts of rows in the input files are not equal.\n")
+        return None
+    else:
+        # Iterate over both files simultaneously
+        for row_01, row_02 in zip(csv_data_01, csv_data_02, strict=True):
+            if row_01 not in new_dict:
+                key = row_01
+                value = row_02
+
+                # Store each entry in the dictionary
+                new_dict[key] = value
+
+        return new_dict
