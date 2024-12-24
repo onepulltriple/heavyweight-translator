@@ -36,8 +36,8 @@ if step == constants.EXTRACT:
     print(f"The text file containing the untranslated source text has been written to: \n{FP.source_language_plain_texts_file_path}\n")
 
     # Create the remaining empty text files
-    save_to_text_file(FP.target_language_translations_file_path, [])
-    if not os.path.exists(FP.poor_deepl_translations_file_path):
-        save_to_text_file(FP.poor_deepl_translations_file_path, [])
-    if not os.path.exists(FP.corrected_deepl_translations_file_path):
-        save_to_text_file(FP.corrected_deepl_translations_file_path, [])
+    #save_to_text_file(FP.target_language_translations_file_path, [])
+    # if not os.path.exists(FP.poor_deepl_translations_file_path):
+    #     save_to_text_file(FP.poor_deepl_translations_file_path, [])
+    # if not os.path.exists(FP.corrected_deepl_translations_file_path):
+    #     save_to_text_file(FP.corrected_deepl_translations_file_path, [])

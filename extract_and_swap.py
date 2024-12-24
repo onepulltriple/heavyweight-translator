@@ -32,9 +32,11 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
             if step == constants.EXTRACT:
                 if paragraph.text not in translation_dict:
                     # Use full paragraph text as a key
-                    translation_dict[paragraph.text] = {
+                    full_paragraph_plain_text_keeping_line_breaks = replace_line_breaks_with_temp_symbol(paragraph)
+                    translation_dict[full_paragraph_plain_text_keeping_line_breaks] = {
                         "full_paragraph_translated_text": None,
                         "full_paragraph_style": paragraph.style.name,
+                        "full_paragraph_is_to_translate": True,
                         "consolidated_runs": {}
                     }
 
@@ -72,9 +74,11 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
                         if step == constants.EXTRACT:
                             if paragraph.text not in translation_dict:
                                 # Use full paragraph text as a key
-                                translation_dict[paragraph.text] = {
+                                full_paragraph_plain_text_keeping_line_breaks = replace_line_breaks_with_temp_symbol(paragraph)
+                                translation_dict[full_paragraph_plain_text_keeping_line_breaks] = {
                                     "full_paragraph_translated_text": None,
                                     "full_paragraph_style": paragraph.style.name,
+                                    "full_paragraph_is_to_translate": True,
                                     "consolidated_runs": {}
                                 }
 
@@ -124,7 +128,7 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
     if step == constants.EXTRACT:
         print_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
         write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
-        read_translation_dict_from_csv(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, translation_dict)
+        insert_translations_into_translation_dict(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, FP.TEMP_translation_dict_file_path)
 
     if step == constants.SWAP:
         # Save the modified document to the output file
@@ -168,8 +172,9 @@ def consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict
                         # Add each consolidated run to the paragraph's sub-dictionary
                         for run_segment in consolidated_run_split_at_line_breaks:
                             if run_segment is not None and run_segment != "" and not run_segment.isspace():
-                                if run_segment not in translation_dict[paragraph.text]['consolidated_runs']:
-                                    translation_dict[paragraph.text]['consolidated_runs'][run_segment] = {
+                                full_paragraph_plain_text_keeping_line_breaks = replace_line_breaks_with_temp_symbol(paragraph)
+                                if run_segment not in translation_dict[full_paragraph_plain_text_keeping_line_breaks]['consolidated_runs']:
+                                    translation_dict[full_paragraph_plain_text_keeping_line_breaks]['consolidated_runs'][run_segment] = {
                                         'cons_run_translated_text': None,
                                         'cons_run_style': current_run.style.name,
                                         'cons_run_is_to_translate': True
@@ -210,8 +215,9 @@ def consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict
                     # Add each consolidated run to the paragraph's sub-dictionary
                     for run_segment in consolidated_run_split_at_line_breaks:
                         if run_segment is not None and run_segment != "" and not run_segment.isspace():
-                            if run_segment not in translation_dict[paragraph.text]['consolidated_runs']:
-                                translation_dict[paragraph.text]['consolidated_runs'][run_segment] = {
+                            full_paragraph_plain_text_keeping_line_breaks = replace_line_breaks_with_temp_symbol(paragraph)
+                            if run_segment not in translation_dict[full_paragraph_plain_text_keeping_line_breaks]['consolidated_runs']:
+                                translation_dict[full_paragraph_plain_text_keeping_line_breaks]['consolidated_runs'][run_segment] = {
                                     'cons_run_translated_text': None,
                                     'cons_run_style': current_run.style.name,
                                     'cons_run_is_to_translate': True
@@ -290,8 +296,9 @@ def consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict
                     # Add each consolidated run to the paragraph's sub-dictionary
                     for run_segment in consolidated_run_split_at_line_breaks:
                         if run_segment is not None and run_segment != "" and not run_segment.isspace():
-                            if run_segment not in translation_dict[paragraph.text]['consolidated_runs']:
-                                translation_dict[paragraph.text]['consolidated_runs'][run_segment] = {
+                            full_paragraph_plain_text_keeping_line_breaks = replace_line_breaks_with_temp_symbol(paragraph)
+                            if run_segment not in translation_dict[full_paragraph_plain_text_keeping_line_breaks]['consolidated_runs']:
+                                translation_dict[full_paragraph_plain_text_keeping_line_breaks]['consolidated_runs'][run_segment] = {
                                     'cons_run_translated_text': None,
                                     'cons_run_style': current_run.style.name,
                                     'cons_run_is_to_translate': True
@@ -365,3 +372,22 @@ def pairwise_circular(iterable):
     first_value = next(b, None) # DO NOT REMOVE THIS LINE!!
     #return zip_longest(a, b, fillvalue = first_value)
     return zip_longest(a, b, fillvalue = None)
+
+#__________________________________________________________________________
+###########################################################################
+# Function to retain line breaks, which deepl seem to otherwise mess up
+def replace_line_breaks_with_temp_symbol(full_paragraph):
+    return full_paragraph.text.replace('\n','<*>')
+
+# def cahse(translation_dict, paragraph, current_run):
+
+#     # Add each consolidated run to the paragraph's sub-dictionary
+#     for run_segment in consolidated_run_split_at_line_breaks:
+#         if run_segment is not None and run_segment != "" and not run_segment.isspace():
+#             full_paragraph_plain_text_keeping_line_breaks = replace_line_breaks_with_temp_symbol(paragraph)
+#             if run_segment not in translation_dict[full_paragraph_plain_text_keeping_line_breaks]['consolidated_runs']:
+#                 translation_dict[full_paragraph_plain_text_keeping_line_breaks]['consolidated_runs'][run_segment] = {
+#                     'cons_run_translated_text': None,
+#                     'cons_run_style': current_run.style.name,
+#                     'cons_run_is_to_translate': True
+#                 }

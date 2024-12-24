@@ -4,7 +4,6 @@ import pprint
 import json
 
 
-
 #__________________________________________________________________________
 ###########################################################################
 # Function to read in the first two entries of each row of a csv file and store them as key-value pairs in a dictionary
