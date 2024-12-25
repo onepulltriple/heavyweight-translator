@@ -21,12 +21,11 @@ def write_single_column_csv(list_to_write, file_path):
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to dump the translation dictionary to a csv file
-# what to write, where to write it
+# Function to dump the source plain text from the translation dictionary to a csv file
 def write_translation_dict_to_csv(translation_dict, file_path):
-    if os.path.exists(file_path):
-        print(f"File already exists at '{file_path}'.\nAborting to avoid overwrite...")
-    else:
+    # if os.path.exists(file_path):
+    #     print(f"File already exists at '{file_path}'.\nAborting to avoid overwrite...")
+    # else:
         with open(file_path, 'w', newline='', encoding='utf-8-sig') as csv_file:
             csv_writer = csv.writer(csv_file, delimiter='|') 
 

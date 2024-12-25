@@ -23,6 +23,7 @@ if 'SET MODE OF EXECUTION':
 if step == constants.EXTRACT:
     # Extract the text elements from the source docx file
     print(f"Beginning {step} operations...")
+    #save_to_text_file(FP.target_language_translations_file_path, [])
     extract_or_swap_text_in_docx(FP.source_document_path, step)
 
     # Deduplicate the extracted text elements and store them in a list
@@ -36,7 +37,6 @@ if step == constants.EXTRACT:
     print(f"The text file containing the untranslated source text has been written to: \n{FP.source_language_plain_texts_file_path}\n")
 
     # Create the remaining empty text files
-    #save_to_text_file(FP.target_language_translations_file_path, [])
     # if not os.path.exists(FP.poor_deepl_translations_file_path):
     #     save_to_text_file(FP.poor_deepl_translations_file_path, [])
     # if not os.path.exists(FP.corrected_deepl_translations_file_path):

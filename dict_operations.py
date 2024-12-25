@@ -2,6 +2,7 @@
 import csv
 import pprint
 import json
+from csv_read_operations import *
 
 
 #__________________________________________________________________________
@@ -28,45 +29,45 @@ def read_csv_to_dict(file_path):
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to read in the entries of each row of a csv file and store them in a dictionary
-def read_csv_and_save_to_translation_dict(file_path, target_lang_cult, translation_dict_file_path):
+# Function to add the acquired target translations to the translation dictionary
+def insert_translations_into_translation_dict(source_file_path, target_file_path, translation_dict_file_path):
+    # Read in translation dictionary from file
+    translation_dict = read_json_dictionary(translation_dict_file_path)
+    # Create a temporary two-dimensional array to map from source plain text to target translated text
+    temp_mapping = [[],[]]
+    # Store source plain texts
+    temp_mapping[0] = read_csv_no_changes(source_file_path)
+    # Store target translated texts
+    temp_mapping[1] = read_csv_with_replacements(target_file_path)
 
-    translation_dict = {
-        target_lang_cult : {}
-    }
+    # Check if the number of rows in each file is the same
+    if len(temp_mapping[0]) != len(temp_mapping[1]):
+        print("Error: The counts of rows in the input files are not equal.\n")
+        return None
+    
+    # Insert translations into translation dictionary
+    parent_key = ""
+    # Loop through the temp mapping from top to bottom
+    for i in range(len(temp_mapping[0])):
+        current_key = temp_mapping[0][i]
+        current_value = temp_mapping[1][i]
+        # After finding a full paragraph to be translated
+        if (current_key in translation_dict # this key is in the "outer" dictionary
+            and current_key not in parent_key # and this key is not part of the parent key
+            ): 
+            # This is a full paragraph translation
+            translation_dict[current_key]['full_paragraph_translated_text'] = current_value
+            parent_key = current_key
+        elif(temp_mapping[0][i] in translation_dict[parent_key]['consolidated_runs']):
+            # This is a consolidated run translation
+            translation_dict[parent_key]['consolidated_runs'][current_key]['cons_run_translated_text'] = current_value
 
-    with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
-        csv_reader = csv.reader(csv_file, delimiter = ";")
-        
-        for row in csv_reader:
-            term_guid = row[0]
-            term_code = row[1]
-            standard_translated_text = row[2] if row[2] != "NULL" else None
-            custom_translated_text = row[3] if row[3] != "NULL" else None
-            term_insertdatetime = row[4] if row[4] != "NULL" else None
-            term_updatedatetime = row[5] if row[5] != "NULL" else None
-
-            translation_dict[target_lang_cult][term_code] = {
-                   'StandardTranslation' : standard_translated_text,
-                     'CustomTranslation' : custom_translated_text,
-                     'LegacyTranslation' : None,
-                      'DeeplTranslation' : None,
-                              'TermGUID' : term_guid,
-                    'TermInsertDateTime' : term_insertdatetime,
-                    'TermUpdateDateTime' : term_updatedatetime
-            }
-
-    print_dict_to_json(translation_dict, translation_dict_file_path)
-
-    #pprint.pprint(translation_dict) # pretty-prints dictionary to console (alphabetised)
-    #print(f"A new dictionary was created at '{translation_dict_file_path}' and will be used.\n")    
-    return translation_dict    
+    return translation_dict
 
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to pretty-print a dictionary to a json file
-# what to write, where to write it
 def print_dict_to_json(dict, file_path):
     with open(file_path, "w", encoding='utf-8-sig') as json_file:
         json.dump(dict, json_file, ensure_ascii=False, indent=4)
