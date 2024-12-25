@@ -4,7 +4,7 @@ import os.path
 
 #__________________________________________________________________________
 ###########################################################################
-# what to write, where to write it
+# Function to write a signle column csv to file
 def write_single_column_csv(list_to_write, file_path):
     if os.path.exists(file_path):
         print(f"File already exists at '{file_path}'.\nAborting to avoid overwrite...")
