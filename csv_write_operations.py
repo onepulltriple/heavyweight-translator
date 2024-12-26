@@ -32,9 +32,22 @@ def write_translation_dict_to_csv(translation_dict, file_path):
             for full_paragraph_plain_text in translation_dict:
                 # Write the full paragraph plain text
                 csv_writer.writerow([full_paragraph_plain_text])
+
+                # Write the full paragraph tagged text
+                csv_writer.writerow([
+                    translation_dict[full_paragraph_plain_text]['full_paragraph_tagged_text']
+                    ])
+                
                 for cons_run_plain_text in translation_dict[full_paragraph_plain_text]['consolidated_runs']:
+                    # Write the consolidated run plain text
                     csv_writer.writerow([cons_run_plain_text])
+                
+                    # Write the consolidated run tagged
+                    csv_writer.writerow([
+                        translation_dict[full_paragraph_plain_text]['consolidated_runs'][cons_run_plain_text]['cons_run_tagged_text']
+                        ])
             
             # Write bogus final line (avoids later attempts to read in None)
+            csv_writer.writerow(['____'])
             csv_writer_no_line_return = csv.writer(csv_file, lineterminator='')
             csv_writer_no_line_return.writerow(['____'])

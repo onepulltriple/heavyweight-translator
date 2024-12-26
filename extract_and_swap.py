@@ -300,14 +300,6 @@ def lookup_translations(consolidated_run, translation_dict):
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to break text elements at line breaks
-# Runs must be split on line breaks (line breaks are used as delimiters)
-# e.g. bullet lists where one bullet point spans multiple lines
-def split_consolidated_run_at_line_breaks(text_having_object):
-    return text_having_object.text.splitlines(keepends = False)
-
-#__________________________________________________________________________
-###########################################################################
 # Function to extend pairwise to include a "wrap-around" effect 
 # This is done to be able to recognize and access the last run in a paragraph
 def pairwise_circular(iterable):
@@ -322,8 +314,8 @@ def pairwise_circular(iterable):
 # Function to retain special symbols at the paragraph level, which deepl seems to otherwise mess up
 def preserve_paragraph_special_items_with_temp_symbols(full_paragraph):
     return (full_paragraph.text
-            .replace('\n','<01>') # to preserve newlines in multiline runs
-            .replace('\xa0','<02>') # to preserve non-breaking spaces
+            .replace('\n','<a>') # to preserve newlines in multiline runs
+            .replace('\xa0','<b>') # to preserve non-breaking spaces
             )
 
 #__________________________________________________________________________
@@ -331,26 +323,26 @@ def preserve_paragraph_special_items_with_temp_symbols(full_paragraph):
 # Function to restore special symbols at the paragraph level
 def unpreserve_paragraph_translation(full_paragraph_translated_text):
     return (full_paragraph_translated_text
-            .replace('<01>','\n') # to restore newlines in multiline runs
-            .replace('<02>','\xa0') # to restore non-breaking spaces
+            .replace('<a>','\n') # to restore newlines in multiline runs
+            .replace('<b>','\xa0') # to restore non-breaking spaces
             )
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to retain special symbols at the run level, which deepl seems to otherwise mess up
-def preserve_run_special_items_with_temp_symbols(run_segment):
-    return (run_segment
-            #.replace('\n','<01>') # to preserve newlines in multiline runs
-            .replace('\xa0','<02>') # to preserve non-breaking spaces
+def preserve_run_special_items_with_temp_symbols(run_text):
+    return (run_text
+            .replace('\n','<a>') # to preserve newlines in multiline runs
+            .replace('\xa0','<b>') # to preserve non-breaking spaces
             )
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to restore special symbols at the run level
-def unpreserve_run_text(run_segment):
-    return (run_segment
-            #.replace('<01>','\n') # to restore newlines in multiline runs
-            .replace('<02>','\xa0') # to restore non-breaking spaces
+def unpreserve_run_text(run_text):
+    return (run_text
+            .replace('<a>','\n') # to restore newlines in multiline runs
+            .replace('<b>','\xa0') # to restore non-breaking spaces
             )
 
 #__________________________________________________________________________
@@ -358,10 +350,12 @@ def unpreserve_run_text(run_segment):
 # Function to extract full paragraphs and add them to the translation dictionary
 def paragraph_level_extractor(translation_dict, paragraph):
     # Use full paragraph text as a key after changing it to "preserved" format
-    full_paragraph_plain_text_keeping_line_breaks = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+    full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
     # Add it to the translation dictionary
-    translation_dict[full_paragraph_plain_text_keeping_line_breaks] = {
+    translation_dict[full_paragraph_plain_text_with_preserves] = {
+        "full_paragraph_tagged_text": "",
         "full_paragraph_translated_text": None,
+        "full_paragraph_translated_tagged_text": None,
         "full_paragraph_style": paragraph.style.name,
         "full_paragraph_is_to_translate": True,
         "consolidated_runs": {}
@@ -373,22 +367,32 @@ def paragraph_level_extractor(translation_dict, paragraph):
 # Function to extract consolidated runs and add them to the translation dictionary
 # Adds the cons. run its paragraph's sub-dictionary
 def run_level_extractor(translation_dict, paragraph, current_run):
-    consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
-    
+    #consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
+
     # Add each consolidated run to the paragraph's sub-dictionary
-    for run_segment in consolidated_run_split_at_line_breaks:
-        if run_segment is not None and run_segment != "" and not run_segment.isspace():
-            # Look up the paragraph in the translation dictionary (it must be in its "preserved" format)
-            full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
-            if run_segment not in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']:
-                # Preserve the consolidated run's special characters
-                run_segment_with_preserves = preserve_run_special_items_with_temp_symbols(run_segment)
-                # Add it to the translation dictionary
-                translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][run_segment_with_preserves] = {
-                    'cons_run_translated_text': None,
-                    'cons_run_style': current_run.style.name,
-                    'cons_run_is_to_translate': True
-                }
+    #for run_segment in consolidated_run_split_at_line_breaks:
+    run_text = current_run.text
+
+    if run_text is not None and run_text != "" and not run_text.isspace():
+        # Look up the paragraph in the translation dictionary (it must be in its "preserved" format)
+        full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+        tag_counter = len(translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'])
+        if run_text not in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']:
+            # Preserve the consolidated run's special characters
+            run_text_with_preserves = preserve_run_special_items_with_temp_symbols(run_text)
+            # Make a copy with tags
+            tagged_run_text_with_preserves = f"<{tag_counter:02}>{run_text_with_preserves}</{tag_counter:02}>"
+            # Add it to the translation dictionary
+            translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][run_text_with_preserves] = {
+                'cons_run_tagged_text': tagged_run_text_with_preserves,
+                'cons_run_translated_text': None,
+                'cons_run_translated_tagged_text': None,
+                'cons_run_style': current_run.style.name,
+                'cons_run_is_to_translate': True
+            }
+            # Also append it to the paragraph's tagged text
+            translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text'] += tagged_run_text_with_preserves
+            
 
 #__________________________________________________________________________
 ###########################################################################
@@ -440,23 +444,3 @@ def run_level_swapper(translation_dict, paragraph, current_run, current_no_swap_
 
     return current_run, current_no_swap_count
 
-
-
-
-
-
-
-
-
-
-
-
-
-    # # Attempt to find translations in the dictionary
-    # result_of_translation_lookup_attempt = lookup_translations(current_run, translation_dict)
-    # # If the lookup succeeded
-    # if (result_of_translation_lookup_attempt is not None):
-    #     # Proceed with swap
-    #     current_run.text = result_of_translation_lookup_attempt
-    # else:
-    #     current_no_swap_count +=1
