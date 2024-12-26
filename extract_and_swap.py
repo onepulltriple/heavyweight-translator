@@ -11,8 +11,14 @@ from csv_write_operations import *
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to extract text elements from a docx file
-def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
+# Function to extract or swap text elements from a docx file
+# PARAGRAPH-LEVEL #########################################################
+    # Iterate over full paragraphs in the document to extract or swap text without splitting up by runs
+    # This should help to get better translations from deepl
+# RUN-LEVEL ###############################################################    
+    # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
+    # This should help later to preserve all special formatting
+def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output_docx = None):
 
     # Read the unmodified input .docx document into memory
     doc = Document(input_file)
@@ -22,16 +28,17 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
     total_no_swap_count = 0
     newest_print_progress_threshold = 1000
 
-    # Create an empty dictionary
-    translation_dict = {}
 
-    # Iterate over full paragraphs in the document to extract or swap text without splitting up by runs
-    # This should help to get better translations from deepl
+    # PARAGRAPHS ##########################################################
+    # PARAGRAPH-LEVEL #####################################################
     for paragraph in doc.paragraphs:
         if paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace():
             if step == constants.EXTRACT:
                 if paragraph.text not in translation_dict:
                     paragraph_level_extractor(translation_dict, paragraph)
+
+            if step == constants.SWAP:
+                paragraph_level_swapper(translation_dict, paragraph)
 
             # Indicate progress
             total_op_count += 1
@@ -39,15 +46,11 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
                 print(f"{newest_print_progress_threshold} {step} operations...")
                 newest_print_progress_threshold += 1000
 
-            if step == constants.SWAP:
-                pass#total_swap_count, total_no_swap_count = consolidate_then_extract_or_swap_text_runs(step, paragraph, text_elements, translation_dict, total_swap_count, total_no_swap_count)
-
+        # RUN-LEVEL #######################################################
+        # Get current size of translation dict as part of measuring progress
+        current_size_of_translation_dict = len(translation_dict)
 
         # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
-        # This should help later to preserve all special formatting
-        # Next we need: the plain text and style of all consolidated runs from this paragraph
-        # [[consolidated_run_plain_text_000001,style_000001],[etc.]]
-        current_size_of_translation_dict = len(translation_dict)
         (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict)
         total_no_swap_count += current_no_swap_count
         
@@ -59,6 +62,8 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
                 newest_print_progress_threshold += 1000
         
 
+    # TABLES ##############################################################
+    # PARAGRAPH-LEVEL #####################################################
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
@@ -68,6 +73,9 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
                             if paragraph.text not in translation_dict:
                                 paragraph_level_extractor(translation_dict, paragraph)
 
+                        if step == constants.SWAP:
+                            paragraph_level_swapper(translation_dict, paragraph)
+
                         # Indicate progress
                         if len(translation_dict) > current_size_of_translation_dict:
                             total_op_count += len(translation_dict) - current_size_of_translation_dict
@@ -75,15 +83,15 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
                                 print(f"{newest_print_progress_threshold} {step} operations...")
                                 newest_print_progress_threshold += 1000
 
-                        if step == constants.SWAP:
-                            pass#total_swap_count, total_no_swap_count = consolidate_then_extract_or_swap_text_runs(step, paragraph, text_elements, translation_dict, total_swap_count, total_no_swap_count)
-
-    # Iterate over tables in the document and extract text
+    # RUN-LEVEL ###########################################################
     for table in doc.tables:
         for row in table.rows:
             for cell in row.cells:
                 for paragraph in cell.paragraphs:
+                    # Get current size of translation dict as part of measuring progress
                     current_size_of_translation_dict = len(translation_dict)
+
+                    # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
                     (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict)
                     total_no_swap_count += current_no_swap_count
 
@@ -94,11 +102,15 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
                             print(f"{newest_print_progress_threshold} {step} operations...")
                             newest_print_progress_threshold += 1000
 
+                # Same process but another layer deeper to catch paragraphs within tables within cells within tables
                 for table in cell.tables:
                     for row in table.rows:
                         for cell in row.cells:
                             for paragraph in cell.paragraphs:
+                                # Get current size of translation dict as part of measuring progress
                                 current_size_of_translation_dict = len(translation_dict)
+
+                                # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
                                 (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict)
                                 total_no_swap_count += current_no_swap_count
 
@@ -110,18 +122,19 @@ def extract_or_swap_text_in_docx(input_file, step, output_docx = None):
                                         newest_print_progress_threshold += 1000
 
 
+    # RESULTS #############################################################
     print(f"There were {total_op_count} {step} operations.\n")
     if step == constants.EXTRACT:
-        print_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
+        write_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
         write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
         # will become part of swap step
-        translation_dict = insert_translations_into_translation_dict(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, FP.TEMP_translation_dict_file_path)
-        print_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
+        # translation_dict = insert_translations_into_translation_dict(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, FP.TEMP_translation_dict_file_path)
+        # write_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
 
     if step == constants.SWAP:
         # Save the modified document to the output file
         doc.save(output_docx)
-        print(f"{total_no_swap_count} {step} failed.\n")
+        print(f"{total_no_swap_count} {step} operations failed.\n")
 
 #__________________________________________________________________________
 ###########################################################################
@@ -348,7 +361,7 @@ def preserve_run_special_items_with_temp_symbols(run_segment):
 ###########################################################################
 # Function to extract full paragraphs and add them to the translation dictionary
 def paragraph_level_extractor(translation_dict, paragraph):
-    # Use full paragraph text as a key after chnaging it to "preserved" format
+    # Use full paragraph text as a key after changing it to "preserved" format
     full_paragraph_plain_text_keeping_line_breaks = preserve_paragraph_special_items_with_temp_symbols(paragraph)
     # Add it to the translation dictionary
     translation_dict[full_paragraph_plain_text_keeping_line_breaks] = {
@@ -380,3 +393,22 @@ def run_level_extractor(translation_dict, paragraph, current_run):
                     'cons_run_style': current_run.style.name,
                     'cons_run_is_to_translate': True
                 }
+
+#__________________________________________________________________________
+###########################################################################
+# Function to retain special symbols, which deepl seems to otherwise mess up
+def paragraph_level_swapper(translation_dict, paragraph):
+    pass
+
+#__________________________________________________________________________
+###########################################################################
+# Function to extract consolidated runs and add them to the translation dictionary
+def run_level_swapper(translation_dict, current_run):
+    # Attempt to find translations in the dictionary
+    result_of_translation_lookup_attempt = lookup_translations(current_run, translation_dict)
+    # If the lookup succeeded
+    if (result_of_translation_lookup_attempt is not None):
+        # Proceed with swap
+        current_run.text = result_of_translation_lookup_attempt
+    else:
+        current_no_swap_count +=1

@@ -68,21 +68,21 @@ def insert_translations_into_translation_dict(source_file_path, target_file_path
 #__________________________________________________________________________
 ###########################################################################
 # Function to pretty-print a dictionary to a json file
-def print_dict_to_json(dict, file_path):
+def write_dict_to_json(dict, file_path):
     with open(file_path, "w", encoding='utf-8-sig') as json_file:
         json.dump(dict, json_file, ensure_ascii=False, indent=4)
 
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to read in a maintained dictionary
+# Function to read in a dictionary
 def read_json_dictionary(json_dictionary_file_path):
     try:
         with open(json_dictionary_file_path, 'r', encoding='utf-8-sig') as json_dictionary:
-            maintained_dictionary = json.load(json_dictionary)
+            json_dictionary = json.load(json_dictionary)
             print(f"A dictionary at '{json_dictionary_file_path}' was found and will be used.\n")
 
-        return maintained_dictionary
+        return json_dictionary
     
     except FileNotFoundError:
         print(f"No dictionary found at '{json_dictionary_file_path}'.\n")

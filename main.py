@@ -16,7 +16,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the others out
     step = constants.EXTRACT
- #   step = constants.SWAP
+    step = constants.SWAP
 
 #__________________________________________________________________________
 ###########################################################################
@@ -24,21 +24,25 @@ if 'SET MODE OF EXECUTION':
 if step == constants.EXTRACT:
     # Extract the text elements from the source docx file
     print(f"Beginning {step} operations...")
-    #save_to_text_file(FP.target_language_translations_file_path, [])
     extract_or_swap_text_in_docx(FP.source_document_path, step)
-
-    # Deduplicate the extracted text elements and store them in a list
-    #list_of_deduplicated_source_text_elements = list(OrderedDict.fromkeys(original_txt_data))
-
-    # Dump deduplicated list into a text file so it can be translated
-    # save_to_text_file(FP.source_language_deduplicated_file_path, 
-    #                   list_of_deduplicated_source_text_elements)
 
     # Print confirmation message to the console
     print(f"The text file containing the untranslated source text has been written to: \n{FP.source_language_plain_texts_file_path}\n")
 
-    # Create the remaining empty text files
-    # if not os.path.exists(FP.poor_deepl_translations_file_path):
-    #     save_to_text_file(FP.poor_deepl_translations_file_path, [])
-    # if not os.path.exists(FP.corrected_deepl_translations_file_path):
-    #     save_to_text_file(FP.corrected_deepl_translations_file_path, [])
+    # Create an empty text files to later store translations
+    #if not os.path.exists(FP.target_language_translations_file_path):
+    save_to_text_file(FP.target_language_translations_file_path, [])
+
+if step == constants.SWAP:
+    # Read in the translation dictionary
+    translation_dict = read_json_dictionary(FP.TEMP_translation_dict_file_path)
+
+    # Update the translation dictionary to include the retrieved translations
+    translation_dict = insert_translations_into_translation_dict(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, FP.TEMP_translation_dict_file_path)
+
+    # Save updated translation dictionary file for later review
+    write_dict_to_json(translation_dict, FP.FULL_translation_dict_file_path)
+
+    # Swap the text elements from the source docx file
+    print(f"Beginning {step} operations...")
+    extract_or_swap_text_in_docx(FP.source_document_path, step, translation_dict)
