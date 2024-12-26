@@ -45,4 +45,4 @@ if step == constants.SWAP:
 
     # Swap the text elements from the source docx file
     print(f"Beginning {step} operations...")
-    extract_or_swap_text_in_docx(FP.source_document_path, step, translation_dict)
+    extract_or_swap_text_in_docx(FP.source_document_path, step, translation_dict, FP.output_document_path)
