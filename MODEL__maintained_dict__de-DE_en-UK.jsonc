@@ -1,15 +1,15 @@
 {
-    "<full_paragraph_plain_text>": { // "Mit hilfe der Schaltfläche Neu Aufträge in fancyprogram können neue Aufträge erstellt werden."
-        "full_paragraph_tagged_text": "Mit hilfe der Schaltfläche Neu Aufträge in fancyprogram können neue Aufträge erstellt werden.", 
-        "full_paragraph_translated_text": "With the help of the New Orders button in fancyprogram, new orders can be created.", 
-        "full_paragraph_translated_tagged_text": "With the help of the New Orders button in fancyprogram, new orders can be created.", 
+    "<full_paragraph_plain_text_with_preserves>": { // "Mit hilfe der Schaltfläche <b>Neu Aufträge<b> in fancyprogram können neue Aufträge erstellt werden."
+        "full_paragraph_tagged_text": "Mit hilfe der Schaltfläche <01><b>Neu Aufträge<b></01> in fancyprogram können neue Aufträge erstellt werden.", 
+        "full_paragraph_translated_text_with_preserves": "With the help of the <b>New Orders<b> button in fancyprogram, new orders can be created.", 
+        "full_paragraph_translated_tagged_text_with_preserves": "With the help of the <01><b>New Orders<b></01> button in fancyprogram, new orders can be created.", 
         "full_paragraph_style": "Body text", 
         "full_paragraph_is_to_translate": true, // default = true
         "consolidated_runs": {
-            "<cons_run_plain_text>": { // Neue Aufträge
-                "cons_run_tagged_text": "New Orders", 
-                "cons_run_translated_text": "New Orders", 
-                "cons_run_translated_tagged_text": "New Orders", 
+            "<cons_run_plain_text_with_preserves>": { // <b>Neue Aufträge<b>
+                "cons_run_tagged_text": "<01><b>Neue Aufträge<b></01>", 
+                "cons_run_translated_text_with_preserves": "<b>New Orders<b>", 
+                "cons_run_translated_tagged_text_with_preserves": "<01><b>New Orders<b></01>", 
                 "cons_run_style": "Button", 
                 "cons_run_is_to_translate": true // default = true
             }

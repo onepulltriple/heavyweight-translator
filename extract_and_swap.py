@@ -12,6 +12,7 @@ from csv_write_operations import *
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract or swap text elements from a docx file
+# Argument ordering for functions: translation_dict, paragraph, current_run, variables/counters
 # PARAGRAPH-LEVEL #########################################################
     # Iterate over full paragraphs in the document to extract or swap text without splitting up by runs
     # This should help to get better translations from deepl
@@ -34,8 +35,13 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     for paragraph in doc.paragraphs:
         if paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace():
             if step == constants.EXTRACT:
-                if paragraph.text not in translation_dict:
-                    paragraph_level_extractor(translation_dict, paragraph)
+                if preserve_paragraph_special_items_with_temp_symbols(paragraph) in translation_dict:
+                    continue
+                paragraph_level_extractor(translation_dict, paragraph)
+
+                #if paragraph.text not in translation_dict:
+                # else:
+                #     continue
 
             if step == constants.SWAP:
                 pass#(paragraph, total_no_swap_count) = paragraph_level_swapper(paragraph, translation_dict, total_no_swap_count)
@@ -46,20 +52,20 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
                 print(f"{newest_print_progress_threshold} {step} operations...")
                 newest_print_progress_threshold += 1000
 
-        # RUN-LEVEL #######################################################
-        # Get current size of translation dict as part of measuring progress
-        current_size_of_translation_dict = len(translation_dict)
+            # RUN-LEVEL #######################################################
+            # Get current size of translation dict as part of measuring progress
+            current_size_of_translation_dict = len(translation_dict)
 
-        # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
-        (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict)
-        total_no_swap_count += current_no_swap_count
-        
-        # Indicate progress
-        if len(translation_dict) > current_size_of_translation_dict:
-            total_op_count += len(translation_dict) - current_size_of_translation_dict
-            if (total_op_count > newest_print_progress_threshold):
-                print(f"{newest_print_progress_threshold} {step} operations...")
-                newest_print_progress_threshold += 1000
+            # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
+            (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step)
+            total_no_swap_count += current_no_swap_count
+            
+            # Indicate progress
+            if len(translation_dict) > current_size_of_translation_dict:
+                total_op_count += len(translation_dict) - current_size_of_translation_dict
+                if (total_op_count > newest_print_progress_threshold):
+                    print(f"{newest_print_progress_threshold} {step} operations...")
+                    newest_print_progress_threshold += 1000
         
 
     # TABLES ##############################################################
@@ -70,8 +76,13 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
                 for paragraph in cell.paragraphs:
                     if paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace():
                         if step == constants.EXTRACT:
-                            if paragraph.text not in translation_dict:
-                                paragraph_level_extractor(translation_dict, paragraph)
+                            if preserve_paragraph_special_items_with_temp_symbols(paragraph) in translation_dict:
+                                continue
+                            paragraph_level_extractor(translation_dict, paragraph)
+
+                            # if paragraph.text not in translation_dict:
+                            # else:
+                            #     continue
 
                         if step == constants.SWAP:
                             pass#(paragraph, total_no_swap_count) = paragraph_level_swapper(paragraph, translation_dict, total_no_swap_count)
@@ -92,7 +103,7 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
                     current_size_of_translation_dict = len(translation_dict)
 
                     # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
-                    (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict)
+                    (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step)
                     total_no_swap_count += current_no_swap_count
 
                     # Indicate progress
@@ -111,7 +122,7 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
                                 current_size_of_translation_dict = len(translation_dict)
 
                                 # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
-                                (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict)
+                                (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step)
                                 total_no_swap_count += current_no_swap_count
 
                                 # Indicate progress
@@ -136,7 +147,7 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
 #__________________________________________________________________________
 ###########################################################################
 # Function to consolidate and extract text from paragraphs and hyperlinks
-def consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict):
+def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step):
 
     # Initialize operation counters
     current_no_swap_count = 0
@@ -274,29 +285,29 @@ def consolidate_then_extract_or_swap_text_runs(step, paragraph, translation_dict
 ###########################################################################
 # Function to lookup translated text on a per-consolidated_run basis
 # Also reassembles translated strings that were broken apart because their source text contained line breaks
-def lookup_translations(consolidated_run, translation_dict):
+# def lookup_translations(consolidated_run, translation_dict):
 
-    # Split apart the source consolidated run into a list of substrings 
-    # (consolidated runs without line breaks become single-item lists)
-    source_substrings_list = consolidated_run.text.split("\n")
+#     # Split apart the source consolidated run into a list of substrings 
+#     # (consolidated runs without line breaks become single-item lists)
+#     source_substrings_list = consolidated_run.text.split("\n")
 
-    translated_substrings_list = []
+#     translated_substrings_list = []
 
-    # Find the translations
-    for substring in source_substrings_list:
-        result = translation_dict.get(substring)
-        if result is not None:
-            translated_substrings_list.append(result)
-        else:
-            print(f"The text element \"{substring}\" was not found in the translation dictionary's keys.")
+#     # Find the translations
+#     for substring in source_substrings_list:
+#         result = translation_dict.get(substring)
+#         if result is not None:
+#             translated_substrings_list.append(result)
+#         else:
+#             print(f"The text element \"{substring}\" was not found in the translation dictionary's keys.")
     
-    # If all substrings have been found
-    if len(source_substrings_list) == len(translated_substrings_list):
-        # The swap can proceed
-        # (Joining a single-item list of strings returns a string)
-        return "\n".join(translated_substrings_list)
+#     # If all substrings have been found
+#     if len(source_substrings_list) == len(translated_substrings_list):
+#         # The swap can proceed
+#         # (Joining a single-item list of strings returns a string)
+#         return "\n".join(translated_substrings_list)
     
-    return None
+#     return None
 
 #__________________________________________________________________________
 ###########################################################################
@@ -312,8 +323,8 @@ def pairwise_circular(iterable):
 #__________________________________________________________________________
 ###########################################################################
 # Function to retain special symbols at the paragraph level, which deepl seems to otherwise mess up
-def preserve_paragraph_special_items_with_temp_symbols(full_paragraph):
-    return (full_paragraph.text
+def preserve_paragraph_special_items_with_temp_symbols(paragraph_obj):
+    return (paragraph_obj.text
             .replace('\n','<a>') # to preserve newlines in multiline runs
             .replace('\xa0','<b>') # to preserve non-breaking spaces
             )
@@ -321,17 +332,17 @@ def preserve_paragraph_special_items_with_temp_symbols(full_paragraph):
 #__________________________________________________________________________
 ###########################################################################
 # Function to restore special symbols at the paragraph level
-def unpreserve_paragraph_translation(full_paragraph_translated_text):
-    return (full_paragraph_translated_text
-            .replace('<a>','\n') # to restore newlines in multiline runs
-            .replace('<b>','\xa0') # to restore non-breaking spaces
-            )
+# def unpreserve_paragraph_translation(full_paragraph_translated_text):
+#     return (full_paragraph_translated_text
+#             .replace('<a>','\n') # to restore newlines in multiline runs
+#             .replace('<b>','\xa0') # to restore non-breaking spaces
+#             )
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to retain special symbols at the run level, which deepl seems to otherwise mess up
-def preserve_run_special_items_with_temp_symbols(run_text):
-    return (run_text
+def preserve_run_special_items_with_temp_symbols(run_obj):
+    return (run_obj.text
             .replace('\n','<a>') # to preserve newlines in multiline runs
             .replace('\xa0','<b>') # to preserve non-breaking spaces
             )
@@ -339,24 +350,29 @@ def preserve_run_special_items_with_temp_symbols(run_text):
 #__________________________________________________________________________
 ###########################################################################
 # Function to restore special symbols at the run level
-def unpreserve_run_text(run_text):
-    return (run_text
-            .replace('<a>','\n') # to restore newlines in multiline runs
-            .replace('<b>','\xa0') # to restore non-breaking spaces
-            )
+# def unpreserve_run_text(run_text):
+#     return (run_text
+#             .replace('<a>','\n') # to restore newlines in multiline runs
+#             .replace('<b>','\xa0') # to restore non-breaking spaces
+#             )
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract full paragraphs and add them to the translation dictionary
-def paragraph_level_extractor(translation_dict, paragraph):
+def paragraph_level_extractor(translation_dict, paragraph_obj):
     # Use full paragraph text as a key after changing it to "preserved" format
-    full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+    full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
+
+    # Check if this would be a duplicate paragraph
+    # if full_paragraph_plain_text_with_preserves in translation_dict:
+    #     return
+
     # Add it to the translation dictionary
     translation_dict[full_paragraph_plain_text_with_preserves] = {
         "full_paragraph_tagged_text": "",
-        "full_paragraph_translated_text": None,
-        "full_paragraph_translated_tagged_text": None,
-        "full_paragraph_style": paragraph.style.name,
+        "full_paragraph_translated_text_with_preserves": None,
+        "full_paragraph_translated_tagged_text_with_preserves": None,
+        "full_paragraph_style": paragraph_obj.style.name,
         "full_paragraph_is_to_translate": True,
         "consolidated_runs": {}
     }
@@ -366,65 +382,87 @@ def paragraph_level_extractor(translation_dict, paragraph):
 ###########################################################################
 # Function to extract consolidated runs and add them to the translation dictionary
 # Adds the cons. run its paragraph's sub-dictionary
-def run_level_extractor(translation_dict, paragraph, current_run):
-    #consolidated_run_split_at_line_breaks = split_consolidated_run_at_line_breaks(current_run)
+def run_level_extractor(translation_dict, paragraph_obj, current_run_obj):
+    # if paragraph.text in translation_dict:
+    #     return
+
+    run_text = current_run_obj.text
 
     # Add each consolidated run to the paragraph's sub-dictionary
-    #for run_segment in consolidated_run_split_at_line_breaks:
-    run_text = current_run.text
-
     if run_text is not None and run_text != "" and not run_text.isspace():
         # Look up the paragraph in the translation dictionary (it must be in its "preserved" format)
-        full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+        full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
+        # Create a tag counter for this consolidated run (works out because index = current length consolidated runs sub-dictionary)
         tag_counter = len(translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'])
+        # Check if the consolidated run is already present. If not, proceed
         if run_text not in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']:
             # Preserve the consolidated run's special characters
-            run_text_with_preserves = preserve_run_special_items_with_temp_symbols(run_text)
+            run_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run_obj)
             # Make a copy with tags
             tagged_run_text_with_preserves = f"<{tag_counter:02}>{run_text_with_preserves}</{tag_counter:02}>"
             # Add it to the translation dictionary
             translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][run_text_with_preserves] = {
                 'cons_run_tagged_text': tagged_run_text_with_preserves,
-                'cons_run_translated_text': None,
-                'cons_run_translated_tagged_text': None,
-                'cons_run_style': current_run.style.name,
+                'cons_run_translated_text_with_preserves': None,
+                'cons_run_translated_tagged_text_with_preserves': None,
+                'cons_run_style': current_run_obj.style.name,
                 'cons_run_is_to_translate': True
             }
-            # Also append it to the paragraph's tagged text
-            translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text'] += tagged_run_text_with_preserves
+
             
+            # If the run is of a non-default style
+            if current_run_obj.style.name != "Default Paragraph Font":
+                # Append it to the paragraph's tagged text with tags
+                translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text'] += tagged_run_text_with_preserves
+            else: # The run is of the default style
+                # Append without tags
+                translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text'] += run_text_with_preserves
+
+
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to retain special symbols, which deepl seems to otherwise mess up
-def paragraph_level_swapper(paragraph, translation_dict, total_no_swap_count):
+def paragraph_level_swapper(translation_dict, paragraph_obj, total_no_swap_count):
     # Use full paragraph text as a key after changing it to "preserved" format
-    full_paragraph_preserved_text = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+    full_paragraph_preserved_text = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
 
     # Attempt to find a translation in the dictionary
     if full_paragraph_preserved_text in translation_dict:
         # If the lookup succeeded, proceed with swap
         full_paragraph_preserved_translation = translation_dict[full_paragraph_preserved_text]['full_paragraph_translated_text']
-        paragraph.text = unpreserve_paragraph_translation(full_paragraph_preserved_translation)
+        #paragraph.text = unpreserve_paragraph_translation(full_paragraph_preserved_translation)
     else:
         print(f"The text element \"{full_paragraph_preserved_text}\" was not found in the translation dictionary's keys.")
         total_no_swap_count +=1
     
-    return paragraph, total_no_swap_count
+    return paragraph_obj, total_no_swap_count
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract consolidated runs and add them to the translation dictionary
-def run_level_swapper(translation_dict, paragraph, current_run, current_no_swap_count):
-    # Use full paragraph text as "outer" key after changing it to "preserved" format
-    full_paragraph_preserved_text = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+def run_level_swapper(translation_dict, paragraph_obj, current_run_obj, current_no_swap_count):
+    run_text = current_run_obj.text
 
-    # Use current run text as "inner" key after changing it to "preserved" format
-    current_run_preserved_text = preserve_run_special_items_with_temp_symbols(current_run.text)
+    # Look up the paragraph in the translation dictionary (it must be in its "preserved" format)
+    full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
 
-    # Attempt to find a translation in the dictionary
-    if full_paragraph_preserved_text in translation_dict:
-        pass
+    # Attempt to find a full paragragh translation in the dictionary
+    if full_paragraph_plain_text_with_preserves in translation_dict:
+
+        # Use current run text as "inner" key after changing it to "preserved" format
+        run_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run_obj)
+
+        # Attempt to find a translation for the consolidated run in the sub-dictionary
+
+
+
+
+
+
+
+
+    
         # Swap in full paragraph translated text, keeping preserves
 
         # Find and replace runs with special formatting in the new paragraph translated text
@@ -438,9 +476,9 @@ def run_level_swapper(translation_dict, paragraph, current_run, current_no_swap_
     #     # Proceed with swap
     #     current_run_preserved_text = translation_dict[full_paragraph_preserved_text]['consolidated_runs'][current_run_preserved_text]['cons_run_translated_text']
     #     current_run = unpreserve_run_text(current_run_preserved_text)
-    # else:
-    #     print(f"The text element \"{current_run_preserved_text}\" was not found in the translation dictionary's keys.")
-    #     current_no_swap_count +=1
+    else:
+        print(f"The text element \"{full_paragraph_plain_text_with_preserves}\" was not found in the translation dictionary's keys.")
+        current_no_swap_count +=1
 
-    return current_run, current_no_swap_count
+    return current_run_obj, current_no_swap_count
 

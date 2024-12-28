@@ -4,7 +4,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import constants 
     import input_parameters as IP 
     import file_paths as FP 
-    from collections import OrderedDict
+    #from collections import OrderedDict
     from dict_operations import *
     from text_operations import *
     from file_operations import *
@@ -16,7 +16,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the others out
     step = constants.EXTRACT
-    step = constants.SWAP
+#    step = constants.SWAP
 
 #__________________________________________________________________________
 ###########################################################################
