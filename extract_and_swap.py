@@ -86,8 +86,8 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
                     if step == constants.EXTRACT:
                         run_level_extractor(translation_dict, paragraph, current_run)
 
-                    if step == constants.SWAP:
-                        (current_run, current_no_swap_count) = run_level_swapper(translation_dict, paragraph, current_run, current_no_swap_count)
+                    # if step == constants.SWAP:
+                    #     (current_run, current_no_swap_count) = run_level_swapper(translation_dict, paragraph, current_run, current_no_swap_count)
 
             previous_run = current_run_or_hyperlink
             continue
@@ -112,8 +112,8 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
                 if step == constants.EXTRACT:
                     run_level_extractor(translation_dict, paragraph, current_run)
 
-                if step == constants.SWAP:
-                    (current_run, current_no_swap_count) = run_level_swapper(translation_dict, paragraph, current_run, current_no_swap_count)
+                # if step == constants.SWAP:
+                #     (current_run, current_no_swap_count) = run_level_swapper(translation_dict, paragraph, current_run, current_no_swap_count)
 
                 # clear the text consolidator and move on
                 text_consolidator = ""
@@ -176,8 +176,8 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
                 if step == constants.EXTRACT:
                     run_level_extractor(translation_dict, paragraph, current_run)
 
-                if step == constants.SWAP:
-                    (current_run, current_no_swap_count) = run_level_swapper(translation_dict, paragraph, current_run, current_no_swap_count)
+                # if step == constants.SWAP:
+                #     (current_run, current_no_swap_count) = run_level_swapper(translation_dict, paragraph, current_run, current_no_swap_count)
 
                 # clear the text collector and move on
                 text_consolidator = ""                
@@ -258,11 +258,11 @@ def preserve_run_special_items_with_temp_symbols(run_obj):
 #__________________________________________________________________________
 ###########################################################################
 # Function to restore special symbols at the run level
-# def unpreserve_run_text(run_text):
-#     return (run_text
-#             .replace('<a>','\n') # to restore newlines in multiline runs
-#             .replace('<b>','\xa0') # to restore non-breaking spaces
-#             )
+def unpreserve_run_text(run_text):
+    return (run_text
+            .replace('<a>','\n') # to restore newlines in multiline runs
+            .replace('<b>','\xa0') # to restore non-breaking spaces
+            )
 
 #__________________________________________________________________________
 ###########################################################################
@@ -328,17 +328,34 @@ def run_level_extractor(translation_dict, paragraph_obj, current_run_obj):
 ###########################################################################
 # Function to retain special symbols, which deepl seems to otherwise mess up
 def paragraph_level_swapper(translation_dict, paragraph_obj, total_no_swap_count):
-    # Use full paragraph text as a key after changing it to "preserved" format
+    # Use full paragraph text as key after changing it to "preserved" format
     full_paragraph_preserved_text = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
 
     # Attempt to find a translation in the dictionary
-    if full_paragraph_preserved_text in translation_dict:
-        # If the lookup succeeded, proceed with swap
-        full_paragraph_preserved_translation = translation_dict[full_paragraph_preserved_text]['full_paragraph_translated_text']
-        #paragraph.text = unpreserve_paragraph_translation(full_paragraph_preserved_translation)
-    else:
+    if full_paragraph_preserved_text not in translation_dict:
         print(f"The text element \"{full_paragraph_preserved_text}\" was not found in the translation dictionary's keys.")
         total_no_swap_count +=1
+        return paragraph_obj, total_no_swap_count
+    
+    # Get full_paragraph_translated_tagged_text_with_preserves
+    full_paragraph_translated_tagged_text_with_preserves = translation_dict[full_paragraph_preserved_text]['full_paragraph_translated_tagged_text_with_preserves']
+        
+    # Break it into segments
+    segments = split_with_tags_and_untagged(full_paragraph_translated_tagged_text_with_preserves)
+    
+    # Loop over each segment and use them to populate the paragraph's runs
+    paragraph_obj.clear()
+    for segment in segments:
+        temp_style = None
+        # If the run has tags, add its text and style
+        if contains_numeric_tags(segment):
+            # Attempt to look up the run in the translation dictionary
+            segment = remove_numeric_tags(segment)
+            if segment in translation_dict[full_paragraph_preserved_text]['consolidated_runs']:
+                temp_style = translation_dict[full_paragraph_preserved_text]['consolidated_runs'][segment]['cons_run_style']
+
+        segment = unpreserve_run_text(segment)
+        paragraph_obj.add_run(segment, temp_style)
     
     return paragraph_obj, total_no_swap_count
 
@@ -346,43 +363,36 @@ def paragraph_level_swapper(translation_dict, paragraph_obj, total_no_swap_count
 ###########################################################################
 # Function to extract consolidated runs and add them to the translation dictionary
 def run_level_swapper(translation_dict, paragraph_obj, current_run_obj, current_no_swap_count):
-    run_text = current_run_obj.text
+#     run_text = current_run_obj.text
 
-    # Look up the paragraph in the translation dictionary (it must be in its "preserved" format)
-    full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
+#     # Look up the paragraph in the translation dictionary (it must be in its "preserved" format)
+#     full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
 
-    # Attempt to find a full paragragh translation in the dictionary
-    if full_paragraph_plain_text_with_preserves in translation_dict:
+#     # Attempt to find a full paragragh translation in the dictionary
+#     if full_paragraph_plain_text_with_preserves in translation_dict:
 
-        # Use current run text as "inner" key after changing it to "preserved" format
-        run_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run_obj)
+#         # Use current run text as "inner" key after changing it to "preserved" format
+#         run_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run_obj)
 
-        # Attempt to find a translation for the consolidated run in the sub-dictionary
-
-
+#         # Attempt to find a translation for the consolidated run in the sub-dictionary
 
 
+#         # Swap in full paragraph translated text, keeping preserves
+
+#         # Find and replace runs with special formatting in the new paragraph translated text
+#         # The runs should be used to which is not in the same order!
+
+#         # Apply that run's style to the translated segment 
 
 
-
-
-    
-        # Swap in full paragraph translated text, keeping preserves
-
-        # Find and replace runs with special formatting in the new paragraph translated text
-        # The runs should be used to which is not in the same order!
-
-        # Apply that run's style to the translated segment 
-
-
-    # # If the lookup succeeded
-    # if result is not None:
-    #     # Proceed with swap
-    #     current_run_preserved_text = translation_dict[full_paragraph_preserved_text]['consolidated_runs'][current_run_preserved_text]['cons_run_translated_text']
-    #     current_run = unpreserve_run_text(current_run_preserved_text)
-    else:
-        print(f"The text element \"{full_paragraph_plain_text_with_preserves}\" was not found in the translation dictionary's keys.")
-        current_no_swap_count +=1
+#     # # If the lookup succeeded
+#     # if result is not None:
+#     #     # Proceed with swap
+#     #     current_run_preserved_text = translation_dict[full_paragraph_preserved_text]['consolidated_runs'][current_run_preserved_text]['cons_run_translated_text']
+#     #     current_run = unpreserve_run_text(current_run_preserved_text)
+#     else:
+#         print(f"The text element \"{full_paragraph_plain_text_with_preserves}\" was not found in the translation dictionary's keys.")
+#         current_no_swap_count +=1
 
     return current_run_obj, current_no_swap_count
 
@@ -405,19 +415,20 @@ def process_table_cells(translation_dict, table, step, total_no_swap_count):
 # Function to 
 def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count): 
     if paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace():
-        # PARAGRAPH-LEVEL #################################################
         if step == constants.EXTRACT:
+            # PARAGRAPH-LEVEL #################################################
             if preserve_paragraph_special_items_with_temp_symbols(paragraph) in translation_dict:
                 return
             paragraph_level_extractor(translation_dict, paragraph)
 
-        if step == constants.SWAP:
-            pass#(paragraph, total_no_swap_count) = paragraph_level_swapper(paragraph, translation_dict, total_no_swap_count)
+            # RUN-LEVEL #######################################################
+            # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
+            (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step)
+            total_no_swap_count += current_no_swap_count
 
-        # RUN-LEVEL #######################################################
-        # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
-        (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step)
-        total_no_swap_count += current_no_swap_count
+        if step == constants.SWAP:
+            # PARAGRAPH-LEVEL #################################################
+            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, paragraph, total_no_swap_count)
         
 
 #__________________________________________________________________________
@@ -446,3 +457,85 @@ def count_total_operations(translation_dict):
         total_op_count += 1
 
     return total_op_count
+
+
+#__________________________________________________________________________
+###########################################################################
+# Function to split a string that includes tags and preserves into several segments
+import re
+def split_with_tags_and_untagged(tagged_text_with_preserves):
+    # First, fix any broken tags
+    #tagged_text_with_preserves = fix_broken_tags(tagged_text_with_preserves)
+
+    # This regular expression will capture both tagged and untagged text
+    # It will match all tags except <a> and <b>, which are not tags but preserves
+    pattern = r'(<\d+>.*?</\d+>)|([^<]+)' 
+
+    segments = []
+    for match in re.finditer(pattern, tagged_text_with_preserves):
+        # If the match is a tagged segment, add it to the list
+        if match.group(1):
+            segments.append(match.group(1))
+        # If the match is untagged, add it to the list as well
+        elif match.group(2):
+            segments.append(match.group(2))
+
+    return segments
+
+
+#__________________________________________________________________________
+###########################################################################
+# Function to repair tags that were broken during translation
+import re
+def fix_broken_tags(input_string):
+    # Regular expression patterns to identify broken tags
+    broken_open_tag_pattern = r'(<\d+)(?!>)'  # Broken opening numeric tags like <01
+    broken_non_numeric_open_tag_pattern = r'(<[a-zA-Z])([^>]+)?(?!>)'  # Broken opening tags like <a
+    broken_close_tag_pattern = r'</([a-zA-Z0-9]+)(?!>)'  # Broken closing tags like </a or </01
+
+    # Check if there are any broken tags in the string
+    if re.search(broken_open_tag_pattern, input_string) or \
+       re.search(broken_non_numeric_open_tag_pattern, input_string) or \
+       re.search(broken_close_tag_pattern, input_string):
+        
+        # If broken tags are found, fix them:
+        # Fix broken opening numeric tags like <01 to <01>
+        input_string = re.sub(broken_open_tag_pattern, r'\1>', input_string)
+
+        # Fix broken opening non-numeric tags like <a to <a>
+        input_string = re.sub(broken_non_numeric_open_tag_pattern, r'\1>', input_string)
+
+        # Fix broken closing tags like </01 to </01>
+        input_string = re.sub(broken_close_tag_pattern, r'</\1>', input_string)
+
+    # Return the fixed (or unchanged) string
+    return input_string
+
+#__________________________________________________________________________
+###########################################################################
+# Function to 
+import re
+def contains_numeric_tags(input_string):
+    # Regular expression to match numeric tags (e.g., <01>, </01>, <02>, </02>, etc.)
+    opening_pattern = r'<\d+>'  # Matches opening numeric tags like <01>, <02>, etc.
+    closing_pattern = r'</\d+>'  # Matches closing numeric tags like </01>, </02>, etc.
+    
+    # Check if the input string contains either an opening or closing numeric tag
+    if re.search(opening_pattern, input_string) or re.search(closing_pattern, input_string):
+        return True
+    return False
+
+#__________________________________________________________________________
+###########################################################################
+# Function to 
+import re
+def remove_numeric_tags(input_string):
+    # Regular expression to match only numeric tags (e.g., <01>, </01>, <02>, </02>, etc.)
+    pattern = r'<\d+>'  # Matches opening numeric tags like <01>, <02>, etc.
+    closing_pattern = r'</\d+>'  # Matches closing numeric tags like </01>, </02>, etc.
+
+    # Use re.sub to replace all matching numeric tags with an empty string
+    input_string = re.sub(pattern, '', input_string)
+    input_string = re.sub(closing_pattern, '', input_string)
+    
+    return input_string

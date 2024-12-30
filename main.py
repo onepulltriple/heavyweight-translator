@@ -16,7 +16,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the others out
     step = constants.EXTRACT
-#    step = constants.SWAP
+    step = constants.SWAP
 
 #__________________________________________________________________________
 ###########################################################################
@@ -34,9 +34,6 @@ if step == constants.EXTRACT:
     save_to_text_file(FP.target_language_translations_file_path, [])
 
 if step == constants.SWAP:
-    # Read in the translation dictionary
-    translation_dict = read_json_dictionary(FP.TEMP_translation_dict_file_path)
-
     # Update the translation dictionary to include the retrieved translations
     translation_dict = insert_translations_into_translation_dict(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, FP.TEMP_translation_dict_file_path)
 

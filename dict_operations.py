@@ -57,15 +57,15 @@ def insert_translations_into_translation_dict(source_file_path, target_file_path
             and current_key not in parent_key # and this key is not part of the parent key
             ): 
             # Insert the full paragraph plain text translation
-            translation_dict[current_key]['full_paragraph_translated_text'] = current_value
+            translation_dict[current_key]['full_paragraph_translated_text_with_preserves'] = current_value
             # Insert the full paragraph tagged text translation
-            translation_dict[current_key]['full_paragraph_translated_tagged_text'] = current_value_after
+            translation_dict[current_key]['full_paragraph_translated_tagged_text_with_preserves'] = current_value_after
             parent_key = current_key
         elif(temp_mapping[0][i] in translation_dict[parent_key]['consolidated_runs']):
             # Insert the consolidated run plain text translation
-            translation_dict[parent_key]['consolidated_runs'][current_key]['cons_run_translated_text'] = current_value
+            translation_dict[parent_key]['consolidated_runs'][current_key]['cons_run_translated_text_with_preserves'] = current_value
             # Insert the consolidated run tagged text translation
-            translation_dict[parent_key]['consolidated_runs'][current_key]['cons_run_translated_tagged_text'] = current_value_after
+            translation_dict[parent_key]['consolidated_runs'][current_key]['cons_run_translated_tagged_text_with_preserves'] = current_value_after
 
     return translation_dict
 
