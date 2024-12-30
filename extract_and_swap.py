@@ -25,23 +25,24 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     doc = Document(input_file)
     
     # Initialize operation counters
-    #total_op_count = 0 
     total_no_swap_count = 0
-    newest_print_progress_threshold = 100
+    newest_print_progress_threshold = 10
 
 
     # PARAGRAPHS ##########################################################
     for paragraph in doc.paragraphs:
-        process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count, newest_print_progress_threshold)
+        process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count)
+        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold)
         
 
     # TABLES ##############################################################
     for table in doc.tables:
-        process_table_cells(translation_dict, table, step, total_no_swap_count, newest_print_progress_threshold)
+        process_table_cells(translation_dict, table, step, total_no_swap_count)
+        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold)
 
 
     # RESULTS #############################################################
-    #print(f"There were {total_op_count} {step} operations.\n")
+    print(f"There were {count_total_operations(translation_dict)} {step} operations.\n")
     if step == constants.EXTRACT:
         write_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
         write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
@@ -389,20 +390,20 @@ def run_level_swapper(translation_dict, paragraph_obj, current_run_obj, current_
 #__________________________________________________________________________
 ###########################################################################
 # Function to 
-def process_table_cells(translation_dict, table, step, total_no_swap_count, newest_print_progress_threshold):
+def process_table_cells(translation_dict, table, step, total_no_swap_count):
     for row in table.rows:
         for cell in row.cells:
             for paragraph in cell.paragraphs:
-                process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count, newest_print_progress_threshold)
+                process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count)
             
             # Recursively process any nested tables inside the current cell
             for nested_table in cell.tables:
-                process_table_cells(translation_dict, nested_table, step, total_no_swap_count, newest_print_progress_threshold)
+                process_table_cells(translation_dict, nested_table, step, total_no_swap_count)
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to 
-def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count, newest_print_progress_threshold): 
+def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count): 
     if paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace():
         # PARAGRAPH-LEVEL #################################################
         if step == constants.EXTRACT:
@@ -413,26 +414,35 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, tota
         if step == constants.SWAP:
             pass#(paragraph, total_no_swap_count) = paragraph_level_swapper(paragraph, translation_dict, total_no_swap_count)
 
-
         # RUN-LEVEL #######################################################
         # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
         (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step)
         total_no_swap_count += current_no_swap_count
         
-        # Indicate progress
-        indicate_progress(translation_dict, step, newest_print_progress_threshold)
-
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to 
 def indicate_progress(translation_dict, step, newest_print_progress_threshold):
-    for outer_key in translation_dict:
-        # Count the paragraph's consolidated runs
-        total_op_count =+ len(translation_dict[outer_key]['consolidated_runs'])
-        # Count the paragraph itself
-        total_op_count =+ 1
+    
+    total_op_count = count_total_operations(translation_dict)
 
     if (total_op_count > newest_print_progress_threshold):
         print(f"{newest_print_progress_threshold} {step} operations...")
-        newest_print_progress_threshold += 1000
+        newest_print_progress_threshold += 10
+
+    return newest_print_progress_threshold
+
+
+#__________________________________________________________________________
+###########################################################################
+# Function to 
+def count_total_operations(translation_dict):
+    total_op_count = 0
+    for outer_key in translation_dict:
+        # Count the paragraph's consolidated runs
+        total_op_count += len(translation_dict[outer_key]['consolidated_runs'])
+        # Count the paragraph itself
+        total_op_count += 1
+
+    return total_op_count
