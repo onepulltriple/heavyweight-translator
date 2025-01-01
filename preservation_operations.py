@@ -20,8 +20,8 @@ def preserve_paragraph_special_items_with_temp_symbols(paragraph_obj):
 #__________________________________________________________________________
 ###########################################################################
 # Function to retain special symbols at the run level, which deepl seems to otherwise mess up
-def preserve_run_special_items_with_temp_symbols(run_obj):
-    return (run_obj.text
+def preserve_run_special_items_with_temp_symbols(run_text):
+    return (run_text
             .replace('\n','<a>') # to preserve newlines in multiline runs
             .replace('\xa0','<b>') # to preserve non-breaking spaces
             )

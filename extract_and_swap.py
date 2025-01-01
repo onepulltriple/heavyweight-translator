@@ -58,11 +58,8 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to consolidate and extract text from paragraphs and hyperlinks
-def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step):
-
-    # Initialize operation counters
-    current_no_swap_count = 0
+# Function to consolidate the text in runs from a paragraph and its hyperlinks
+def consolidate_runs(paragraph):
 
     # Prepare to consolidate text-having runs
     text_consolidator = ""
@@ -70,12 +67,16 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
     # Hold on to last run when needed
     previous_run = None
 
+    index_of_run = -1
+
     # Loop over all the runs/hyperlinks in the paragraph
     for current_run_or_hyperlink, next_run_or_hyperlink in pairwise_circular(paragraph.iter_inner_content()):
         #print("type =>", type(current_run_or_hyperlink))
+        index_of_run += 1
 
         # Skip pictures or other non-text-having objects
         if not current_run_or_hyperlink.text:
+            #current_run_or_hyperlink.text = glyph_tag(index_of_run)
             previous_run = current_run_or_hyperlink
             continue
 
@@ -84,14 +85,16 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
             # Rename object for clarity
             current_hyperlink = current_run_or_hyperlink
             # Don't consolidate, just deal with the text from each text-having run
+
+            # This treatment could perhaps be simplified. Maybe hyperlinks don't need consolidation (to be verified)
             for current_run in current_hyperlink.runs:
                 if current_run.text:
-                    # collect or swap
-                    if step == constants.EXTRACT:
-                        run_level_extractor(translation_dict, paragraph, current_run)
-
-                    if step == constants.SWAP:
-                        run_level_swap_prep(current_run, current_no_swap_count)
+                    # collect text
+                    text_consolidator += current_run.text
+                    # dump consolidator into this run
+                    current_run.text = text_consolidator                   
+                    # clear the text consolidator and move on
+                    text_consolidator = ""
 
             previous_run = current_run_or_hyperlink
             continue
@@ -110,15 +113,8 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
                 ):
                 # collect text
                 text_consolidator += current_run.text
-                # dump consolidator into this run and reset
-                current_run.text = text_consolidator
-                # collect or swap
-                if step == constants.EXTRACT:
-                    run_level_extractor(translation_dict, paragraph, current_run)
-
-                if step == constants.SWAP:
-                    run_level_swap_prep(current_run, current_no_swap_count)
-                    
+                # dump consolidator into this run
+                current_run.text = text_consolidator                   
                 # clear the text consolidator and move on
                 text_consolidator = ""
                 previous_run = current_run_or_hyperlink
@@ -132,7 +128,8 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
                 # collect this run's text
                 text_consolidator += current_run.text
                 # clear this run's text
-                current_run.clear()
+                current_run.text = ignore_run_tag()
+                
                 if the_last_run_in_the_paragraph_has_been_reached(next_run_or_hyperlink):
                     pass # move on to the code below
                 else:
@@ -145,7 +142,8 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
                 # collect this run's text
                 text_consolidator += current_run.text
                 # clear this run's text
-                current_run.clear()
+                current_run.text = ignore_run_tag()
+                
                 if the_last_run_in_the_paragraph_has_been_reached(next_run_or_hyperlink):
                     pass # move on to the code below
                 else:
@@ -157,7 +155,8 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
                 # collect this run's text
                 text_consolidator += current_run.text
                 # clear this run's text
-                current_run.clear()
+                current_run.text = ignore_run_tag()
+                
                 if the_last_run_in_the_paragraph_has_been_reached(next_run_or_hyperlink):
                     pass # move on to the code below
                 else:
@@ -174,15 +173,8 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
                 ): 
                 # collect text
                 text_consolidator += current_run.text
-                # dump consolidator into this run and reset
+                # dump consolidator into this run
                 current_run.text = text_consolidator
-                # collect or swap
-                if step == constants.EXTRACT:
-                    run_level_extractor(translation_dict, paragraph, current_run)
-
-                if step == constants.SWAP:
-                    run_level_swap_prep(current_run, current_no_swap_count)
-
                 # clear the text collector and move on
                 text_consolidator = ""                
                 previous_run = current_run_or_hyperlink
@@ -190,7 +182,94 @@ def consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step
 
             print(f"The text-having run \"{current_run_or_hyperlink.text}\" was not handled.\n")
 
-    return paragraph, current_no_swap_count
+    return paragraph
+
+#__________________________________________________________________________
+###########################################################################
+# Function to tag and extract text from a paragraph and its hyperlinks
+def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plain_text_with_preserves):
+
+    index_of_run = -1
+
+    # Loop over all the runs/hyperlinks in the paragraph
+    for current_run_or_hyperlink in paragraph_with_cons_runs.iter_inner_content():
+        index_of_run += 1
+
+        # Create a placeholder for pictures or other non-text-having runs
+        if not current_run_or_hyperlink.text:
+            # Rename object for clarity
+            current_glyph_holder = current_run_or_hyperlink
+            # Assign a placeholder to the object's text field
+            current_glyph_holder.text = glyph_tag(index_of_run)
+            # There is nothing to preserve
+            cons_run_plain_text_with_preserves = current_glyph_holder.text
+            # Do not add a tag
+            cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
+            # (style would be Default Paragraph Font)
+            cons_run_style = current_glyph_holder.style.name
+            
+        # Otherwise, if the current object is a hyperlink
+        elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
+            # Rename object for clarity
+            current_hyperlink = current_run_or_hyperlink
+            # Preserve the consolidated run's special characters
+            cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_hyperlink.text)
+            # It needs a tag
+            cons_run_tagged_text_with_preserves = hyperlink_tag(cons_run_plain_text_with_preserves, index_of_run)
+            # (style would be Hyperlink)
+            cons_run_style = "Hyperlink"
+
+        # Otherwise, if the current object is a run    
+        elif isinstance(current_run_or_hyperlink, docx.text.run.Run):
+            # Rename object for clarity
+            current_run = current_run_or_hyperlink
+            # If the run is of a non-default style
+            if current_run.style.name != "Default Paragraph Font":
+                # Preserve the consolidated run's special characters
+                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
+                # It needs a tag
+                cons_run_tagged_text_with_preserves = styled_run_tag(cons_run_plain_text_with_preserves, index_of_run)
+                # (style would be current_run.style.name)
+            else: 
+                # Preserve the consolidated run's special characters
+                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
+                # It does not need a tag
+                cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
+                # (style would be Default Paragraph Font)
+            # Get style
+            cons_run_style = current_run.style.name
+     
+        # Add each consolidated run to the paragraph's sub-dictionary
+        # Look up the paragraph in the translation dictionary (key must be in its "preserved" format)
+        
+        # If the consolidated run is not already in the dictionary
+        # and it is a text-having run
+        if (cons_run_plain_text_with_preserves not in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']
+            and cons_run_plain_text_with_preserves != glyph_tag(index_of_run) 
+            and cons_run_plain_text_with_preserves != ignore_run_tag()
+            and not cons_run_plain_text_with_preserves.isspace()
+            ):
+            
+            # Add it to the translation dictionary
+            translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][cons_run_plain_text_with_preserves] = {
+                'cons_run_tagged_text_with_preserves': cons_run_tagged_text_with_preserves,
+                #'cons_run_translated_text_with_preserves': None,
+                'cons_run_translated_tagged_text_with_preserves': None,
+                'cons_run_style': cons_run_style,
+                #'cons_run_is_to_translate': True
+            }
+
+        # If the run is of a non-default style
+        if cons_run_style != "Default Paragraph Font":
+            # Append it to the paragraph's tagged text with tags
+            translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_tagged_text_with_preserves
+        else: # The run is of the default style
+            # Append without tags
+            translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_plain_text_with_preserves
+
+    return translation_dict
+
+
 
 
 
@@ -215,57 +294,13 @@ def paragraph_level_extractor(translation_dict, paragraph_obj):
 
     # Add it to the translation dictionary
     translation_dict[full_paragraph_plain_text_with_preserves] = {
-        "full_paragraph_tagged_text": "",
-        "full_paragraph_translated_text_with_preserves": None,
+        "full_paragraph_tagged_text_with_preserves": "",
+        #"full_paragraph_translated_text_with_preserves": None,
         "full_paragraph_translated_tagged_text_with_preserves": None,
         "full_paragraph_style": paragraph_obj.style.name,
         #"full_paragraph_is_to_translate": True,
         "consolidated_runs": {}
     }
-
-
-#__________________________________________________________________________
-###########################################################################
-# Function to extract consolidated runs and add them to the translation dictionary
-# Adds the cons. run its paragraph's sub-dictionary
-def run_level_extractor(translation_dict, paragraph_obj, current_run_obj):
-    # if paragraph.text in translation_dict:
-    #     return
-        
-        
-
-    run_text = current_run_obj.text
-
-    # Add each consolidated run to the paragraph's sub-dictionary
-    if run_text is not None and run_text != "" and not run_text.isspace():
-        # Look up the paragraph in the translation dictionary (it must be in its "preserved" format)
-        full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
-        # Create a tag counter for this consolidated run (works out because index = current length consolidated runs sub-dictionary)
-        tag_counter = len(translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'])
-        # Check if the consolidated run is already present. If not, proceed
-        if run_text not in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']:
-            # Preserve the consolidated run's special characters
-            run_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run_obj)
-            # Make a copy with tags
-            tagged_run_text_with_preserves = f"<{tag_counter:02}>{run_text_with_preserves}</{tag_counter:02}>"
-            # Add it to the translation dictionary
-            translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][run_text_with_preserves] = {
-                'cons_run_tagged_text': tagged_run_text_with_preserves,
-                'cons_run_translated_text_with_preserves': None,
-                'cons_run_translated_tagged_text_with_preserves': None,
-                'cons_run_style': current_run_obj.style.name,
-                #'cons_run_is_to_translate': True
-            }
-
-            
-            # If the run is of a non-default style
-            if current_run_obj.style.name != "Default Paragraph Font":
-                # Append it to the paragraph's tagged text with tags
-                translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text'] += tagged_run_text_with_preserves
-            else: # The run is of the default style
-                # Append without tags
-                translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text'] += run_text_with_preserves
-
 
 
 #__________________________________________________________________________
@@ -329,6 +364,7 @@ def process_table_cells(translation_dict, table, step, total_no_swap_count):
             for nested_table in cell.tables:
                 process_table_cells(translation_dict, nested_table, step, total_no_swap_count)
 
+
 #__________________________________________________________________________
 ###########################################################################
 # Function to 
@@ -337,15 +373,31 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, tota
         if step == constants.EXTRACT:
             # PARAGRAPH-LEVEL #################################################
             if preserve_paragraph_special_items_with_temp_symbols(paragraph) in translation_dict:
-                return
+                return # (do nothing)
             paragraph_level_extractor(translation_dict, paragraph)
 
             # RUN-LEVEL #######################################################
-            # Iterate over runs in the paragraph to extract or swap text on a consolidated-run basis
-            (paragraph, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph, step)
-            total_no_swap_count += current_no_swap_count
+            # Keep a copy of the paragraph's translation dictionary key
+            full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+            # Iterate over runs in the paragraph to extract text on a consolidated-run basis
+            paragraph = consolidate_runs(paragraph)
+            translation_dict = extract_runs(translation_dict, paragraph, full_paragraph_plain_text_with_preserves)
+
 
         if step == constants.SWAP:
             # PARAGRAPH-LEVEL #################################################
             (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, paragraph, total_no_swap_count)
         
+
+def ignore_run_tag():
+    return f"<run ignore/>"
+
+def glyph_tag(index_of_run):
+    #return f"<run glyph=\"{index_of_run:02}\"/>"
+    return f"<run glyph='{index_of_run:02}'/>"
+
+def styled_run_tag(run_text, index_of_run):
+    return f"<run style='{index_of_run:02}'>{run_text}</run>"
+
+def hyperlink_tag(hyperlink_text, index_of_run):
+    return f"<run hyperlink='{index_of_run:02}'>{hyperlink_text}</run>"
