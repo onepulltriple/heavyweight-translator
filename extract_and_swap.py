@@ -8,7 +8,7 @@ from conditions_checks import *
 from dict_operations import *
 from csv_read_operations import *
 from csv_write_operations import *
-from regex_operations import *
+from xml_operations import *
 from preservation_operations import *
 from progress_indication_operations import *
 from tagging_operations import *
@@ -143,7 +143,7 @@ def consolidate_runs(paragraph):
                 # collect this run's text
                 text_consolidator += current_run.text
                 # clear this run's text
-                current_run.text = ignore_run_tag()
+                current_run.text = ignore_run_tag(index_of_run)
                 
                 if the_last_run_in_the_paragraph_has_been_reached(next_run_or_hyperlink):
                     pass # move on to the code below
@@ -157,7 +157,7 @@ def consolidate_runs(paragraph):
                 # collect this run's text
                 text_consolidator += current_run.text
                 # clear this run's text
-                current_run.text = ignore_run_tag()
+                current_run.text = ignore_run_tag(index_of_run)
                 
                 if the_last_run_in_the_paragraph_has_been_reached(next_run_or_hyperlink):
                     pass # move on to the code below
@@ -170,7 +170,7 @@ def consolidate_runs(paragraph):
                 # collect this run's text
                 text_consolidator += current_run.text
                 # clear this run's text
-                current_run.text = ignore_run_tag()
+                current_run.text = ignore_run_tag(index_of_run)
                 
                 if the_last_run_in_the_paragraph_has_been_reached(next_run_or_hyperlink):
                     pass # move on to the code below
@@ -239,17 +239,19 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
             # Rename object for clarity
             current_run = current_run_or_hyperlink
             # If the run is of a non-default style
-            if current_run.style.name != "Default Paragraph Font":
+            if (current_run.style.name != "Default Paragraph Font" 
+                    # and it is not a cleared run
+                    and current_run.text != ignore_run_tag(index_of_run)):
                 # Preserve the consolidated run's special characters
                 cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
-                # It needs a tag
+                # Give it a tag
                 cons_run_tagged_text_with_preserves = styled_run_tag(cons_run_plain_text_with_preserves, index_of_run)
                 # (style would be current_run.style.name)
             else: 
                 # Preserve the consolidated run's special characters
                 cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
-                # It does not need a tag
-                cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
+                # It does not need a tag (don't add an ignore tag)
+                cons_run_tagged_text_with_preserves = ""#cons_run_plain_text_with_preserves
                 # (style would be Default Paragraph Font)
             # Get style
             cons_run_style = current_run.style.name
@@ -261,7 +263,7 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
         # and it is a text-having run
         if (cons_run_plain_text_with_preserves not in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']
             and cons_run_plain_text_with_preserves != glyph_tag(index_of_run) 
-            and cons_run_plain_text_with_preserves != ignore_run_tag()
+            and cons_run_plain_text_with_preserves != ignore_run_tag(index_of_run)
             and not cons_run_plain_text_with_preserves.isspace()
             ):
             
@@ -277,8 +279,9 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
             # Append it to the paragraph's tagged text with tags
             translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_tagged_text_with_preserves
         else: # The run is of the default style
-            # Append without tags
-            translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_plain_text_with_preserves
+            if cons_run_plain_text_with_preserves != ignore_run_tag(index_of_run):
+                # Append without tags
+                translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_plain_text_with_preserves
 
     return translation_dict
 
@@ -314,8 +317,10 @@ def paragraph_level_swapper(translation_dict, paragraph_obj, full_paragraph_plai
     # Get full_paragraph_translated_tagged_text_with_preserves
     full_paragraph_translated_tagged_text_with_preserves = translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_translated_tagged_text_with_preserves']
         
+    # Unpreserve
+    full_paragraph_translated_tagged_text = unpreserve_paragraph_translation(full_paragraph_translated_tagged_text_with_preserves)
     # Break it into segments
-    segments = split_with_tags_and_untagged(full_paragraph_translated_tagged_text_with_preserves)
+    segments = split_with_tags_and_untagged(full_paragraph_translated_tagged_text)
     
     # # Loop over each segment and use them to populate the paragraph's runs
     # paragraph_obj.clear()

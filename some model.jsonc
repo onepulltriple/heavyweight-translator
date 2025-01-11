@@ -1,0 +1,13 @@
+[ // Model of list of segments 
+    {
+        "text": "Alternatively, the revaluation can also be triggered manually via the "
+    },
+    {
+        "run_index": "01",
+        "text": "action menu in the order",
+        "type": "hyperlink"
+    },
+    {
+        "text": ". "
+    }
+]

@@ -10,7 +10,7 @@ from csv_read_operations import *
 # Function to read in the first two entries of each row of a csv file and store them as key-value pairs in a dictionary
 def read_csv_to_dict(file_path):
 
-    data_dict  = {}
+    data_dict = {}
 
     with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
         csv_reader = csv.reader(csv_file)
