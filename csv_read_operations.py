@@ -35,8 +35,8 @@ def read_csv_with_replacements(file_path):
             csv_data = []
 
             for row in csv_reader:
-                row[0] = row[0].replace('‘','“')
-                row[0] = row[0].replace('’','”')
+                row[0] = row[0].replace('‘','"')
+                row[0] = row[0].replace('’','"')
 
                 # Append to the array
                 csv_data.append(row[0]) 

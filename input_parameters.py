@@ -6,7 +6,7 @@ from datetime import datetime
 source_document_file_name_without_extension = "Test01"
 
 creation_date = datetime.today().strftime('%Y.%m.%d')
-#creation_date = "2024.12.25"
+#creation_date = "2025.01.01"
 
 source_lang = "de"
 source_culture = "DE"

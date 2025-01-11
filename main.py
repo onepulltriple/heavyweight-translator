@@ -6,7 +6,6 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import file_paths as FP 
     #from collections import OrderedDict
     from dict_operations import *
-    from text_operations import *
     from file_operations import *
     from extract_and_swap import *
     print("\n")
@@ -16,7 +15,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the others out
     step = constants.EXTRACT
-#    step = constants.SWAP
+    step = constants.SWAP
 
 #__________________________________________________________________________
 ###########################################################################
@@ -31,7 +30,7 @@ if step == constants.EXTRACT:
 
     # Create an empty text files to later store translations
     #if not os.path.exists(FP.target_language_translations_file_path):
-    save_to_text_file(FP.target_language_translations_file_path, [])
+    save_to_text_file(FP.target_language_translations_file_path, [], "\n")
 
 if step == constants.SWAP:
     # Update the translation dictionary to include the retrieved translations

@@ -17,6 +17,7 @@ maintained_dictionary_file_path        = document_components_path + "/" + IP.sou
 
 source_language_plain_texts_file_path  = document_components_path + "/" + "01__extracted_plain_text_elements_" + IP.source_lang_cult + ".csv"
 target_language_translations_file_path = document_components_path + "/" + "02__translated_text_elements_" + IP.target_lang_cult + ".csv"
+temp_xml_debug                         = document_components_path + "/" + "00__xml_debug_" + IP.target_lang_cult + ".xml"
 poor_deepl_translations_file_path      = document_components_path + "/" + "03__poor_deepl_translations_" + IP.target_lang_cult + ".txt"
 corrected_deepl_translations_file_path = document_components_path + "/" + "04__corrected_deepl_translations_" + IP.target_lang_cult + ".txt"
 

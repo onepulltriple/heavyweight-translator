@@ -4,8 +4,8 @@
 # Function to retain special symbols at the paragraph level, which deepl seems to otherwise mess up
 def preserve_paragraph_special_items_with_temp_symbols(paragraph_obj):
     return (paragraph_obj.text
-            .replace('\n','<a>') # to preserve newlines in multiline runs
-            .replace('\xa0','<b>') # to preserve non-breaking spaces
+            .replace('\n','<a/>') # to preserve newlines in multiline runs
+            .replace('\xa0','<b/>') # to preserve non-breaking spaces
             )
 
 #__________________________________________________________________________
@@ -22,8 +22,8 @@ def preserve_paragraph_special_items_with_temp_symbols(paragraph_obj):
 # Function to retain special symbols at the run level, which deepl seems to otherwise mess up
 def preserve_run_special_items_with_temp_symbols(run_text):
     return (run_text
-            .replace('\n','<a>') # to preserve newlines in multiline runs
-            .replace('\xa0','<b>') # to preserve non-breaking spaces
+            .replace('\n','<a/>') # to preserve newlines in multiline runs
+            .replace('\xa0','<b/>') # to preserve non-breaking spaces
             )
 
 #__________________________________________________________________________
@@ -31,6 +31,6 @@ def preserve_run_special_items_with_temp_symbols(run_text):
 # Function to restore special symbols at the run level
 def unpreserve_run_text(run_text):
     return (run_text
-            .replace('<a>','\n') # to restore newlines in multiline runs
-            .replace('<b>','\xa0') # to restore non-breaking spaces
+            .replace('<a/>','\n') # to restore newlines in multiline runs
+            .replace('<b/>','\xa0') # to restore non-breaking spaces
             )

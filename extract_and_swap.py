@@ -11,6 +11,19 @@ from csv_write_operations import *
 from regex_operations import *
 from preservation_operations import *
 from progress_indication_operations import *
+from tagging_operations import *
+
+
+#__________________________________________________________________________
+###########################################################################
+# Function to extend pairwise to include a "wrap-around" effect 
+# This is done to be able to recognize and access the last run in a paragraph
+def pairwise_circular(iterable):
+    # "s -> (s0,s1), (s1,s2), (s2, s3), ... (s<last>,s0)"
+    a, b = tee(iterable)
+    first_value = next(b, None) # DO NOT REMOVE THIS LINE!!
+    #return zip_longest(a, b, fillvalue = first_value)
+    return zip_longest(a, b, fillvalue = None)
 
 
 #__________________________________________________________________________
@@ -49,7 +62,9 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     print(f"There were {count_total_operations(translation_dict)} {step} operations.\n")
     if step == constants.EXTRACT:
         write_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
-        write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
+        #write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
+        write_translation_dict_to_csv_simplified(translation_dict, FP.source_language_plain_texts_file_path)
+        
 
     if step == constants.SWAP:
         # Save the modified document to the output file
@@ -253,10 +268,8 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
             # Add it to the translation dictionary
             translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][cons_run_plain_text_with_preserves] = {
                 'cons_run_tagged_text_with_preserves': cons_run_tagged_text_with_preserves,
-                #'cons_run_translated_text_with_preserves': None,
                 'cons_run_translated_tagged_text_with_preserves': None,
                 'cons_run_style': cons_run_style,
-                #'cons_run_is_to_translate': True
             }
 
         # If the run is of a non-default style
@@ -271,20 +284,6 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
 
 
 
-
-
-#__________________________________________________________________________
-###########################################################################
-# Function to extend pairwise to include a "wrap-around" effect 
-# This is done to be able to recognize and access the last run in a paragraph
-def pairwise_circular(iterable):
-    # "s -> (s0,s1), (s1,s2), (s2, s3), ... (s<last>,s0)"
-    a, b = tee(iterable)
-    first_value = next(b, None) # DO NOT REMOVE THIS LINE!!
-    #return zip_longest(a, b, fillvalue = first_value)
-    return zip_longest(a, b, fillvalue = None)
-
-
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract full paragraphs and add them to the translation dictionary
@@ -295,10 +294,8 @@ def paragraph_level_extractor(translation_dict, paragraph_obj):
     # Add it to the translation dictionary
     translation_dict[full_paragraph_plain_text_with_preserves] = {
         "full_paragraph_tagged_text_with_preserves": "",
-        #"full_paragraph_translated_text_with_preserves": None,
         "full_paragraph_translated_tagged_text_with_preserves": None,
         "full_paragraph_style": paragraph_obj.style.name,
-        #"full_paragraph_is_to_translate": True,
         "consolidated_runs": {}
     }
 
@@ -306,39 +303,33 @@ def paragraph_level_extractor(translation_dict, paragraph_obj):
 #__________________________________________________________________________
 ###########################################################################
 # Function to retain special symbols, which deepl seems to otherwise mess up
-def paragraph_level_swapper(translation_dict, paragraph_obj, total_no_swap_count):
-    # Use full paragraph text as key after changing it to "preserved" format
-    full_paragraph_preserved_text = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
-    
-    # (paragraph_obj, current_no_swap_count) = consolidate_then_extract_or_swap_text_runs(translation_dict, paragraph_obj, constants.SWAP)
-    # total_no_swap_count += current_no_swap_count
-
-
+def paragraph_level_swapper(translation_dict, paragraph_obj, full_paragraph_plain_text_with_preserves, total_no_swap_count):
+   
     # Attempt to find a translation in the dictionary
-    if full_paragraph_preserved_text not in translation_dict:
-        print(f"The text element \"{full_paragraph_preserved_text}\" was not found in the translation dictionary's keys.")
+    if full_paragraph_plain_text_with_preserves not in translation_dict:
+        print(f"The text element \"{full_paragraph_plain_text_with_preserves}\" was not found in the translation dictionary's keys.")
         total_no_swap_count +=1
         return paragraph_obj, total_no_swap_count
     
     # Get full_paragraph_translated_tagged_text_with_preserves
-    full_paragraph_translated_tagged_text_with_preserves = translation_dict[full_paragraph_preserved_text]['full_paragraph_translated_tagged_text_with_preserves']
+    full_paragraph_translated_tagged_text_with_preserves = translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_translated_tagged_text_with_preserves']
         
     # Break it into segments
     segments = split_with_tags_and_untagged(full_paragraph_translated_tagged_text_with_preserves)
     
-    # Loop over each segment and use them to populate the paragraph's runs
-    paragraph_obj.clear()
-    for segment in segments:
-        temp_style = None
-        # If the run has tags, add its text and style
-        if contains_numeric_tags(segment):
-            # Attempt to look up the run in the translation dictionary
-            segment = remove_numeric_tags(segment)
-            if segment in translation_dict[full_paragraph_preserved_text]['consolidated_runs']:
-                temp_style = translation_dict[full_paragraph_preserved_text]['consolidated_runs'][segment]['cons_run_style']
+    # # Loop over each segment and use them to populate the paragraph's runs
+    # paragraph_obj.clear()
+    # for segment in segments:
+    #     temp_style = None
+    #     # If the run has tags, add its text and style
+    #     if contains_numeric_tags(segment):
+    #         # Attempt to look up the run in the translation dictionary
+    #         segment = remove_numeric_tags(segment)
+    #         if segment in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']:
+    #             temp_style = translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][segment]['cons_run_style']
 
-        segment = unpreserve_run_text(segment)
-        paragraph_obj.add_run(segment, temp_style)
+    #     segment = unpreserve_run_text(segment)
+    #     paragraph_obj.add_run(segment, temp_style)
     
     return paragraph_obj, total_no_swap_count
 
@@ -379,25 +370,20 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, tota
             # RUN-LEVEL #######################################################
             # Keep a copy of the paragraph's translation dictionary key
             full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
-            # Iterate over runs in the paragraph to extract text on a consolidated-run basis
+            # Iterate over runs in the paragraph to consolidate them
             paragraph = consolidate_runs(paragraph)
+            # Iterate over runs in the paragraph to extract text on a consolidated-run basis
             translation_dict = extract_runs(translation_dict, paragraph, full_paragraph_plain_text_with_preserves)
 
 
         if step == constants.SWAP:
             # PARAGRAPH-LEVEL #################################################
-            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, paragraph, total_no_swap_count)
+            if preserve_paragraph_special_items_with_temp_symbols(paragraph) not in translation_dict:
+                return # (do nothing)
+            # Keep a copy of the paragraph's translation dictionary key
+            full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+            # Iterate over runs in the paragraph to consolidate them
+            paragraph = consolidate_runs(paragraph)
+
+            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, paragraph, full_paragraph_plain_text_with_preserves, total_no_swap_count)
         
-
-def ignore_run_tag():
-    return f"<run ignore/>"
-
-def glyph_tag(index_of_run):
-    #return f"<run glyph=\"{index_of_run:02}\"/>"
-    return f"<run glyph='{index_of_run:02}'/>"
-
-def styled_run_tag(run_text, index_of_run):
-    return f"<run style='{index_of_run:02}'>{run_text}</run>"
-
-def hyperlink_tag(hyperlink_text, index_of_run):
-    return f"<run hyperlink='{index_of_run:02}'>{hyperlink_text}</run>"
