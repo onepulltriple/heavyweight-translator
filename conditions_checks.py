@@ -165,6 +165,43 @@ def there_is_a_change_of_nature(current_run, next_run_or_hyperlink):
 
     return False
 
+def there_WAS_a_change_of_nature(current_run, previous_run_or_hyperlink):
+    # the previous run was a hyperlink
+    if isinstance(previous_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
+        return False
+    
+    if previous_run_or_hyperlink == None: 
+        return False
+    
+    # the font color has returned to normal (matches the paragraph)
+    if current_run.font.color == current_run._parent.style.font.color:
+        return False
+        
+    # the font size has returned to normal (no run-level size applied)
+    if current_run.font.size == None:
+        return False
+        
+    # the font name has returned to normal (no run-level name applied)
+    if current_run.font.name == None:
+        return False
+
+    # the font color changed
+    if previous_run_or_hyperlink.font.color != current_run.font.color:
+        return True
+    
+    # the style name changed
+    # if previous_run_or_hyperlink.style.name != current_run.style.name:
+    #     return True
+    
+    # the font size changed
+    if previous_run_or_hyperlink.font.size != current_run.font.size:
+        return True
+    
+    # the font name changed 
+    if previous_run_or_hyperlink.font.name != current_run.font.name:
+        return True
+
+    return False
 
 def there_is_no_text_in_the_next_run(next_run_or_hyperlink):
     if next_run_or_hyperlink == None: # this check avoids null exceptions

@@ -206,8 +206,12 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
 
     index_of_run = -1
 
+    # Hold on to last run when needed
+    previous_run = None
+
     # Loop over all the runs/hyperlinks in the paragraph
     for current_run_or_hyperlink in paragraph_with_cons_runs.iter_inner_content():
+    #for current_run_or_hyperlink, next_run_or_hyperlink in pairwise_circular(paragraph_with_cons_runs.iter_inner_content()):
         index_of_run += 1
 
         # Create a placeholder for pictures or other non-text-having runs
@@ -247,6 +251,17 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
                 # Give it a tag
                 cons_run_tagged_text_with_preserves = styled_run_tag(cons_run_plain_text_with_preserves, index_of_run)
                 # (style would be current_run.style.name)
+            elif(the_current_run_has_an_R_character(current_run)
+                 or there_WAS_a_change_of_nature(current_run, previous_run)
+                    # and it is not a cleared run
+                    and current_run.text != ignore_run_tag(index_of_run)
+                    # and it is not an empty run
+                    and not current_run.text.isspace()):
+                # Preserve the consolidated run's special characters
+                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
+                # Give it a tag
+                cons_run_tagged_text_with_preserves = changed_run_tag(cons_run_plain_text_with_preserves, index_of_run)
+                # (style would be Default Paragraph Font, probably)
             else: 
                 # Preserve the consolidated run's special characters
                 cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
@@ -279,9 +294,14 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
             # Append it to the paragraph's tagged text with tags
             translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_tagged_text_with_preserves
         else: # The run is of the default style
-            if cons_run_plain_text_with_preserves != ignore_run_tag(index_of_run):
+            if cons_run_tagged_text_with_preserves == changed_run_tag(cons_run_plain_text_with_preserves, index_of_run):
+                # Append with tags
+                translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_tagged_text_with_preserves
+            elif cons_run_plain_text_with_preserves != ignore_run_tag(index_of_run):
                 # Append without tags
                 translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_plain_text_with_preserves
+
+        previous_run = current_run_or_hyperlink
 
     return translation_dict
 
