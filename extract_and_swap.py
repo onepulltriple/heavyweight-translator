@@ -412,22 +412,33 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
                 current_run = current_run_or_hyperlink        
                 # Take the text from the translated run
                 current_run.text = current_translated_run_dict["text"]
-                # If there is a special style to retrieve, get it and apply it
+                # If there is a style applied or changes to retrieve, get and apply
                 if "type" in current_translated_run_dict.keys():
                     # Get the index of the consolidated run whose style is needed
                     index_of_styled_run = current_translated_run_dict["run_index"]
 
-                    if current_translated_run_dict["type"] == "styled":
+                    if (current_translated_run_dict["type"] == "styled"):
                         # Get the consolidated run whose style is needed
                         run_that_has_style_to_apply = carbon_copy_of_paragraph_with_cons_runs.runs[index_of_styled_run]
                         # Apply the style to the current consolidated run
                         current_run.style = run_that_has_style_to_apply.style
-                    #else:
-                    # apply manual styling attributes?
+                    elif (current_translated_run_dict["type"] == "changed"):
+                        # Get the consolidated run whose changes are needed
+                        run_that_has_changes_to_apply = carbon_copy_of_paragraph_with_cons_runs.runs[index_of_styled_run]
+                        # Apply the changes
+                        current_run.font.color.rgb = run_that_has_changes_to_apply.font.color.rgb
+                        current_run.font.size = run_that_has_changes_to_apply.font.size
+                        current_run.font.name = run_that_has_changes_to_apply.font.name
+                        # Apply the style to the current consolidated run
+                        current_run.style = run_that_has_changes_to_apply.style
 
-                # Otherwise apply the default style
+                # Otherwise apply the default style and remove any manually applied changes
                 else:
                     current_run.style.name = "Default Paragraph Font"
+                    current_run.font.color.rgb = current_run._parent.style.font.color.rgb
+                    current_run.font.size = None
+                    current_run.font.name = None
+                    current_run.font.subscript = None
 
                 # Increment the translated run index
                 index_of_translated_run += 1 
