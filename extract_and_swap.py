@@ -286,7 +286,6 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
     return translation_dict
 
 
-
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract full paragraphs and add them to the translation dictionary
@@ -320,31 +319,98 @@ def paragraph_level_swapper(translation_dict, paragraph_obj, full_paragraph_plai
     # Unpreserve
     full_paragraph_translated_tagged_text = unpreserve_paragraph_translation(full_paragraph_translated_tagged_text_with_preserves)
     # Break it into segments
-    segments = split_with_tags_and_untagged(full_paragraph_translated_tagged_text)
+    translated_runs_with_tags = split_with_tags_and_untagged(full_paragraph_translated_tagged_text)
     
-    # # Loop over each segment and use them to populate the paragraph's runs
-    # paragraph_obj.clear()
-    # for segment in segments:
-    #     temp_style = None
-    #     # If the run has tags, add its text and style
-    #     if contains_numeric_tags(segment):
-    #         # Attempt to look up the run in the translation dictionary
-    #         segment = remove_numeric_tags(segment)
-    #         if segment in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']:
-    #             temp_style = translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][segment]['cons_run_style']
+    # Get the consolidated version of the current paragraph object
+    paragraph_with_cons_runs = consolidate_runs(paragraph_obj)
 
-    #     segment = unpreserve_run_text(segment)
-    #     paragraph_obj.add_run(segment, temp_style)
+    paragraph_obj = swap_runs(paragraph_with_cons_runs, translated_runs_with_tags)
     
     return paragraph_obj, total_no_swap_count
+
+
+#__________________________________________________________________________
+###########################################################################
+# Function to tag and extract text from a paragraph and its hyperlinks
+def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
+
+    index_of_consolidated_run = -1
+
+    carbon_copy_of_paragraph_with_cons_runs = paragraph_with_cons_runs
+
+    # Loop over all the runs/hyperlinks in the paragraph
+    for current_run_or_hyperlink in paragraph_with_cons_runs.iter_inner_content():
+        index_of_consolidated_run += 1
+
+        if index_of_consolidated_run < len(translated_runs_with_tags):          
+            current_translated_run_dict = translated_runs_with_tags[index_of_consolidated_run]
+
+            # Deal with pictures or other non-text-having runs
+            if not current_run_or_hyperlink.text:
+                # Rename object for clarity
+                current_glyph_holder = current_run_or_hyperlink
+                # Do nothing (later replace with translated image)
+                # Should the indeces be the same?
+                if ("run_index" in current_translated_run_dict.keys() 
+                    and index_of_consolidated_run == current_translated_run_dict["run_index"]):
+                    pass
+
+                
+            # Otherwise, if the current object is a hyperlink
+            elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
+                # Rename object for clarity
+                current_hyperlink = current_run_or_hyperlink
+
+
+            # Otherwise, if the current object is a run    
+            elif isinstance(current_run_or_hyperlink, docx.text.run.Run):
+                # Rename object for clarity
+                current_run = current_run_or_hyperlink        
+                # Take the text from the translated run
+                current_run.text = current_translated_run_dict["text"]
+                # If there is a special style to retrieve, get it and apply it
+                if "styled" in current_translated_run_dict.keys():
+                    index_of_styled_run = current_translated_run_dict["run_index"]
+                    
+                    run_that_has_style_to_apply = carbon_copy_of_paragraph_with_cons_runs.runs[index_of_styled_run]
+
+                    current_run.style.name = run_that_has_style_to_apply.style.name
+                # Otherwise apply the default style
+                else:
+                    current_run.style.name = "Default Paragraph Font"
+
+        else: # There are no more translated runs, so clean up remaining consolidated runs
+            if not current_run_or_hyperlink.text:
+                # Rename object for clarity
+                current_glyph_holder = current_run_or_hyperlink
+                # Do nothing (later replace with translated image)
+                print("Unhandled glyph\n")
+                
+            # Otherwise, if the current object is a hyperlink
+            elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
+                # Rename object for clarity
+                current_hyperlink = current_run_or_hyperlink
+                print("Unhandled hyperlink\n")
+
+            # Otherwise, if the current object is a run    
+            elif isinstance(current_run_or_hyperlink, docx.text.run.Run):
+                # Rename object for clarity
+                current_run = current_run_or_hyperlink        
+                # Take the text from the translated run
+                current_run.clear()
+                # Apply the default style
+                current_run.style.name = "Default Paragraph Font"
+
+    return paragraph_with_cons_runs
+
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract consolidated runs and add them to the translation dictionary
-def run_level_swap_prep(current_run_obj, current_no_swap_count):
-    #current_run_obj.clear()
+# def run_level_swap_prep(current_run_obj, current_no_swap_count):
+#     #current_run_obj.clear()
 
-    return current_run_obj, current_no_swap_count
+#     return current_run_obj, current_no_swap_count
 
 
 #__________________________________________________________________________
