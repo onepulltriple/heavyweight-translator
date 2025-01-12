@@ -335,73 +335,111 @@ def paragraph_level_swapper(translation_dict, paragraph_obj, full_paragraph_plai
 def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
 
     index_of_consolidated_run = -1
+    index_of_translated_run = 0
 
+    # An untouched copy is needed to obtain unchanged info from the consolidated runs
     carbon_copy_of_paragraph_with_cons_runs = paragraph_with_cons_runs
 
-    # Loop over all the runs/hyperlinks in the paragraph
+    # Loop over all the runs/hyperlinks in the paragraph with consolidated runs
     for current_run_or_hyperlink in paragraph_with_cons_runs.iter_inner_content():
         index_of_consolidated_run += 1
 
-        if index_of_consolidated_run < len(translated_runs_with_tags):          
+        # As long as we are still working through the translated runs...
+        if index_of_consolidated_run < len(translated_runs_with_tags):         
+            # Get the current entry from the list of translated runs
             current_translated_run_dict = translated_runs_with_tags[index_of_consolidated_run]
 
-            # Deal with pictures or other non-text-having runs
-            if not current_run_or_hyperlink.text:
-                # Rename object for clarity
-                current_glyph_holder = current_run_or_hyperlink
-                # Do nothing (later replace with translated image)
-                # Should the indeces be the same?
-                if ("run_index" in current_translated_run_dict.keys() 
-                    and index_of_consolidated_run == current_translated_run_dict["run_index"]):
-                    pass
+            # If the translated run is anything other than a plain text run
+            if "type" in current_translated_run_dict.keys():
+                # Get the index of the corresponding consolidated run
+                #index_of_styled_run_or_hyperlink = current_translated_run_dict["run_index"]
 
-                
-            # Otherwise, if the current object is a hyperlink
-            elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
-                # Rename object for clarity
-                current_hyperlink = current_run_or_hyperlink
+                # If the current translated run is a glyph placeholder
+                if current_translated_run_dict["type"] == "glyph":
+                    # and if the current consolidated run is also a glyph
+                    if (current_run_or_hyperlink.text is None
+                        # and it is the correct/target glyph
+                        and index_of_consolidated_run == current_translated_run_dict["run_index"]
+                        ):
+                        # Rename object for clarity
+                        current_glyph_holder = current_run_or_hyperlink
+                        # Do nothing (later replace with translated image)
+                        pass
+                        index_of_translated_run += 1 # in everycase except when a hyperlink is reached
+                    # Otherwise, clear this consolidated run and set it to default
+                    else:
+                        clear_cons_run_and_set_to_defaults(current_run_or_hyperlink)
 
+                # Otherwise, if the current translated run is a hyperlink
+                elif current_translated_run_dict["type"] == "hyperlink":
+                    # and if the current consolidated run is also a hyperlink
+                    if (isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink)
+                        # and it is the correct/target hyperlink
+                        and index_of_consolidated_run == current_translated_run_dict["run_index"]
+                        ):
+                        # Rename object for clarity
+                        current_hyperlink = current_run_or_hyperlink                        
+                        # Take the text from the translated hyperlink's text
+                        current_hyperlink.runs[0].text = current_translated_run_dict["text"]
+                            # If remaining runs in the hyperlink need to be cleared, do it here
+                        # Increment the translated run index
+                        index_of_translated_run += 1 
+                    # Otherwise, clear this consolidated run and set it to default
+                    else:
+                        clear_cons_run_and_set_to_defaults(current_run_or_hyperlink)
 
-            # Otherwise, if the current object is a run    
-            elif isinstance(current_run_or_hyperlink, docx.text.run.Run):
+                # Otherwise, if the current translated run is stylised
+
+            # Deal with stylized or plain text runs
+            #elif isinstance(current_run_or_hyperlink, docx.text.run.Run):
+            else:
                 # Rename object for clarity
                 current_run = current_run_or_hyperlink        
                 # Take the text from the translated run
                 current_run.text = current_translated_run_dict["text"]
                 # If there is a special style to retrieve, get it and apply it
-                if "styled" in current_translated_run_dict.keys():
-                    index_of_styled_run = current_translated_run_dict["run_index"]
-                    
-                    run_that_has_style_to_apply = carbon_copy_of_paragraph_with_cons_runs.runs[index_of_styled_run]
+                if "type" in current_translated_run_dict.keys():
+                    index_of_styled_run_or_hyperlink = current_translated_run_dict["run_index"]
+                    if current_translated_run_dict["type"] == "styled":
+                        run_that_has_style_to_apply = carbon_copy_of_paragraph_with_cons_runs.runs[index_of_styled_run_or_hyperlink]
+                        current_run.style = run_that_has_style_to_apply.style
 
-                    current_run.style.name = run_that_has_style_to_apply.style.name
                 # Otherwise apply the default style
                 else:
                     current_run.style.name = "Default Paragraph Font"
-
-        else: # There are no more translated runs, so clean up remaining consolidated runs
-            if not current_run_or_hyperlink.text:
-                # Rename object for clarity
-                current_glyph_holder = current_run_or_hyperlink
-                # Do nothing (later replace with translated image)
-                print("Unhandled glyph\n")
-                
-            # Otherwise, if the current object is a hyperlink
-            elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
-                # Rename object for clarity
-                current_hyperlink = current_run_or_hyperlink
-                print("Unhandled hyperlink\n")
-
-            # Otherwise, if the current object is a run    
-            elif isinstance(current_run_or_hyperlink, docx.text.run.Run):
-                # Rename object for clarity
-                current_run = current_run_or_hyperlink        
-                # Take the text from the translated run
-                current_run.clear()
-                # Apply the default style
-                current_run.style.name = "Default Paragraph Font"
+        
+        # Otherwise, there are no more translated runs, so clean up remaining consolidated runs
+        else: 
+            clear_cons_run_and_set_to_defaults(current_run_or_hyperlink)
 
     return paragraph_with_cons_runs
+
+#__________________________________________________________________________
+###########################################################################
+def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
+    if not current_run_or_hyperlink.text:
+        # Rename object for clarity
+        current_glyph_holder = current_run_or_hyperlink
+        # Do nothing (later replace with translated image)
+        print("Unhandled glyph")
+        return current_glyph_holder
+        
+    # Otherwise, if the current object is a hyperlink
+    elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
+        # Rename object for clarity
+        current_hyperlink = current_run_or_hyperlink
+        print("Unhandled hyperlink")
+        return current_hyperlink
+
+    # Otherwise, if the current object is a run    
+    elif isinstance(current_run_or_hyperlink, docx.text.run.Run):
+        # Rename object for clarity
+        current_run = current_run_or_hyperlink        
+        # Take the text from the translated run
+        current_run.clear()
+        # Apply the default style
+        current_run.style.name = "Default Paragraph Font"
+        return current_run
 
 
 #__________________________________________________________________________
