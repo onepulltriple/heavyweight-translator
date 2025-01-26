@@ -12,6 +12,7 @@ from xml_operations import *
 from preservation_operations import *
 from progress_indication_operations import *
 from tagging_operations import *
+from copy import deepcopy
 
 
 #__________________________________________________________________________
@@ -359,6 +360,7 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
 
     # An untouched copy of the paragraph is needed to obtain unchanged info from the consolidated runs
     carbon_copy_of_paragraph_with_cons_runs = list(paragraph_with_cons_runs.iter_inner_content())
+    carbon_copy_of_paragraph_with_cons_runs = deepcopy(carbon_copy_of_paragraph_with_cons_runs)
 
     # Loop over all the runs/hyperlinks in the paragraph with consolidated runs
     for current_run_or_hyperlink in paragraph_with_cons_runs.iter_inner_content():
