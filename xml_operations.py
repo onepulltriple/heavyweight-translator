@@ -8,8 +8,17 @@ from file_paths import *
 def split_with_tags_and_untagged(input_str):
     
     input_str_with_xml_wrapper = f"<?xml version=\"1.0\"?><paragraph>{input_str}</paragraph>"
-    root = ET.fromstring(input_str_with_xml_wrapper)
+    # Save a copy as an xml file to aid in debugging
     save_to_text_file(temp_xml_debug, input_str_with_xml_wrapper)
+    # Parse xml string
+
+
+
+    root = ET.fromstring(
+        input_str_with_xml_wrapper
+        .replace("</run </paragraph>","</run></paragraph>")
+        .replace("</run</paragraph>","</run></paragraph>")
+        )
 
     # Create a list
     translated_content = []
@@ -17,6 +26,7 @@ def split_with_tags_and_untagged(input_str):
     # First collect root text, if it is there
     if root.text is not None:
         translated_content.append({'text': f"{root.text}"})
+
 
     # Loop over the elements inside root
     for child in root:

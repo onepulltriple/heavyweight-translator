@@ -1,8 +1,14 @@
 # Function definitions for csv-reading tasks
 import csv
 import os.path
+import sys
 from dict_operations import *
 
+#csv.field_size_limit(100000000)
+#csv.field_size_limit(sys.maxsize)
+import ctypes
+MAX_SIGNED_LONG = (1 << (8 * ctypes.sizeof(ctypes.c_long) - 1)) - 1; 
+csv.field_size_limit(MAX_SIGNED_LONG)
 #__________________________________________________________________________
 ###########################################################################
 # Function to read in a single-column csv file without making changes
@@ -35,11 +41,17 @@ def read_csv_with_replacements(file_path):
             csv_data = []
 
             for row in csv_reader:
-                row[0] = row[0].replace('‘','"')
-                row[0] = row[0].replace('’','"')
+                if len(row) > 0:
+                    
+                    row[0] = row[0].replace('‘','"')
+                    row[0] = row[0].replace('’','"')
 
+                    temp = row[0]
+                else:
+                    temp = ""
+                
                 # Append to the array
-                csv_data.append(row[0]) 
+                csv_data.append(temp) 
 
             return csv_data
         

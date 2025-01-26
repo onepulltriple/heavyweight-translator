@@ -43,19 +43,19 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     
     # Initialize operation counters
     total_no_swap_count = 0
-    newest_print_progress_threshold = 10
+    newest_print_progress_threshold = 1000
 
 
     # PARAGRAPHS ##########################################################
     for paragraph in doc.paragraphs:
         process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count)
-        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold)
+        #newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold)
         
 
     # TABLES ##############################################################
     for table in doc.tables:
         process_table_cells(translation_dict, table, step, total_no_swap_count)
-        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold)
+        #newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold)
 
 
     # RESULTS #############################################################
@@ -357,14 +357,14 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
     index_of_consolidated_run = -1
     index_of_translated_run = 0
 
-    # An untouched copy is needed to obtain unchanged info from the consolidated runs
-    carbon_copy_of_paragraph_with_cons_runs = paragraph_with_cons_runs
+    # An untouched copy of the paragraph is needed to obtain unchanged info from the consolidated runs
+    carbon_copy_of_paragraph_with_cons_runs = list(paragraph_with_cons_runs.iter_inner_content())
 
     # Loop over all the runs/hyperlinks in the paragraph with consolidated runs
     for current_run_or_hyperlink in paragraph_with_cons_runs.iter_inner_content():
         index_of_consolidated_run += 1
 
-        # As long as we are still working through the translated runs...
+        # As long as we are still working through the translated runs
         if index_of_translated_run < len(translated_runs_with_tags):      
             # Get the current entry from the list of translated runs
             current_translated_run_dict = translated_runs_with_tags[index_of_translated_run]
@@ -411,7 +411,10 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
                 # Rename object for clarity
                 current_run = current_run_or_hyperlink        
                 # Take the text from the translated run
-                current_run.text = current_translated_run_dict["text"]
+                if "text" in current_translated_run_dict.keys():
+                    current_run.text = current_translated_run_dict["text"]
+                else:
+                    current_run.text = ""
                 # If there is a style applied or changes to retrieve, get and apply
                 if "type" in current_translated_run_dict.keys():
                     # Get the index of the consolidated run whose style is needed
@@ -419,12 +422,12 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
 
                     if (current_translated_run_dict["type"] == "styled"):
                         # Get the consolidated run whose style is needed
-                        run_that_has_style_to_apply = carbon_copy_of_paragraph_with_cons_runs.runs[index_of_styled_run]
+                        run_that_has_style_to_apply = carbon_copy_of_paragraph_with_cons_runs[index_of_styled_run]
                         # Apply the style to the current consolidated run
                         current_run.style = run_that_has_style_to_apply.style
                     elif (current_translated_run_dict["type"] == "changed"):
                         # Get the consolidated run whose changes are needed
-                        run_that_has_changes_to_apply = carbon_copy_of_paragraph_with_cons_runs.runs[index_of_styled_run]
+                        run_that_has_changes_to_apply = carbon_copy_of_paragraph_with_cons_runs[index_of_styled_run]
                         # Apply the changes
                         current_run.font.color.rgb = run_that_has_changes_to_apply.font.color.rgb
                         current_run.font.size = run_that_has_changes_to_apply.font.size
@@ -456,14 +459,14 @@ def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
         # Rename object for clarity
         current_glyph_holder = current_run_or_hyperlink
         # Do nothing (later replace with translated image)
-        print("Glyphs should not make it to this funtion")
+        print("Glyphs should not make it to this function")
         return current_glyph_holder
         
     # Otherwise, if the current object is a hyperlink
     elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
         # Rename object for clarity
         current_hyperlink = current_run_or_hyperlink
-        print("Hyperlinks should not make it to this funtion")
+        print("Hyperlinks should not make it to this function")
         return current_hyperlink
 
     # Otherwise, if the current object is a run    

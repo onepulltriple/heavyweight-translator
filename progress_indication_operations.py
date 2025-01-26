@@ -8,7 +8,7 @@ def indicate_progress(translation_dict, step, newest_print_progress_threshold):
 
     if (total_op_count > newest_print_progress_threshold):
         print(f"{newest_print_progress_threshold} {step} operations...")
-        newest_print_progress_threshold += 10
+        newest_print_progress_threshold += 1000
 
     return newest_print_progress_threshold
 
