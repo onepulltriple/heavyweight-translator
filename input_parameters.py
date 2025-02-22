@@ -4,7 +4,7 @@ from datetime import datetime
 ###########################################################################
 # Variables
 source_document_file_name_without_extension = "translogica Benutzerhandbuch New Design"
-#source_document_file_name_without_extension = "Test01"
+source_document_file_name_without_extension = "Test01"
 
 creation_date = datetime.today().strftime('%Y.%m.%d')
 #creation_date = "2025.01.25"

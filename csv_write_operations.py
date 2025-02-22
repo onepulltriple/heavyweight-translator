@@ -63,14 +63,14 @@ def write_translation_dict_to_csv_simplified(translation_dict, file_path):
         with open(file_path, 'w', newline='', encoding='utf-8-sig') as csv_file:
             csv_writer = csv.writer(csv_file, delimiter='|') 
 
-            for full_paragraph_plain_text_with_preserves in translation_dict:
-                # Write the full paragraph plain text
-                csv_writer.writerow([full_paragraph_plain_text_with_preserves])
+            for full_paragraph_tagged_text_with_preserves in translation_dict:
+                # Write the full paragraph tagged text
+                csv_writer.writerow([full_paragraph_tagged_text_with_preserves])
 
                 # Write the full paragraph tagged text
-                csv_writer.writerow([
-                    translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves']
-                    ])
+                # csv_writer.writerow([
+                #     translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves']
+                #     ])
                 
                 # for cons_run_plain_text_with_preserves in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']:
                 #     # Write the consolidated run plain text

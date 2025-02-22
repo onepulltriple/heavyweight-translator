@@ -1,0 +1,8 @@
+set language to target language (document or run level?)
+feature to allow users to manually correct specific words
+turn manually added changes into a new style and use that style instead
+iron out wrinkles in current iteration
+deepl api?
+user interface?
+refactor newest functions
+adjust print progress threshold to not use a hard-coded value

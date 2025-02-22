@@ -60,7 +60,7 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
 
 
     # RESULTS #############################################################
-    print(f"There were {count_total_operations(translation_dict)} {step} operations.\n")
+    #print(f"There were {count_total_operations(translation_dict)} {step} operations.\n")
     if step == constants.EXTRACT:
         write_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
         #write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
@@ -203,9 +203,10 @@ def consolidate_runs(paragraph):
 #__________________________________________________________________________
 ###########################################################################
 # Function to tag and extract text from a paragraph and its hyperlinks
-def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plain_text_with_preserves):
+def extract_runs(paragraph_with_cons_runs):
 
     index_of_run = -1
+    full_paragraph_tagged_text_with_preserves = ""
 
     # Hold on to last run when needed
     previous_run = None
@@ -267,75 +268,102 @@ def extract_runs(translation_dict, paragraph_with_cons_runs, full_paragraph_plai
                 # Preserve the consolidated run's special characters
                 cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
                 # It does not need a tag (don't add an ignore tag)
-                cons_run_tagged_text_with_preserves = ""#cons_run_plain_text_with_preserves
+                #cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
                 # (style would be Default Paragraph Font)
             # Get style
             cons_run_style = current_run.style.name
      
-        # Add each consolidated run to the paragraph's sub-dictionary
-        # Look up the paragraph in the translation dictionary (key must be in its "preserved" format)
+        # # Add each consolidated run to the paragraph's sub-dictionary
+        # # Look up the paragraph in the translation dictionary (key must be in its "preserved" format)
         
-        # If the consolidated run is not already in the dictionary
-        # and it is a text-having run
-        if (cons_run_plain_text_with_preserves not in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']
-            and cons_run_plain_text_with_preserves != glyph_tag(index_of_run) 
-            and cons_run_plain_text_with_preserves != ignore_run_tag(index_of_run)
-            and not cons_run_plain_text_with_preserves.isspace()
-            ):
+        # # If the consolidated run is not already in the dictionary
+        # # and it is a text-having run
+        # if (cons_run_plain_text_with_preserves not in translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs']
+        #     and cons_run_plain_text_with_preserves != glyph_tag(index_of_run) 
+        #     and cons_run_plain_text_with_preserves != ignore_run_tag(index_of_run)
+        #     and not cons_run_plain_text_with_preserves.isspace()
+        #     ):
             
-            # Add it to the translation dictionary
-            translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][cons_run_plain_text_with_preserves] = {
-                'cons_run_tagged_text_with_preserves': cons_run_tagged_text_with_preserves,
-                'cons_run_translated_tagged_text_with_preserves': None,
-                'cons_run_style': cons_run_style,
-            }
+        #     # Add it to the translation dictionary
+        #     translation_dict[full_paragraph_plain_text_with_preserves]['consolidated_runs'][cons_run_plain_text_with_preserves] = {
+        #         'cons_run_tagged_text_with_preserves': cons_run_tagged_text_with_preserves,
+        #         'cons_run_translated_tagged_text_with_preserves': None,
+        #         'cons_run_style': cons_run_style,
+        #     }
 
+        # # If the run is of a non-default style
+        # if cons_run_style != "Default Paragraph Font":
+        #     # Append it to the paragraph's tagged text with tags
+        #     translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_tagged_text_with_preserves
+        # else: # The run is of the default style
+        #     if cons_run_tagged_text_with_preserves == changed_run_tag(cons_run_plain_text_with_preserves, index_of_run):
+        #         # Append with tags
+        #         translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_tagged_text_with_preserves
+        #     elif cons_run_plain_text_with_preserves != ignore_run_tag(index_of_run):
+        #         # Append without tags
+        #         translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_plain_text_with_preserves
+
+        
         # If the run is of a non-default style
         if cons_run_style != "Default Paragraph Font":
             # Append it to the paragraph's tagged text with tags
-            translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_tagged_text_with_preserves
+            full_paragraph_tagged_text_with_preserves += cons_run_tagged_text_with_preserves
         else: # The run is of the default style
             if cons_run_tagged_text_with_preserves == changed_run_tag(cons_run_plain_text_with_preserves, index_of_run):
                 # Append with tags
-                translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_tagged_text_with_preserves
+                full_paragraph_tagged_text_with_preserves += cons_run_tagged_text_with_preserves
             elif cons_run_plain_text_with_preserves != ignore_run_tag(index_of_run):
                 # Append without tags
-                translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_tagged_text_with_preserves'] += cons_run_plain_text_with_preserves
+                full_paragraph_tagged_text_with_preserves += cons_run_plain_text_with_preserves
 
         previous_run = current_run_or_hyperlink
 
-    return translation_dict
+    # if (full_paragraph_tagged_text_with_preserves != "" 
+    #     and not full_paragraph_tagged_text_with_preserves.isspace()
+    #     and full_paragraph_tagged_text_with_preserves not in translation_dict):
+    #     # Add it to the translation dictionary
+    #     translation_dict[full_paragraph_tagged_text_with_preserves] = {
+    #         "full_paragraph_translated_tagged_text_with_preserves": None
+    #     }
+
+    return full_paragraph_tagged_text_with_preserves
 
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract full paragraphs and add them to the translation dictionary
-def paragraph_level_extractor(translation_dict, paragraph_obj):
-    # Use full paragraph text as a key after changing it to "preserved" format
-    full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
+# def paragraph_level_extractor(translation_dict, paragraph_obj):
+#     # Use full paragraph text as a key after changing it to "preserved" format
+#     full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph_obj)
 
-    # Add it to the translation dictionary
-    translation_dict[full_paragraph_plain_text_with_preserves] = {
-        "full_paragraph_tagged_text_with_preserves": "",
-        "full_paragraph_translated_tagged_text_with_preserves": None,
-        "full_paragraph_style": paragraph_obj.style.name,
-        "consolidated_runs": {}
-    }
+#     # Add it to the translation dictionary
+#     translation_dict[full_paragraph_plain_text_with_preserves] = {
+#         "full_paragraph_tagged_text_with_preserves": "",
+#         "full_paragraph_translated_tagged_text_with_preserves": None,
+#         "full_paragraph_style": paragraph_obj.style.name,
+#         "consolidated_runs": {}
+#     }
 
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to retain special symbols, which deepl seems to otherwise mess up
-def paragraph_level_swapper(translation_dict, paragraph_obj, full_paragraph_plain_text_with_preserves, total_no_swap_count):
+def paragraph_level_swapper(translation_dict, paragraph_obj, total_no_swap_count):
    
-    # Attempt to find a translation in the dictionary
-    if full_paragraph_plain_text_with_preserves not in translation_dict:
-        print(f"The text element \"{full_paragraph_plain_text_with_preserves}\" was not found in the translation dictionary's keys.")
-        total_no_swap_count +=1
-        return paragraph_obj, total_no_swap_count
+    # # Attempt to find a translation in the dictionary
+    full_paragraph_tagged_text_with_preserves = extract_runs(paragraph_obj)
     
-    # Get full_paragraph_translated_tagged_text_with_preserves
-    full_paragraph_translated_tagged_text_with_preserves = translation_dict[full_paragraph_plain_text_with_preserves]['full_paragraph_translated_tagged_text_with_preserves']
+    # if full_paragraph_plain_text_with_preserves not in translation_dict:
+    #     print(f"The text element \"{full_paragraph_plain_text_with_preserves}\" was not found in the translation dictionary's keys.")
+    #     total_no_swap_count +=1
+    #     return paragraph_obj, total_no_swap_count
+    
+    if (full_paragraph_tagged_text_with_preserves != "" 
+        and not full_paragraph_tagged_text_with_preserves.isspace()
+        and full_paragraph_tagged_text_with_preserves in translation_dict):
+        # Get full_paragraph_translated_tagged_text_with_preserves
+        full_paragraph_translated_tagged_text_with_preserves = translation_dict[full_paragraph_tagged_text_with_preserves]['full_paragraph_translated_tagged_text_with_preserves']
+
         
     # Unpreserve
     full_paragraph_translated_tagged_text = unpreserve_paragraph_translation(full_paragraph_translated_tagged_text_with_preserves)
@@ -512,27 +540,35 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, tota
     if paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace():
         if step == constants.EXTRACT:
             # PARAGRAPH-LEVEL #################################################
-            if preserve_paragraph_special_items_with_temp_symbols(paragraph) in translation_dict:
-                return # (do nothing)
-            paragraph_level_extractor(translation_dict, paragraph)
+            #if preserve_paragraph_special_items_with_temp_symbols(paragraph) in translation_dict:
+            #    return # (do nothing)
+            #paragraph_level_extractor(translation_dict, paragraph)
 
             # RUN-LEVEL #######################################################
             # Keep a copy of the paragraph's translation dictionary key
-            full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+            #full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
             # Iterate over runs in the paragraph to consolidate them
             paragraph = consolidate_runs(paragraph)
             # Iterate over runs in the paragraph to extract text on a consolidated-run basis
-            translation_dict = extract_runs(translation_dict, paragraph, full_paragraph_plain_text_with_preserves)
+            full_paragraph_tagged_text_with_preserves = extract_runs(paragraph)
+
+            if (full_paragraph_tagged_text_with_preserves != "" 
+                and not full_paragraph_tagged_text_with_preserves.isspace()
+                and full_paragraph_tagged_text_with_preserves not in translation_dict):
+                # Add it to the translation dictionary
+                translation_dict[full_paragraph_tagged_text_with_preserves] = {
+                    "full_paragraph_translated_tagged_text_with_preserves": None
+                }
 
 
         if step == constants.SWAP:
             # PARAGRAPH-LEVEL #################################################
-            if preserve_paragraph_special_items_with_temp_symbols(paragraph) not in translation_dict:
-                return # (do nothing)
+            # if preserve_paragraph_special_items_with_temp_symbols(paragraph) not in translation_dict:
+            #     return # (do nothing)
             # Keep a copy of the paragraph's translation dictionary key
-            full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
+            #full_paragraph_plain_text_with_preserves = preserve_paragraph_special_items_with_temp_symbols(paragraph)
             # Iterate over runs in the paragraph to consolidate them
             paragraph = consolidate_runs(paragraph)
 
-            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, paragraph, full_paragraph_plain_text_with_preserves, total_no_swap_count)
+            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, paragraph, total_no_swap_count)
         

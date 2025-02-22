@@ -45,27 +45,37 @@ def insert_translations_into_translation_dict(source_file_path, target_file_path
         print("Error: The counts of rows in the input files are not equal.\n")
         return None
     
+    # # Insert translations into translation dictionary
+    # parent_key = ""
+    # # Loop through the temp mapping from top to bottom
+    # for i in range(0, len(temp_mapping[0]), 2):
+    #     current_key = temp_mapping[0][i]
+    #     current_value = temp_mapping[1][i]
+    #     current_value_after = temp_mapping[1][i+1]
+    #     # After finding a full paragraph to be translated
+    #     if (current_key in translation_dict # this key is in the "outer" dictionary
+    #         and current_key not in parent_key # and this key is not part of the parent key
+    #         ): 
+    #         # Insert the full paragraph plain text translation
+    #         translation_dict[current_key]['full_paragraph_translated_text_with_preserves'] = current_value
+    #         # Insert the full paragraph tagged text translation
+    #         translation_dict[current_key]['full_paragraph_translated_tagged_text_with_preserves'] = current_value_after
+    #         parent_key = current_key
+    #     elif(temp_mapping[0][i] in translation_dict[parent_key]['consolidated_runs']):
+    #         # Insert the consolidated run plain text translation
+    #         translation_dict[parent_key]['consolidated_runs'][current_key]['cons_run_translated_text_with_preserves'] = current_value
+    #         # Insert the consolidated run tagged text translation
+    #         translation_dict[parent_key]['consolidated_runs'][current_key]['cons_run_translated_tagged_text_with_preserves'] = current_value_after
+
     # Insert translations into translation dictionary
-    parent_key = ""
     # Loop through the temp mapping from top to bottom
-    for i in range(0, len(temp_mapping[0]), 2):
+    for i in range(0, len(temp_mapping[0])):
         current_key = temp_mapping[0][i]
         current_value = temp_mapping[1][i]
-        current_value_after = temp_mapping[1][i+1]
         # After finding a full paragraph to be translated
-        if (current_key in translation_dict # this key is in the "outer" dictionary
-            and current_key not in parent_key # and this key is not part of the parent key
-            ): 
-            # Insert the full paragraph plain text translation
-            translation_dict[current_key]['full_paragraph_translated_text_with_preserves'] = current_value
+        if current_key in translation_dict: 
             # Insert the full paragraph tagged text translation
-            translation_dict[current_key]['full_paragraph_translated_tagged_text_with_preserves'] = current_value_after
-            parent_key = current_key
-        elif(temp_mapping[0][i] in translation_dict[parent_key]['consolidated_runs']):
-            # Insert the consolidated run plain text translation
-            translation_dict[parent_key]['consolidated_runs'][current_key]['cons_run_translated_text_with_preserves'] = current_value
-            # Insert the consolidated run tagged text translation
-            translation_dict[parent_key]['consolidated_runs'][current_key]['cons_run_translated_tagged_text_with_preserves'] = current_value_after
+            translation_dict[current_key]['full_paragraph_translated_tagged_text_with_preserves'] = current_value
 
     return translation_dict
 

@@ -1,0 +1,14 @@
+{
+    "<full_paragraph_plain_text_with_preserves>": { // "Mit hilfe der Schaltfläche <b>Neu Aufträge<b> in fancyprogram können neue Aufträge erstellt werden."
+        "full_paragraph_tagged_text_with_preserves": "Mit hilfe der Schaltfläche <01><b>Neu Aufträge<b></01> in fancyprogram können neue Aufträge erstellt werden.", 
+        "full_paragraph_translated_tagged_text_with_preserves": "With the help of the <01><b>New Orders<b></01> button in fancyprogram, new orders can be created.", 
+        "full_paragraph_style": "Body text", 
+        "consolidated_runs": {
+            "<cons_run_plain_text_with_preserves>": { // <b>Neue Aufträge<b>
+                "cons_run_tagged_text_with_preserves": "<01><b>Neue Aufträge<b></01>", 
+                "cons_run_translated_tagged_text_with_preserves": "<01><b>New Orders<b></01>", 
+                "cons_run_style": "Button"
+            }
+        }
+    }
+}
