@@ -49,13 +49,13 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
 
     # PARAGRAPHS ##########################################################
     for paragraph in doc.paragraphs:
-        process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count)
+        process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count, doc)
         #newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold)
         
 
     # TABLES ##############################################################
     for table in doc.tables:
-        process_table_cells(translation_dict, table, step, total_no_swap_count)
+        process_table_cells(translation_dict, table, step, total_no_swap_count, doc)
         #newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold)
 
 
@@ -75,7 +75,7 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
 #__________________________________________________________________________
 ###########################################################################
 # Function to consolidate the text in runs from a paragraph and its hyperlinks
-def consolidate_runs(paragraph):
+def consolidate_runs(paragraph, doc):
 
     # Prepare to consolidate text-having runs
     text_consolidator = ""
@@ -202,7 +202,7 @@ def consolidate_runs(paragraph):
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to tag and extract text from a paragraph and its hyperlinks
+# Function to extract and tag text from a paragraph and its hyperlinks
 def extract_runs(paragraph_with_cons_runs):
 
     index_of_run = -1
@@ -214,10 +214,9 @@ def extract_runs(paragraph_with_cons_runs):
 
     # Loop over all the runs/hyperlinks in the paragraph
     for current_run_or_hyperlink in paragraph_with_cons_runs.iter_inner_content():
-    #for current_run_or_hyperlink, next_run_or_hyperlink in pairwise_circular(paragraph_with_cons_runs.iter_inner_content()):
         index_of_run += 1
 
-        # Create a placeholder for non-text-having runs, e.g. pictures or symbols (which might also be picutres)
+        # If the object is a non-text-having run, e.g. pictures or symbols (which might also be pictures)
         if not current_run_or_hyperlink.text:
             # Rename object for clarity
             current_glyph_holder = current_run_or_hyperlink
@@ -226,7 +225,7 @@ def extract_runs(paragraph_with_cons_runs):
             # There is nothing to preserve
             cons_run_plain_text_with_preserves = current_glyph_holder.text
             # Do not add a tag
-            #cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
+            cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
             # (style would be Default Paragraph Font)
             cons_run_style = current_glyph_holder.style.name
             
@@ -269,11 +268,15 @@ def extract_runs(paragraph_with_cons_runs):
                 # Preserve the consolidated run's special characters
                 cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
                 # It does not need a tag (don't add an ignore tag)
-                #cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
+                cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
                 # (style would be Default Paragraph Font)
             # Get style
             cons_run_style = current_run.style.name
         
+
+
+
+
 
         # If the consolidated run is of a non-default style
         if cons_run_style != "Default Paragraph Font":
@@ -294,46 +297,49 @@ def extract_runs(paragraph_with_cons_runs):
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to retain special symbols, which deepl seems to otherwise mess up
-def paragraph_level_swapper(translation_dict, paragraph_obj, total_no_swap_count):
+# Function to 
+def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs, paragraph_tagged_source_text_with_preserves, total_no_swap_count, doc):
    
-    # Attempt to find a translation in the dictionary
-    paragraph_tagged_source_text_with_preserves = extract_runs(paragraph_obj)
+    # Get the tagged version of this paragraph by performing the extraction step again
+    #paragraph_tagged_source_text_with_preserves = extract_runs(paragraph_with_cons_runs)
     
-    # if paragraph_plain_text_with_preserves not in translation_dict:
-    #     print(f"The text element \"{paragraph_plain_text_with_preserves}\" was not found in the translation dictionary's keys.")
-    #     total_no_swap_count +=1
-    #     return paragraph_obj, total_no_swap_count
+    # Attempt to find a translation in the dictionary
+    if paragraph_tagged_source_text_with_preserves not in translation_dict:
+        print(f"The text element \"{paragraph_tagged_source_text_with_preserves}\" was not found in the translation dictionary's keys.")
+        total_no_swap_count +=1
+        return paragraph_with_cons_runs, total_no_swap_count
     
     if (paragraph_tagged_source_text_with_preserves != "" 
         and not paragraph_tagged_source_text_with_preserves.isspace()
-        and paragraph_tagged_source_text_with_preserves in translation_dict):
+        #and paragraph_tagged_source_text_with_preserves in translation_dict # comment out if check is already performed above
+        ):
         # Get the paragraph's translated counterpart
         paragraph_tagged_translated_text_with_preserves = translation_dict[paragraph_tagged_source_text_with_preserves]['paragraph_tagged_translated_text_with_preserves']
 
         
-    # Unpreserve
+    # Unpreserve the translation pulled from the dictionary
     paragraph_tagged_translated_text = unpreserve_paragraph_translation(paragraph_tagged_translated_text_with_preserves)
     # Break it into segments
-    translated_runs_with_tags = split_with_tags_and_untagged(paragraph_tagged_translated_text)
+    translated_runs_with_tags = split_string_into_list_of_tagged_and_untagged_elements(paragraph_tagged_translated_text)
     
     # Get the consolidated version of the current paragraph object
-    paragraph_with_cons_runs = consolidate_runs(paragraph_obj)
+    #paragraph_with_cons_runs = consolidate_runs(paragraph_obj)
+    # this was already done
 
-    paragraph_obj = swap_runs(paragraph_with_cons_runs, translated_runs_with_tags)
+    translated_paragraph = swap_runs(paragraph_with_cons_runs, translated_runs_with_tags, doc)
     
-    return paragraph_obj, total_no_swap_count
+    return translated_paragraph, total_no_swap_count
 
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to tag and extract text from a paragraph and its hyperlinks
-def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
+# Function to swap text in a consolidated paragraph and its hyperlinks on a per-run basis
+def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags, doc):
 
     index_of_consolidated_run = -1
     index_of_translated_run = 0
 
-    # An untouched copy of the paragraph is needed to obtain unchanged info from the consolidated runs
+    # An untouched copy of the consolidated paragraph is needed to obtain unchanged info from the consolidated runs
     carbon_copy_of_paragraph_with_cons_runs = list(paragraph_with_cons_runs.iter_inner_content())
     carbon_copy_of_paragraph_with_cons_runs = deepcopy(carbon_copy_of_paragraph_with_cons_runs)
 
@@ -382,7 +388,7 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
                 else:
                     clear_cons_run_and_set_to_defaults(current_run_or_hyperlink)
 
-            # Deal with stylized or plain text runs
+            # Otheriwse, deal with stylized or plain text runs
             else:
                 #if isinstance(current_run_or_hyperlink, docx.text.run.Run):
                 # Rename object for clarity
@@ -414,7 +420,7 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags):
 
                 # Otherwise apply the default style and remove any manually applied changes
                 else:
-                    current_run.style.name = "Default Paragraph Font"
+                    current_run.style = "Default Paragraph Font" # this renames this style for the whole document
                     current_run.font.color.rgb = current_run._parent.style.font.color.rgb
                     current_run.font.size = None
                     current_run.font.name = None
@@ -436,14 +442,14 @@ def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
         # Rename object for clarity
         current_glyph_holder = current_run_or_hyperlink
         # Do nothing (later replace with translated image)
-        print("Glyphs should not make it to this function")
+        print("Glyphs should not make it to this function. How could this have happened?")
         return current_glyph_holder
         
     # Otherwise, if the current object is a hyperlink
     elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
         # Rename object for clarity
         current_hyperlink = current_run_or_hyperlink
-        print("Hyperlinks should not make it to this function")
+        print("Hyperlinks should not make it to this function. How could this have happened?")
         return current_hyperlink
 
     # Otherwise, if the current object is a run    
@@ -453,44 +459,37 @@ def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
         # Take the text from the translated run
         current_run.clear()
         # Apply the default style
-        current_run.style.name = "Default Paragraph Font"
+        current_run.style = "Default Paragraph Font"
         return current_run
 
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to extract consolidated runs and add them to the translation dictionary
-# def run_level_swap_prep(current_run_obj, current_no_swap_count):
-#     #current_run_obj.clear()
-
-#     return current_run_obj, current_no_swap_count
-
-
-#__________________________________________________________________________
-###########################################################################
 # Function to 
-def process_table_cells(translation_dict, table, step, total_no_swap_count):
+def process_table_cells(translation_dict, table, step, total_no_swap_count, doc):
     for row in table.rows:
         for cell in row.cells:
             for paragraph in cell.paragraphs:
-                process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count)
+                process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count, doc)
             
             # Recursively process any nested tables inside the current cell
             for nested_table in cell.tables:
-                process_table_cells(translation_dict, nested_table, step, total_no_swap_count)
+                process_table_cells(translation_dict, nested_table, step, total_no_swap_count, doc)
 
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract or swap a paragraph's runs after first consolidating the paragraph's runs
-def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count): 
+def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, total_no_swap_count, doc): 
     if paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace():
-        if step == constants.EXTRACT:
-            # Iterate over runs in the paragraph to consolidate them
-            paragraph = consolidate_runs(paragraph)
-            # Iterate over runs in the paragraph to extract text on a consolidated-run basis
-            paragraph_tagged_source_text_with_preserves = extract_runs(paragraph)
 
+        # Iterate over runs in the paragraph to consolidate them
+        cons_paragraph = consolidate_runs(paragraph, doc)
+        
+        # Iterate over runs in the paragraph to extract text on a consolidated-run basis
+        paragraph_tagged_source_text_with_preserves = extract_runs(cons_paragraph)
+
+        if step == constants.EXTRACT:
             if (paragraph_tagged_source_text_with_preserves != "" 
                 and not paragraph_tagged_source_text_with_preserves.isspace()
                 and paragraph_tagged_source_text_with_preserves not in translation_dict):
@@ -500,8 +499,6 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, tota
                 }
 
         if step == constants.SWAP:
-            # Iterate over runs in the paragraph to consolidate them
-            paragraph = consolidate_runs(paragraph)
-
-            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, paragraph, total_no_swap_count)
+            # Iterate over runs in the paragraph to swap text on a consolidated-run basis
+            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, cons_paragraph, paragraph_tagged_source_text_with_preserves, total_no_swap_count, doc)
         

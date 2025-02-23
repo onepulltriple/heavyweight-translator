@@ -6,3 +6,4 @@ deepl api?
 user interface?
 refactor newest functions
 adjust print progress threshold to not use a hard-coded value
+add try catch to deal with the user starting with the swap step "Please perform the extraction step first"
