@@ -356,13 +356,16 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags, doc):
             if ("type" in current_translated_run_dict.keys()
                 and current_translated_run_dict["type"] == "glyph"):
                 # and if the current consolidated run is also a glyph
-                if (not current_run_or_hyperlink.text 
+                if ("glyph" in current_run_or_hyperlink.text
+                    #not current_run_or_hyperlink.text 
                     # and it is the correct/target glyph
                     and index_of_consolidated_run == current_translated_run_dict["run_index"]
                     ):
                     # Rename object for clarity
                     current_glyph_holder = current_run_or_hyperlink
-                    # Do nothing (later replace with translated image)
+                    # Clear the placeholding text
+                    #current_glyph_holder.text = ""
+                    # Do nothing further (later replace with translated image)
                     
                     index_of_translated_run += 1 # in everycase except when a hyperlink is reached
                 # Otherwise, clear this consolidated run and set it to default
@@ -398,6 +401,7 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags, doc):
                     current_run.text = current_translated_run_dict["text"]
                 else:
                     current_run.text = ""
+
                 # If there is a style applied or changes to retrieve, get and apply
                 if "type" in current_translated_run_dict.keys():
                     # Get the index of the consolidated run whose style is needed
@@ -420,7 +424,7 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags, doc):
 
                 # Otherwise apply the default style and remove any manually applied changes
                 else:
-                    current_run.style = "Default Paragraph Font" # this renames this style for the whole document
+                    current_run.style = "Default Paragraph Font" # DO NOT set style.name here, as that would rename the style for the whole document
                     current_run.font.color.rgb = current_run._parent.style.font.color.rgb
                     current_run.font.size = None
                     current_run.font.name = None
@@ -459,7 +463,7 @@ def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
         # Take the text from the translated run
         current_run.clear()
         # Apply the default style
-        current_run.style = "Default Paragraph Font"
+        current_run.style = "Default Paragraph Font" # DO NOT set style.name here, as that would rename the style for the whole document
         return current_run
 
 
