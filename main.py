@@ -19,9 +19,10 @@ if 'SET MODE OF EXECUTION':
 #__________________________________________________________________________
 ###########################################################################
 # EXECUTE
+print(f"Beginning {step} operations...")
+
 if step == constants.EXTRACT:
     # Extract the text elements from the source docx file
-    print(f"Beginning {step} operations...")
     extract_or_swap_text_in_docx(FP.source_document_path, step)
 
     # Print confirmation message to the console
@@ -39,5 +40,4 @@ if step == constants.SWAP:
     write_dict_to_json(translation_dict, FP.FULL_translation_dict_file_path)
 
     # Swap the text elements from the source docx file
-    print(f"Beginning {step} operations...")
     extract_or_swap_text_in_docx(FP.source_document_path, step, translation_dict, FP.output_document_path)

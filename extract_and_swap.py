@@ -298,10 +298,15 @@ def extract_runs(paragraph_with_cons_runs):
 #__________________________________________________________________________
 ###########################################################################
 # Function to 
-def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs, paragraph_tagged_source_text_with_preserves, total_no_swap_count, doc):
+def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs, total_no_swap_count, doc):
    
+    # An untouched copy of the consolidated paragraph is needed to obtain unchanged info from the consolidated runs
+    # Therefore, obtain a carbon copy to give ot the extraction function, which otherwise mutates consolidate paragraphs
+    #carbon_copy_of_paragraph_with_cons_runs = list(paragraph_with_cons_runs.iter_inner_content())
+    carbon_copy_of_paragraph_with_cons_runs = deepcopy(paragraph_with_cons_runs)
+
     # Get the tagged version of this paragraph by performing the extraction step again
-    #paragraph_tagged_source_text_with_preserves = extract_runs(paragraph_with_cons_runs)
+    paragraph_tagged_source_text_with_preserves = extract_runs(carbon_copy_of_paragraph_with_cons_runs)
     
     # Attempt to find a translation in the dictionary
     if paragraph_tagged_source_text_with_preserves not in translation_dict:
@@ -319,13 +324,10 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs, paragrap
         
     # Unpreserve the translation pulled from the dictionary
     paragraph_tagged_translated_text = unpreserve_paragraph_translation(paragraph_tagged_translated_text_with_preserves)
-    # Break it into segments
+    # Break it into objects (dictionaries)
     translated_runs_with_tags = split_string_into_list_of_tagged_and_untagged_elements(paragraph_tagged_translated_text)
-    
-    # Get the consolidated version of the current paragraph object
-    #paragraph_with_cons_runs = consolidate_runs(paragraph_obj)
-    # this was already done
 
+    # Swap runs
     translated_paragraph = swap_runs(paragraph_with_cons_runs, translated_runs_with_tags, doc)
     
     return translated_paragraph, total_no_swap_count
@@ -356,8 +358,8 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags, doc):
             if ("type" in current_translated_run_dict.keys()
                 and current_translated_run_dict["type"] == "glyph"):
                 # and if the current consolidated run is also a glyph
-                if ("glyph" in current_run_or_hyperlink.text
-                    #not current_run_or_hyperlink.text 
+                if (#"glyph" in current_run_or_hyperlink.text
+                    not current_run_or_hyperlink.text 
                     # and it is the correct/target glyph
                     and index_of_consolidated_run == current_translated_run_dict["run_index"]
                     ):
@@ -490,10 +492,11 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, tota
         # Iterate over runs in the paragraph to consolidate them
         cons_paragraph = consolidate_runs(paragraph, doc)
         
-        # Iterate over runs in the paragraph to extract text on a consolidated-run basis
-        paragraph_tagged_source_text_with_preserves = extract_runs(cons_paragraph)
 
         if step == constants.EXTRACT:
+            # Iterate over the consolidated runs in the paragraph to extract text on a consolidated-run basis
+            paragraph_tagged_source_text_with_preserves = extract_runs(cons_paragraph)
+
             if (paragraph_tagged_source_text_with_preserves != "" 
                 and not paragraph_tagged_source_text_with_preserves.isspace()
                 and paragraph_tagged_source_text_with_preserves not in translation_dict):
@@ -504,5 +507,5 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, tota
 
         if step == constants.SWAP:
             # Iterate over runs in the paragraph to swap text on a consolidated-run basis
-            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, cons_paragraph, paragraph_tagged_source_text_with_preserves, total_no_swap_count, doc)
+            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, cons_paragraph, total_no_swap_count, doc)
         
