@@ -11,3 +11,4 @@ determine where fill behind text is getting cleared (see changelog tables at end
 handle punctuation at ends of sentences, e.g. "Aktionsmenü im Auftrag" -> "action menu in the order"
 Handle captions of images (or at least, some are not getting translated)
 font sizes of certain stles are being "normalized"
+include searching through headers and footers

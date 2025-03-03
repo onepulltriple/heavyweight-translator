@@ -3,7 +3,7 @@ import docx
 import constants 
 import file_paths as FP 
 from docx import Document
-from itertools import pairwise, zip_longest, tee
+from auxiliary_operations import *
 from conditions_checks import *
 from dict_operations import *
 from csv_read_operations import *
@@ -18,41 +18,41 @@ import math
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to extend pairwise to include a "wrap-around" effect 
-# Enables recognition of and access to the last run in a paragraph
-def pairwise_circular(iterable):
-    # "s -> (s0,s1), (s1,s2), (s2, s3), ... (s<last>,s0)"
-    a, b = tee(iterable)
-    first_value = next(b, None) # DO NOT REMOVE THIS LINE!!
-    #return zip_longest(a, b, fillvalue = first_value)
-    return zip_longest(a, b, fillvalue = None)
-
-
-#__________________________________________________________________________
-###########################################################################
 # Function to extract or swap text elements from a docx file
 # Argument ordering for functions: translation_dict, paragraph, current_run, variables/counters
 def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output_docx = None):
 
     # Read the unmodified input .docx document into memory
     doc = Document(input_file)
+    count_doc_paragraphs = len(doc.paragraphs)
+    count_of_doc_paragraphs = count_paragraphs(doc)
+
+
     
     # Initialize operation counters
-    total_no_swap_count = 0
-    percentage_increments_to_report = 5 #percent
-    newest_print_progress_threshold = math.ceil((len(doc.paragraphs)*percentage_increments_to_report/100)/10)*10
+    total_no_swap_count = 0 #rename to total_no_op_count?
+    if step == constants.EXTRACT:
+        # A negative 1 should be returned when no extraction occurs for a paragraph, 
+        # thereby reducing the expected total number of paragraphs to process
+        total_no_swap_count = count_of_doc_paragraphs
+    
+
+    percentage_increment_to_report = 1 #percent
+
+    newest_print_progress_threshold = math.ceil(count_of_doc_paragraphs*percentage_increment_to_report/100)
     print_progress_increment = newest_print_progress_threshold
+    #percentage_progress_increment = percentage_increment_to_report
 
     # PARAGRAPHS ##########################################################
     for paragraph in doc.paragraphs:
-        total_no_swap_count += process_paragraph_and_runs_within_it(translation_dict, paragraph, step, doc)
-        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment)
+        total_no_swap_count += process_paragraph_and_runs_within_it(translation_dict, paragraph, step) #add doc if debugging is needed
+        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, total_no_swap_count)
         
 
     # TABLES ##############################################################
     for table in doc.tables:
-        total_no_swap_count = process_table_cells(translation_dict, table, step, total_no_swap_count, doc)
-        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment)
+        total_no_swap_count = process_table_cells(translation_dict, table, step, total_no_swap_count, newest_print_progress_threshold, print_progress_increment) #add doc if debugging is needed
+        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, total_no_swap_count)
 
 
     # RESULTS #############################################################
@@ -62,16 +62,18 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
         #write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
         write_translation_dict_to_csv_simplified(translation_dict, FP.source_language_plain_texts_file_path)
         
-
     if step == constants.SWAP:
-        # Save the modified document to the output file
-        doc.save(output_docx)
         print(f"{total_no_swap_count} {step} operations failed.\n")
+        # Save the modified document to the output file
+        print("Saving translated document...\n")
+        doc.save(output_docx)
+    
+    print("Done.\n")
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to consolidate the text in runs from a paragraph and its hyperlinks
-def consolidate_runs(paragraph, doc):
+def consolidate_runs(paragraph): #add doc if debugging is needed
 
     # Prepare to consolidate text-having runs
     text_consolidator = ""
@@ -291,7 +293,7 @@ def extract_runs(paragraph_with_cons_runs):
 ###########################################################################
 # Function to orchestrate the swapping of run-level text for each paragraph
 # Returns the translated paragraph and the count of no-swaps (either 1 or 0)
-def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs, doc):
+def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add doc if debugging is needed
    
     # An untouched copy of the consolidated paragraph is needed to obtain unchanged info from the consolidated runs
     # Therefore, obtain a carbon copy to give ot the extraction function, which otherwise mutates consolidate paragraphs
@@ -319,7 +321,7 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs, doc):
     translated_runs_with_tags = split_string_into_list_of_tagged_and_untagged_elements(paragraph_tagged_translated_text)
 
     # Swap runs
-    translated_paragraph = swap_runs(paragraph_with_cons_runs, translated_runs_with_tags, doc)
+    translated_paragraph = swap_runs(paragraph_with_cons_runs, translated_runs_with_tags) #add doc if debugging is needed
     
     return translated_paragraph, 0 #(total_no_swap_count)
 
@@ -327,7 +329,7 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs, doc):
 #__________________________________________________________________________
 ###########################################################################
 # Function to swap text in a consolidated paragraph and its hyperlinks on a per-run basis
-def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags, doc):
+def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags): #add doc if debugging is needed
 
     index_of_consolidated_run = -1
     index_of_translated_run = 0
@@ -463,15 +465,16 @@ def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
 #__________________________________________________________________________
 ###########################################################################
 # Function to process table cells and any further nested tables, etc.
-def process_table_cells(translation_dict, table, step, total_no_swap_count, doc):
+def process_table_cells(translation_dict, table, step, total_no_swap_count, newest_print_progress_threshold, print_progress_increment): #add doc if debugging is needed
     for row in table.rows:
         for cell in row.cells:
             for paragraph in cell.paragraphs:
-                total_no_swap_count += process_paragraph_and_runs_within_it(translation_dict, paragraph, step, doc)
-            
+                total_no_swap_count += process_paragraph_and_runs_within_it(translation_dict, paragraph, step) #add doc if debugging is needed
+                newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, total_no_swap_count)
+
             # Recursively process any nested tables inside the current cell
             for nested_table in cell.tables:
-                process_table_cells(translation_dict, nested_table, step, total_no_swap_count, doc)
+                process_table_cells(translation_dict, nested_table, step, total_no_swap_count, newest_print_progress_threshold, print_progress_increment) #add doc if debugging is needed
 
     return total_no_swap_count
 
@@ -480,11 +483,11 @@ def process_table_cells(translation_dict, table, step, total_no_swap_count, doc)
 ###########################################################################
 # Function to extract or swap a paragraph's runs after first consolidating the paragraph's runs
 # Returns the current no-swap count
-def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, doc): 
+def process_paragraph_and_runs_within_it(translation_dict, paragraph, step): #add doc if debugging is needed
     if paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace():
 
         # Iterate over runs in the paragraph to consolidate them
-        cons_paragraph = consolidate_runs(paragraph, doc)
+        cons_paragraph = consolidate_runs(paragraph) #add doc if debugging is needed
 
         if step == constants.EXTRACT:
             # Iterate over the consolidated runs in the paragraph to extract text on a consolidated-run basis
@@ -492,17 +495,21 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step, doc)
 
             if (paragraph_tagged_source_text_with_preserves != "" 
                 and not paragraph_tagged_source_text_with_preserves.isspace()
-                and paragraph_tagged_source_text_with_preserves not in translation_dict):
+                and paragraph_tagged_source_text_with_preserves not in translation_dict
+                ):
                 # Add it to the translation dictionary
                 translation_dict[paragraph_tagged_source_text_with_preserves] = {
                     "paragraph_tagged_translated_text_with_preserves": None
                 }
+            else:
+                # Ends up here if a repeat or empty paragraph is found
+                return -1 # (no extraction occurred)
             
             return 0 #(total_no_swap_count)
 
         if step == constants.SWAP:
             # Iterate over runs in the paragraph to swap text on a consolidated-run basis
-            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, cons_paragraph, doc)
+            (paragraph, current_no_swap_count) = paragraph_level_swapper(translation_dict, cons_paragraph) #add doc if debugging is needed
             
             return current_no_swap_count
         
