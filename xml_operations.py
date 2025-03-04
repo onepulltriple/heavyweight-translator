@@ -1,6 +1,7 @@
 import xml.etree.ElementTree as ET
 from file_operations import *
 from file_paths import *
+from xml.sax.saxutils import escape
 
 #__________________________________________________________________________
 ###########################################################################
@@ -8,9 +9,9 @@ from file_paths import *
 def split_string_into_list_of_tagged_and_untagged_elements(input_str):
     
     # Add a wrapper so that an xml interpreter may be used
-    input_str_with_xml_wrapper = f"<?xml version=\"1.0\"?><paragraph>{input_str}</paragraph>"
+    input_str_with_xml_wrapper = f"<?xml version=\"1.0\"?><paragraph>{escape(input_str)}</paragraph>"
     # Save a copy as an xml file to aid in debugging
-    save_to_text_file(temp_xml_debug, input_str_with_xml_wrapper)
+    #save_to_text_file(temp_xml_debug, input_str_with_xml_wrapper)
     
     # Repair any issues
     input_str_with_xml_wrapper = (input_str_with_xml_wrapper
