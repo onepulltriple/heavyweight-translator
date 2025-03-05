@@ -226,7 +226,7 @@ def extract_runs(paragraph_with_cons_runs):
             # Do not add a tag
             cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
             # (style would be Default Paragraph Font)
-            cons_run_style = current_glyph_holder.style
+            cons_run_style = current_glyph_holder.style.name
             
         # Otherwise, if the current object is a hyperlink
         elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
@@ -270,7 +270,7 @@ def extract_runs(paragraph_with_cons_runs):
                 cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
                 # (style would be Default Paragraph Font)
             # Get style
-            cons_run_style = current_run.style
+            cons_run_style = current_run.style.name
         
 
         # If the consolidated run is of a non-default style
