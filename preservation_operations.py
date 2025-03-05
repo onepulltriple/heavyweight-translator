@@ -23,7 +23,7 @@ def unpreserve_paragraph_translation(full_paragraph_translated_text):
                 .replace('<c/>','«') # to restore double left angle brackets
                 #.replace('<d/>','>>') # to restore double right angle brackets
                 .replace('<d/>','»') # to restore double right angle brackets
-                .replace('&','and') # to 
+                #.replace('&','and') # to 
                 #.replace('<e/>','<br>') # to restore line break indicators
                 )
 

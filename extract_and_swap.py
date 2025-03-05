@@ -14,6 +14,7 @@ from progress_indication_operations import *
 from tagging_operations import *
 from copy import deepcopy
 import math
+from xml.sax.saxutils import escape, unescape
 
 
 #__________________________________________________________________________
@@ -225,14 +226,14 @@ def extract_runs(paragraph_with_cons_runs):
             # Do not add a tag
             cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
             # (style would be Default Paragraph Font)
-            cons_run_style = current_glyph_holder.style.name
+            cons_run_style = current_glyph_holder.style
             
         # Otherwise, if the current object is a hyperlink
         elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
             # Rename object for clarity
             current_hyperlink = current_run_or_hyperlink
             # Preserve the consolidated run's special characters
-            cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_hyperlink.text)
+            cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(escape(current_hyperlink.text))
             # It needs a tag
             cons_run_tagged_text_with_preserves = hyperlink_tag(cons_run_plain_text_with_preserves, index_of_run)
             # (style would be Hyperlink)
@@ -247,7 +248,7 @@ def extract_runs(paragraph_with_cons_runs):
                     # and it is not a cleared run
                     and current_run.text != ignore_run_tag(index_of_run)):
                 # Preserve the consolidated run's special characters
-                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
+                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(escape(current_run.text))
                 # Give it a tag
                 cons_run_tagged_text_with_preserves = styled_run_tag(cons_run_plain_text_with_preserves, index_of_run)
                 # (style would be current_run.style.name)
@@ -258,18 +259,18 @@ def extract_runs(paragraph_with_cons_runs):
                     # and it is not an empty run
                     and not current_run.text.isspace()):
                 # Preserve the consolidated run's special characters
-                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
+                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(escape(current_run.text))
                 # Give it a tag
                 cons_run_tagged_text_with_preserves = changed_run_tag(cons_run_plain_text_with_preserves, index_of_run)
                 # (style would be Default Paragraph Font, probably)
             else: 
                 # Preserve the consolidated run's special characters
-                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(current_run.text)
+                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(escape(current_run.text))
                 # It does not need a tag (don't add an ignore tag)
                 cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
                 # (style would be Default Paragraph Font)
             # Get style
-            cons_run_style = current_run.style.name
+            cons_run_style = current_run.style
         
 
         # If the consolidated run is of a non-default style
@@ -378,7 +379,7 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags): #add doc if 
                     # Rename object for clarity
                     current_hyperlink = current_run_or_hyperlink                        
                     # Take the text from the translated hyperlink's text
-                    current_hyperlink.runs[0].text = current_translated_run_dict["text"]
+                    current_hyperlink.runs[0].text = unescape(current_translated_run_dict["text"])
                         # If remaining runs in the hyperlink need to be cleared, do it here
                     # Increment the translated run index
                     index_of_translated_run += 1 
@@ -386,14 +387,14 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags): #add doc if 
                 else:
                     clear_cons_run_and_set_to_defaults(current_run_or_hyperlink)
 
-            # Otheriwse, deal with stylized or plain text runs
+            # Otherwise, deal with stylized or plain text runs
             else:
                 #if isinstance(current_run_or_hyperlink, docx.text.run.Run):
                 # Rename object for clarity
                 current_run = current_run_or_hyperlink        
                 # Take the text from the translated run
                 if "text" in current_translated_run_dict.keys():
-                    current_run.text = current_translated_run_dict["text"]
+                    current_run.text = unescape(current_translated_run_dict["text"])
                 else:
                     current_run.text = ""
 
