@@ -42,58 +42,26 @@ def count_table_cells(table):
 #__________________________________________________________________________
 ###########################################################################
 # Function to indicate progress to the user
-def indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, total_no_swap_count):
+def indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs):
     
     if step == constants.EXTRACT:
         # How many extraction operations have been completed so far?
-        total_op_count = len(translation_dict)
+        current_op_count = len(translation_dict)
 
-        if (total_op_count > newest_print_progress_threshold):
-            percent_complete = round(total_op_count/total_no_swap_count*100)
+        if (current_op_count > newest_print_progress_threshold):
+            percent_complete = round(current_op_count/count_of_relevant_paragraphs*100)
 
-            print(f"{total_op_count} {step} operations performed ({percent_complete}% complete)...")
+            print(f"{current_op_count} {step} operations performed ({percent_complete}% complete)...")
             newest_print_progress_threshold += print_progress_increment
 
     if step == constants.SWAP:
-        # How many
+        # How many swapping operations have been completed so far?
+        current_op_count = count_of_relevant_paragraphs
 
-        if (total_op_count > newest_print_progress_threshold):
-            pass
-            -total_no_swap_count
-
-
-    return newest_print_progress_threshold
-
-    if step == constants.SWAP:
-        pass
-        # total_op_count = len(translation_dict) # should be the same each time
-
-        # if (total_op_count > newest_print_progress_threshold):
-        #     percent_complete = round(total_op_count/total_no_swap_count*100)
-
-        #     print(f"{total_op_count} {step} operations performed ({percent_complete}% complete)...")
-        #     newest_print_progress_threshold += print_progress_increment
+        if (current_op_count > newest_print_progress_threshold):
+            percent_complete = round(current_op_count/len(translation_dict)*100)
+            
+            print(f"{current_op_count} {step} operations performed ({percent_complete}% complete)...")
+            newest_print_progress_threshold += print_progress_increment
 
     return newest_print_progress_threshold
-
-
-# #__________________________________________________________________________
-# ###########################################################################
-# # Function to indicate progress to the user
-# def indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, percentage_increment_to_report, percentage_progress_increment, count_doc_paragraphs):
-    
-#     if step == constants.EXTRACT:
-#         # How many extraction operations have been completed so far?
-#         total_op_count = len(translation_dict)
-
-#     if (total_op_count > newest_print_progress_threshold):
-#         temp1 = round(newest_print_progress_threshold/count_doc_paragraphs*100)
-#         temp2 = round(total_op_count/count_doc_paragraphs*100)
-
-#         #print(f"{newest_print_progress_threshold} {step} operations performed ({percentage_increment_to_report}% complete).")
-#         print(f"{newest_print_progress_threshold} {step} operations performed ({temp1}% complete).")
-#         print(f"{newest_print_progress_threshold} {step} operations performed ({temp2}% complete).")
-#         newest_print_progress_threshold += print_progress_increment
-#         percentage_increment_to_report += percentage_progress_increment
-
-#     return newest_print_progress_threshold, percentage_increment_to_report
