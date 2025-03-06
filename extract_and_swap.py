@@ -263,6 +263,12 @@ def extract_runs(paragraph_with_cons_runs):
                 # Give it a tag
                 cons_run_tagged_text_with_preserves = changed_run_tag(cons_run_plain_text_with_preserves, index_of_run)
                 # (style would be Default Paragraph Font, probably)
+            # Otherwise, if it is a cleared (ignored) run
+            elif(current_run.text == ignore_run_tag(index_of_run)):
+                # Keep track of it for now
+                cons_run_plain_text_with_preserves = current_run.text
+                # Do not add a tag
+                cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
             else: 
                 # Preserve the consolidated run's special characters
                 cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(escape(current_run.text))
@@ -274,7 +280,8 @@ def extract_runs(paragraph_with_cons_runs):
         
 
         # If the consolidated run is of a non-default style
-        if cons_run_style != "Default Paragraph Font":
+        if (cons_run_style != "Default Paragraph Font"
+            and cons_run_tagged_text_with_preserves != ignore_run_tag(index_of_run)):
             # Append it to the paragraph's tagged text with tags
             paragraph_tagged_source_text_with_preserves += cons_run_tagged_text_with_preserves
         else: # The run is of the default style
@@ -284,6 +291,8 @@ def extract_runs(paragraph_with_cons_runs):
             elif cons_run_plain_text_with_preserves != ignore_run_tag(index_of_run):
                 # Append without tags
                 paragraph_tagged_source_text_with_preserves += cons_run_plain_text_with_preserves
+            elif cons_run_plain_text_with_preserves == ignore_run_tag(index_of_run):
+                paragraph_tagged_source_text_with_preserves += ""
 
         previous_run = current_run_or_hyperlink
 
