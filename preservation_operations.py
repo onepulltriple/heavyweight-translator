@@ -1,15 +1,4 @@
 
-#__________________________________________________________________________
-###########################################################################
-# Function to retain special symbols at the paragraph level, which deepl seems to otherwise mess up
-# def preserve_paragraph_special_items_with_temp_symbols(paragraph_obj):
-#     return (paragraph_obj.text
-#             .replace('\n','<a/>') # to preserve newlines in multiline runs
-#             .replace('\xa0','<b/>') # to preserve non-breaking spaces
-#             .replace('<<','<c/>') # to preserve double left angle brackets
-#             .replace('>>','<d/>') # to preserve double right angle brackets
-#             .replace('<br>','<e/>') # to preserve line break indicators
-#             )
 
 #__________________________________________________________________________
 ###########################################################################
@@ -24,7 +13,7 @@ def unpreserve_paragraph_translation(full_paragraph_translated_text):
                 #.replace('<d/>','>>') # to restore double right angle brackets
                 .replace('<d/>','»') # to restore double right angle brackets
                 #.replace('&','and') # to 
-                #.replace('<e/>','<br>') # to restore line break indicators
+                #.replace('&lt;br&gt;','<br>') # to restore line break indicators
                 )
 
 #__________________________________________________________________________
@@ -36,21 +25,15 @@ def preserve_run_special_items_with_temp_symbols(run_text):
             .replace('\xa0','<b/>') # to preserve non-breaking spaces
             .replace('<<','<c/>') # to preserve double left angle brackets
             .replace('>>','<d/>') # to preserve double right angle brackets
-            #.replace('<br>','<e/>') # to preserve line break indicators
+            #.replace('&lt;br&gt;','<e/>') # to preserve line break indicators
+            #.replace('&amp;','<e/>') # 
             )
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to restore special symbols at the run level
-# def unpreserve_run_text(run_text):
-#     if run_text is not None:
-#         return (run_text
-#                 .replace('<a/>','\n') # to restore newlines in multiline runs
-#                 .replace('<b/>','\xa0') # to restore non-breaking spaces
-#                 #.replace('<c/>','<<') # to restore double left angle brackets
-#                 .replace('<c/>','«') # to restore double left angle brackets
-#                 #.replace('<d/>','>>') # to restore double right angle brackets
-#                 .replace('<d/>','»') # to restore double right angle brackets
-#                 .replace('&','and') # to 
-#                 .replace('<e/>','<br>') # to restore line break indicators
-#                 )
+# Function to retain special symbols at the run level, which deepl seems to otherwise mess up
+def pre_escape_preservations(run_text):
+    return (run_text
+            .replace('&','and')
+            .replace('<br>','<br/>')
+            )

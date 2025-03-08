@@ -232,8 +232,10 @@ def extract_runs(paragraph_with_cons_runs):
         elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
             # Rename object for clarity
             current_hyperlink = current_run_or_hyperlink
+            # Perform pre-escape and escape operations
+            cons_run_escaped_text = escape(pre_escape_preservations(current_hyperlink.text))
             # Preserve the consolidated run's special characters
-            cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(escape(current_hyperlink.text))
+            cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(cons_run_escaped_text)
             # It needs a tag
             cons_run_tagged_text_with_preserves = hyperlink_tag(cons_run_plain_text_with_preserves, index_of_run)
             # (style would be Hyperlink)
@@ -247,8 +249,10 @@ def extract_runs(paragraph_with_cons_runs):
             if (current_run.style.name != "Default Paragraph Font" 
                     # and it is not a cleared run
                     and current_run.text != ignore_run_tag(index_of_run)):
+                # Perform pre-escape and escape operations
+                cons_run_escaped_text = escape(pre_escape_preservations(current_run.text))
                 # Preserve the consolidated run's special characters
-                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(escape(current_run.text))
+                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(cons_run_escaped_text)
                 # Give it a tag
                 cons_run_tagged_text_with_preserves = styled_run_tag(cons_run_plain_text_with_preserves, index_of_run)
                 # (style would be current_run.style.name)
@@ -258,8 +262,10 @@ def extract_runs(paragraph_with_cons_runs):
                     and current_run.text != ignore_run_tag(index_of_run)
                     # and it is not an empty run
                     and not current_run.text.isspace()):
+                # Perform pre-escape and escape operations
+                cons_run_escaped_text = escape(pre_escape_preservations(current_run.text))
                 # Preserve the consolidated run's special characters
-                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(escape(current_run.text))
+                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(cons_run_escaped_text)
                 # Give it a tag
                 cons_run_tagged_text_with_preserves = changed_run_tag(cons_run_plain_text_with_preserves, index_of_run)
                 # (style would be Default Paragraph Font, probably)
@@ -270,8 +276,10 @@ def extract_runs(paragraph_with_cons_runs):
                 # Do not add a tag
                 cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
             else: 
+                # Perform pre-escape and escape operations
+                cons_run_escaped_text = escape(pre_escape_preservations(current_run.text))
                 # Preserve the consolidated run's special characters
-                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(escape(current_run.text))
+                cons_run_plain_text_with_preserves = preserve_run_special_items_with_temp_symbols(cons_run_escaped_text)
                 # It does not need a tag (don't add an ignore tag)
                 cons_run_tagged_text_with_preserves = cons_run_plain_text_with_preserves
                 # (style would be Default Paragraph Font)

@@ -4,9 +4,9 @@ import input_parameters as IP # type: ignore
 #__________________________________________________________________________
 ###########################################################################
 # FILE PATHS
-source_document_path                   = "./private/" + IP.source_document_file_name_without_extension + ".docx"
-output_document_path                   = "./private/" + IP.source_document_file_name_without_extension + "_" + IP.target_lang_cult + ".docx"
 document_components_path               = "./private/" + IP.creation_date + "__" + IP.source_document_file_name_without_extension
+source_document_path                   = "./private/" + IP.source_document_file_name_without_extension + ".docx"
+output_document_path                   = document_components_path + "/" + IP.source_document_file_name_without_extension + "_" + IP.target_lang_cult + ".docx"
 if not os.path.exists(document_components_path):
     os.makedirs(document_components_path)
 

@@ -3,12 +3,13 @@ from datetime import datetime
 #__________________________________________________________________________
 ###########################################################################
 # Variables
-#source_document_file_name_without_extension = "Basic_GenericSendEmailWF_Benutzerhandbuch"
+#source_document_file_name_without_extension = "Workflowpaket Basic Kundensettings Formular"
 #source_document_file_name_without_extension = "translogica Benutzerhandbuch New Design"
-source_document_file_name_without_extension = "Test01"
+source_document_file_name_without_extension = "translogica Handbuch für Administratoren"
+#source_document_file_name_without_extension = "Test01"
 
 creation_date = datetime.today().strftime('%Y.%m.%d')
-#creation_date = "2025.02.23"
+creation_date = "2025.03.07"
 
 source_lang = "de"
 source_culture = "DE"
