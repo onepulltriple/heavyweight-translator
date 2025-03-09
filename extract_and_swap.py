@@ -1,20 +1,20 @@
-# Function definitions for extraction, deduplication, and swapping
-import docx
-import constants 
-import file_paths as FP 
-from docx import Document
-from auxiliary_operations import *
-from conditions_checks import *
-from dict_operations import *
-from csv_read_operations import *
-from csv_write_operations import *
-from xml_operations import *
-from preservation_operations import *
-from progress_indication_operations import *
-from tagging_operations import *
-from copy import deepcopy
-import math
-from xml.sax.saxutils import escape, unescape
+if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
+    import docx
+    import constants 
+    import file_paths as FP 
+    from docx import Document
+    from auxiliary_operations import *
+    from conditions_checks import *
+    from dict_operations import *
+    from csv_read_operations import *
+    from csv_write_operations import *
+    from xml_operations import *
+    from preservation_operations import *
+    from progress_indication_operations import *
+    from tagging_operations import *
+    from copy import deepcopy
+    import math
+    from xml.sax.saxutils import escape, unescape
 
 
 #__________________________________________________________________________

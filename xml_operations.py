@@ -18,7 +18,6 @@ def split_string_into_list_of_tagged_and_untagged_elements(input_str):
         .replace("</run</paragraph>","</run></paragraph>")
         .replace("&lt;br&gt;","&lt;br/&gt;")
         .replace("<br>","&lt;br/&gt;")
-        # \' to be dealt with?
     )
 
     # Attempt to parse xml string
@@ -50,7 +49,7 @@ def split_string_into_list_of_tagged_and_untagged_elements(input_str):
             temp_dict['text'] = f"{child.text}"
         
         if len(list(child.attrib.keys())) > 0:
-            # Collect the INFO 
+            # Collect attribute information
             temp_attrib_key = list(child.attrib.keys())[0] # there should only be one key
             
             temp_dict['type'] = f"{temp_attrib_key}" # e.g. hyperlink
@@ -58,7 +57,7 @@ def split_string_into_list_of_tagged_and_untagged_elements(input_str):
             
             translated_content.append(temp_dict)
 
-        # and tail, if present
+        # Collect tail, if present
         if child.tail is not None:
             translated_content.append(
                 {

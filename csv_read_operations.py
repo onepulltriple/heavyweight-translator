@@ -8,7 +8,6 @@ csv.field_size_limit(MAX_SIGNED_LONG)
 #__________________________________________________________________________
 ###########################################################################
 # Function to read in a single-column csv file without making changes
-# Except that the newline placeholder <*> will be replaced with \n
 def read_csv_no_changes(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
