@@ -27,23 +27,17 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     doc = Document(input_file)
     
     # Initialize operation counters
-    percentage_increment_to_report = 1 #percent
     current_op_count = 0
-
-    if step == constants.EXTRACT:
-        count_of_relevant_paragraphs = count_paragraphs(doc, step)
-        # Later, a -1 should be returned when no extraction occurs for a paragraph, 
-        # thereby reducing the expected total number of paragraphs to process
-        newest_print_progress_threshold = math.ceil(percentage_increment_to_report/100*count_of_relevant_paragraphs)
+    # When extracting, corrections will be needed to account for duplicate paragraphs (filtering for relevance occurs during extraction)
+    # When swapping, it is anticipated that only relevant paragraphs will be treated
+    count_of_relevant_paragraphs = count_paragraphs(doc, step) # without filtering for relevance
     
-    if step == constants.SWAP:
-        # Later, a +1 should be returned for all successful swaps
-        # thereby indicating progress towards swapping of relevant paragraphs
-        count_of_relevant_paragraphs = count_paragraphs(doc, step)
-        #count_of_relevant_paragraphs = 0
-        newest_print_progress_threshold = math.ceil(percentage_increment_to_report/100*len(translation_dict))
-    
+    # Initialize reporting increments
+    percentage_increment_to_report = 1 #percent
+    newest_print_progress_threshold = math.ceil(percentage_increment_to_report/100*count_of_relevant_paragraphs)
+ 
     print_progress_increment = newest_print_progress_threshold
+
 
     # PARAGRAPHS ##########################################################
     for paragraph in doc.paragraphs:
@@ -54,7 +48,6 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     # TABLES ##############################################################
     for table in doc.tables:
         current_op_count = process_table_cells(translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
-        #newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
 
 
     # RESULTS #############################################################
@@ -517,6 +510,10 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step): #ad
             # Iterate over the consolidated runs in the paragraph to extract text on a consolidated-run basis
             paragraph_tagged_source_text_with_preserves = extract_runs(cons_paragraph)
 
+            if (paragraph_tagged_source_text_with_preserves == "" 
+                or paragraph_tagged_source_text_with_preserves.isspace()):
+                pass
+
             if (paragraph_tagged_source_text_with_preserves != "" 
                 and not paragraph_tagged_source_text_with_preserves.isspace()
                 and paragraph_tagged_source_text_with_preserves not in translation_dict
@@ -539,6 +536,6 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step): #ad
     if step == constants.SWAP:
         # No swapping operation occurred
         return 0
-    else:
-        # Irrelevant: -1 if a repeat or empty paragraph is found, i.e. no operation occurred
-        return -1
+
+    # Irrelevant: return -1 if a repeat or empty paragraph is found, i.e. no extraction occurred
+    return -1

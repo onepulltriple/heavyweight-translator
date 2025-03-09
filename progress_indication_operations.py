@@ -51,24 +51,15 @@ def count_table_cells(table, step):
 def indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count):
     
     if step == constants.EXTRACT:
+        # Correct the count of relevant paragraphs
         count_of_relevant_paragraphs += current_op_count
         # How many extraction operations have been completed so far?
         current_op_count = len(translation_dict)
 
-        if (current_op_count > newest_print_progress_threshold):
-            percent_complete = current_op_count/count_of_relevant_paragraphs*100
+    if (current_op_count > newest_print_progress_threshold):
+        percent_complete = current_op_count/count_of_relevant_paragraphs*100
 
-            print(f"{current_op_count} {step} operations performed ({percent_complete:.1f}% complete)...")
-            newest_print_progress_threshold += print_progress_increment
-
-    if step == constants.SWAP:
-        # How many swapping operations have been completed so far?
-        #current_op_count = count_of_relevant_paragraphs
-
-        if (current_op_count > newest_print_progress_threshold):
-            percent_complete = current_op_count/count_of_relevant_paragraphs*100
-            
-            print(f"{current_op_count} {step} operations performed ({percent_complete:.1f}% complete)...")
-            newest_print_progress_threshold += print_progress_increment
+        print(f"{current_op_count} {step} operations performed ({percent_complete:.1f}% complete)...")
+        newest_print_progress_threshold += print_progress_increment
 
     return newest_print_progress_threshold
