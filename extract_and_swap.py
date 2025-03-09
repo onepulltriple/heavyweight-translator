@@ -28,31 +28,33 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     
     # Initialize operation counters
     percentage_increment_to_report = 1 #percent
+    current_op_count = 0
 
     if step == constants.EXTRACT:
-        count_of_relevant_paragraphs = count_paragraphs(doc)
-        # A -1 should be returned when no extraction occurs for a paragraph, 
+        count_of_relevant_paragraphs = count_paragraphs(doc, step)
+        # Later, a -1 should be returned when no extraction occurs for a paragraph, 
         # thereby reducing the expected total number of paragraphs to process
         newest_print_progress_threshold = math.ceil(percentage_increment_to_report/100*count_of_relevant_paragraphs)
     
     if step == constants.SWAP:
-        # A +1 should be returned for all successful swaps
+        # Later, a +1 should be returned for all successful swaps
         # thereby indicating progress towards swapping of relevant paragraphs
-        count_of_relevant_paragraphs = 0
+        count_of_relevant_paragraphs = count_paragraphs(doc, step)
+        #count_of_relevant_paragraphs = 0
         newest_print_progress_threshold = math.ceil(percentage_increment_to_report/100*len(translation_dict))
     
     print_progress_increment = newest_print_progress_threshold
 
     # PARAGRAPHS ##########################################################
     for paragraph in doc.paragraphs:
-        count_of_relevant_paragraphs += process_paragraph_and_runs_within_it(translation_dict, paragraph, step) #add doc if debugging is needed
-        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs)
+        current_op_count += process_paragraph_and_runs_within_it(translation_dict, paragraph, step) #add doc if debugging is needed
+        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
         
 
     # TABLES ##############################################################
     for table in doc.tables:
-        count_of_relevant_paragraphs = process_table_cells(translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs) #add doc if debugging is needed
-        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs)
+        current_op_count = process_table_cells(translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
+        #newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
 
 
     # RESULTS #############################################################
@@ -62,8 +64,7 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
         print(f"There were {len(translation_dict)} {step} operations.\n")
         
     if step == constants.SWAP:
-        print(f"There were {count_of_relevant_paragraphs} {step} operations.\n")
-        #print(f"{total_no_swap_count} {step} operations failed.\n")
+        print(f"There were {current_op_count} {step} operations.\n")
         # Save the modified document to the output file
         print("Saving translated document...\n")
         doc.save(output_docx)
@@ -488,18 +489,18 @@ def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
 #__________________________________________________________________________
 ###########################################################################
 # Function to process table cells and any further nested tables, etc.
-def process_table_cells(translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs): #add doc if debugging is needed
+def process_table_cells(translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count): #add doc if debugging is needed
     for row in table.rows:
         for cell in row.cells:
             for paragraph in cell.paragraphs:
-                count_of_relevant_paragraphs += process_paragraph_and_runs_within_it(translation_dict, paragraph, step) #add doc if debugging is needed
-                newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs)
+                current_op_count += process_paragraph_and_runs_within_it(translation_dict, paragraph, step) #add doc if debugging is needed
+                newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
 
             # Recursively process any nested tables inside the current cell
             for nested_table in cell.tables:
-                process_table_cells(translation_dict, nested_table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs) #add doc if debugging is needed
+                process_table_cells(translation_dict, nested_table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
 
-    return count_of_relevant_paragraphs
+    return current_op_count
 
 
 #__________________________________________________________________________
@@ -535,6 +536,9 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step): #ad
             # Swapping: 1 if successful, 0 if failure
             return current_swap_count
     
-    # Irrelevant: -1 if a repeat or empty paragraph is found, i.e. no operation occurred
-    return -1
-
+    if step == constants.SWAP:
+        # No swapping operation occurred
+        return 0
+    else:
+        # Irrelevant: -1 if a repeat or empty paragraph is found, i.e. no operation occurred
+        return -1
