@@ -23,34 +23,41 @@ def read_csv_no_changes(file_path):
     except FileNotFoundError:
         print(f"No file found at '{file_path}'.")
         return None
+
+#__________________________________________________________________________
+###########################################################################
+# Function to preprocess a single-column csv file
+# Perform the following corrections:
+# - Converts forward ticks and backs ticks to double quotes
+def preprocess_csv(original_file_path, preprocessed_file_path):
+    try:
+        # Open original file
+        with open(original_file_path, 'r', encoding='utf-8-sig') as csv_file:
+            original_content = csv_file.read()
+
+        # Preprocess
+        altered_content = original_content.replace('‘','"').replace('’','"')
+
+        # Save preprocessed file as new file
+        with open(preprocessed_file_path, 'w', encoding='utf-8-sig') as csv_file:
+            csv_file.write(altered_content)
+        
+    except FileNotFoundError:
+        print(f"No file found at '{original_file_path}'.")
+        return None
+
     
 #__________________________________________________________________________
 ###########################################################################
 # Function to read in a single-column csv file
-# Perform the following corrections:
-# - Converts forward ticks and backs ticks to double quotes
 def read_csv_with_replacements(file_path):
     try:
-        # open once
-        with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
-            what = csv_file.read().replace('‘','"').replace('’','"')
-
-        # write once
-        with open(file_path, 'w', encoding='utf-8-sig') as csv_file:
-            csv_file.write(what)
-
-
         with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
             csv_reader = csv.reader(csv_file, quotechar='¥', delimiter='¥', lineterminator='\n')
-            #csv_reader = csv.reader(aaa, quotechar='¥', delimiter='¥')
             csv_data = []
 
             for row in csv_reader:
                 if len(row) > 0:
-                    
-                    # row[0] = row[0].replace('‘','"')
-                    # row[0] = row[0].replace('’','"')
-
                     temp = row[0]
                 else:
                     temp = ""

@@ -30,7 +30,7 @@ if step == constants.EXTRACT:
 
 if step == constants.SWAP:
     # Update the translation dictionary to include the retrieved translations
-    translation_dict = insert_translations_into_translation_dict(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, FP.TEMP_translation_dict_file_path)
+    translation_dict = insert_translations_into_translation_dict(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, FP.preprocessed_translations_file_path, FP.TEMP_translation_dict_file_path)
 
     # Save updated translation dictionary file for later review
     write_dict_to_json(translation_dict, FP.FULL_translation_dict_file_path)
