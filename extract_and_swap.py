@@ -58,7 +58,6 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     # RESULTS #############################################################
     if step == constants.EXTRACT:
         write_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
-        #write_translation_dict_to_csv(translation_dict, FP.source_language_plain_texts_file_path)
         write_translation_dict_to_csv_simplified(translation_dict, FP.source_language_plain_texts_file_path)
         print(f"There were {len(translation_dict)} {step} operations.\n")
         
@@ -323,7 +322,6 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add do
     # Attempt to find a translation in the dictionary
     if paragraph_tagged_source_text_with_preserves not in translation_dict:
         print(f"The text element \"{paragraph_tagged_source_text_with_preserves}\" was not found in the translation dictionary's keys.")
-        
         # Indicate failure
         return paragraph_with_cons_runs, 0
     
@@ -339,6 +337,11 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add do
     # Break it into objects (dictionaries)
     translated_runs_with_tags = split_string_into_list_of_tagged_and_untagged_elements(paragraph_tagged_translated_text)
 
+    if translated_runs_with_tags == (document_components_path + "/unparseables/"):
+        print(f"Unparseable element encountered. See \"{translated_runs_with_tags}\"")
+        # Indicate failure
+        return paragraph_with_cons_runs, 0
+    
     # Swap runs
     translated_paragraph = swap_runs(paragraph_with_cons_runs, translated_runs_with_tags) #add doc if debugging is needed
     

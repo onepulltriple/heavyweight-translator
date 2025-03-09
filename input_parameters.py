@@ -9,7 +9,7 @@ source_document_file_name_without_extension = "translogica Handbuch für Adminis
 #source_document_file_name_without_extension = "Test01"
 
 creation_date = datetime.today().strftime('%Y.%m.%d')
-creation_date = "2025.03.07"
+#creation_date = "2025.03.07"
 
 source_lang = "de"
 source_culture = "DE"

@@ -1,6 +1,4 @@
 if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
-#    import sys
-#    import os
     import constants 
     import file_paths as FP 
     from dict_operations import *
@@ -28,7 +26,6 @@ if step == constants.EXTRACT:
     print(f"The text file containing the untranslated source text has been written to: \n{FP.source_language_plain_texts_file_path}\n")
 
     # Create an empty text files to later store translations
-    #if not os.path.exists(FP.target_language_translations_file_path):
     save_to_text_file(FP.target_language_translations_file_path, [], "\n")
 
 if step == constants.SWAP:
