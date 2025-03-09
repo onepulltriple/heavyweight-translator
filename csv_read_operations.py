@@ -1,7 +1,7 @@
 # Function definitions for csv-reading tasks
 import csv
 from dict_operations import *
-import re
+from preprocessing_operations import *
 
 import ctypes
 MAX_SIGNED_LONG = (1 << (8 * ctypes.sizeof(ctypes.c_long) - 1)) - 1; 
@@ -36,7 +36,7 @@ def preprocess_csv(original_file_path, preprocessed_file_path):
             original_content = csv_file.read()
 
         # Preprocess
-        altered_content = original_content.replace('‘','"').replace('’','"')
+        altered_content = regex_replacements(original_content)
 
         # Save preprocessed file as new file
         with open(preprocessed_file_path, 'w', encoding='utf-8-sig') as csv_file:
