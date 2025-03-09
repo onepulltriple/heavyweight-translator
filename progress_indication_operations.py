@@ -41,7 +41,7 @@ def count_table_cells(table, step):
             
             # Recursively count any nested tables inside the current cell
             for nested_table in cell.tables:
-                count += count_table_cells(nested_table)
+                count += count_table_cells(nested_table, step)
 
     return count
 

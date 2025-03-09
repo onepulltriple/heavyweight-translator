@@ -7,6 +7,7 @@ user interface?
 refactor newest functions
 adjust print progress threshold to not use a hard-coded value
 add try catch to deal with the user starting with the swap step "Please perform the extraction step first"
+add try catch to tell user that unequal csv reads usually means that deepl gave back something weird
 determine where fill behind text is getting cleared (see changelog tables at end of documents)
 handle punctuation at ends of sentences, e.g. "Aktionsmenü im Auftrag" -> "action menu in the order"
 Handle captions of images (or at least, some are not getting translated)
