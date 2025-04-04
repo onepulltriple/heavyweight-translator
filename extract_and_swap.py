@@ -2,6 +2,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import docx
     import constants 
     import file_paths as FP 
+    import input_parameters as IP
     from docx import Document
     from auxiliary_operations import *
     from conditions_checks import *
@@ -33,8 +34,7 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     count_of_relevant_paragraphs = count_paragraphs(doc, step) # without filtering for relevance
     
     # Initialize reporting increments
-    percentage_increment_to_report = 1 #percent
-    newest_print_progress_threshold = math.ceil(percentage_increment_to_report/100*count_of_relevant_paragraphs)
+    newest_print_progress_threshold = math.ceil(IP.percentage_increment_to_report/100*count_of_relevant_paragraphs)
  
     print_progress_increment = newest_print_progress_threshold
 
