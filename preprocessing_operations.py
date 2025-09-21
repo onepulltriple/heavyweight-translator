@@ -7,7 +7,8 @@ import input_parameters as IP
 def regex_replacements(original_content):
 
     preprocessed_content = re.sub(r'[‘’]', r'"', original_content)
-    preprocessed_content = re.sub(r"<run (\w*)=[\"‘'’](\d*)[\"‘'’](/?)>", r'<run \1="\2"\3>', preprocessed_content)
+    preprocessed_content = re.sub(r"<run (\w*)=[\"‘'’“](\d*)[\"‘'’”](/?)>", r'<run \1="\2"\3>', preprocessed_content)
+    
     if IP.target_lang_cult == "en-UK":
         preprocessed_content = re.sub(r'consignment', r'shipment', preprocessed_content)
         preprocessed_content = re.sub(r'Consignment', r'Shipment', preprocessed_content)
@@ -42,5 +43,7 @@ def regex_replacements(original_content):
         preprocessed_content = re.sub(r'Lorries', r'Trucks', preprocessed_content)
         preprocessed_content = re.sub(r'lorry', r'truck', preprocessed_content)
         preprocessed_content = re.sub(r'Lorry', r'Truck', preprocessed_content)
+        preprocessed_content = re.sub(r'third-party tour', r'foreign tour', preprocessed_content)
+        preprocessed_content = re.sub(r'Third-party tour', r'Foreign tour', preprocessed_content)
 
     return preprocessed_content

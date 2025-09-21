@@ -299,7 +299,6 @@ def extract_runs(paragraph_with_cons_runs):
 
     return paragraph_tagged_source_text_with_preserves
 
-
 #__________________________________________________________________________
 ###########################################################################
 # Function to orchestrate the swapping of run-level text for each paragraph
@@ -341,7 +340,6 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add do
     
     # Indicate successful swap
     return translated_paragraph, 1
-
 
 #__________________________________________________________________________
 ###########################################################################
@@ -478,7 +476,6 @@ def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
         current_run.style = "Default Paragraph Font" 
         return current_run
 
-
 #__________________________________________________________________________
 ###########################################################################
 # Function to process table cells and any further nested tables, etc.
@@ -494,7 +491,6 @@ def process_table_cells(translation_dict, table, step, newest_print_progress_thr
                 process_table_cells(translation_dict, nested_table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
 
     return current_op_count
-
 
 #__________________________________________________________________________
 ###########################################################################

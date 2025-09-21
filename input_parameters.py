@@ -5,21 +5,21 @@ from datetime import datetime
 # Variables
 #source_document_file_name_without_extension = "Basic_GenericSendEmailWF_Benutzerhandbuch"
 #source_document_file_name_without_extension = "translogica Benutzerhandbuch New Design"
-source_document_file_name_without_extension = "translogica Handbuch für Administratoren"
+source_document_file_name_without_extension = "19.09.2025__translogica Handbuch für Administratoren"
 #source_document_file_name_without_extension = "Test01"
 
 creation_date = datetime.today().strftime('%Y.%m.%d')
-creation_date = "2025.03.08"
+creation_date = "2025.09.21" # yyyy.MM.dd
 
 percentage_increment_to_report = 1 #percent
 
-source_lang = "de"
+source_language = "de"
 source_culture = "DE"
-source_lang_cult = source_lang + "-" + source_culture
+source_lang_cult = source_language + "-" + source_culture
 
-#target_lang = "en"
-#target_culture = "UK"
+target_language = "en"
+target_culture = "UK"
 
-target_lang = "it"
-target_culture = "IT"
-target_lang_cult = target_lang + "-" + target_culture
+#target_lang = "it"
+#target_culture = "IT"
+target_lang_cult = target_language + "-" + target_culture
