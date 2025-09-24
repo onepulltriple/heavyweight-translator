@@ -7,7 +7,10 @@ import input_parameters as IP
 def regex_replacements(original_content):
 
     preprocessed_content = re.sub(r'[‘’]', r'"', original_content)
-    preprocessed_content = re.sub(r"<run (\w*)=[\"‘'’“](\d*)[\"‘'’”](/?)>", r'<run \1="\2"\3>', preprocessed_content)
+    preprocessed_content = re.sub(r"<run (\w*)=[\"‘'’“](\d*)[\"‘'’”](/?) ?>", r'<run \1="\2"\3>', preprocessed_content)
+    preprocessed_content = re.sub(r"<(\w*)/ >", r'<\1/>', preprocessed_content)
+    preprocessed_content = re.sub(r"& gt;", r'&gt;', preprocessed_content)
+    preprocessed_content = re.sub(r"< /run>", r'</run>', preprocessed_content)
     
     if IP.target_lang_cult == "en-UK":
         preprocessed_content = re.sub(r'consignment', r'shipment', preprocessed_content)

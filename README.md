@@ -67,4 +67,13 @@ To translate a document using the heavyweight translator:
     * Open `main.py`.
     * Uncomment the line containing `SWAP`.
     * Save the changes to the `main.py` file.
-2. Run `main.py` to perform the swapping step.
+2. Run `main.py` to perform the swapping step for the first time.
+3. Open the `./private/<today's date>__<source_document_file_name_without_extension>` directory.
+4. Open the `./unparseables` folder. Here a collection of unparseable xml files can be found. During the translation step, the online translator introduced characters that broke the xml tagging that was applied to the paragraphs runs. Then heavyweight translator failed to parse the translations because they are no longer in xml format. If there are unparseable translations found, there are two options to repair them:
+    * Extend the regex statements at the beginning of `preprocessing_operations.py` so that they repair any broken tags. This step is performed prior to xml-parsing of the translations, so the translations will first be repaired and then parsed.
+    * Manually correct the individual broken tags in the `02__translated_text_elements_en-UK.py` file. The unparseable files should aid with this find-and-replace process (not recommended because of how tedious it is).
+5. Run `main.py` to perform another interation of the swapping step. Repeat steps 3-5 until a satisfactory level of completion is reached.
+6. Open the new Word document in `./private/<today's date>__<source_document_file_name_without_extension>`.
+7. The language of the document must be set manually to the target larguage (for now). Be sure to select the option which applies the language to the whole document.
+8. Update the table of contents (if applicable).
+9. Save the Word document and optionally rename it so the file name is in the target language.
