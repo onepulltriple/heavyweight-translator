@@ -11,7 +11,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the other(s) out
     step = constants.EXTRACT
-    step = constants.SWAP
+    #step = constants.SWAP
 
 #__________________________________________________________________________
 ###########################################################################

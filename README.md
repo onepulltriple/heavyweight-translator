@@ -75,5 +75,5 @@ To translate a document using the heavyweight translator:
 5. Run `main.py` to perform another interation of the swapping step. Repeat steps 3-5 until a satisfactory level of completion is reached.
 6. Open the new Word document in `./private/<today's date>__<source_document_file_name_without_extension>`.
 7. The language of the document must be set manually to the target larguage (for now). Be sure to select the option which applies the language to the whole document.
-8. Update the table of contents (if applicable).
+8. Update the table of contents and any other dynamically generated collections of fields (if applicable). For now, the header, footer, and cover page will have to be translated manually during this step.
 9. Save the Word document and optionally rename it so the file name is in the target language.
