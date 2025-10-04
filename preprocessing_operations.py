@@ -12,6 +12,7 @@ def regex_replacements(original_content):
     preprocessed_content = re.sub(r"& lt;", r'&lt;', preprocessed_content) # to fix broken less than placeholders
     preprocessed_content = re.sub(r"& gt;", r'&gt;', preprocessed_content) # to fix broken greater than placeholders
     preprocessed_content = re.sub(r"< ?/ ?run ?>", r'</run>', preprocessed_content) # to fix broken closing run tags
+    preprocessed_content = re.sub(r"</run\n ?", r'</run>\n', preprocessed_content) # to fix dropp closing run tags
     
     if IP.target_lang_cult == "en-UK":
         preprocessed_content = re.sub(r'consignment', r'shipment', preprocessed_content)
@@ -49,5 +50,7 @@ def regex_replacements(original_content):
         preprocessed_content = re.sub(r'Lorry', r'Truck', preprocessed_content)
         preprocessed_content = re.sub(r'third-party tour', r'foreign tour', preprocessed_content)
         preprocessed_content = re.sub(r'Third-party tour', r'Foreign tour', preprocessed_content)
+        preprocessed_content = re.sub(r'external tour', r'foreign tour', preprocessed_content)
+        preprocessed_content = re.sub(r'External tour', r'Foreign tour', preprocessed_content)
 
     return preprocessed_content

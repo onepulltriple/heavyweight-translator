@@ -14,8 +14,8 @@ def split_string_into_list_of_tagged_and_untagged_elements(input_str):
     # Repair any foreseeable issues
     input_str_with_xml_wrapper = (input_str_with_xml_wrapper
         # Correct dropped closing brackets  
-        .replace("</run </paragraph>","</run></paragraph>")
-        .replace("</run</paragraph>","</run></paragraph>")
+        #.replace("</run </paragraph>","</run></paragraph>")
+        #.replace("</run</paragraph>","</run></paragraph>")
         .replace("&lt;br&gt;","&lt;br/&gt;")
         .replace("<br>","&lt;br/&gt;")
     )
