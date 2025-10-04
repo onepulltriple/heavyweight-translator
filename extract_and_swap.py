@@ -306,7 +306,7 @@ def extract_runs(paragraph_with_cons_runs):
 def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add doc if debugging is needed
    
     # An untouched copy of the consolidated paragraph is needed to obtain unchanged info from the consolidated runs
-    # Therefore, obtain a carbon copy to give ot the extraction function, which otherwise mutates consolidate paragraphs
+    # Therefore, obtain a carbon copy to give to the extraction function, which otherwise mutates consolidate paragraphs
     carbon_copy_of_paragraph_with_cons_runs = deepcopy(paragraph_with_cons_runs)
 
     # Get the tagged version of this paragraph by performing the extraction step again
@@ -398,12 +398,15 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags): #add doc if 
                 # Otherwise, clear this consolidated run and set it to default
                 else:
                     clear_cons_run_and_set_to_defaults(current_run_or_hyperlink)
+                
+            # Check if the current run is actually a hyperlink whose tags were dropped
+            elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
+                print(f"Erroneous hyperlink encountered: '{current_run_or_hyperlink.text}' Were the tags dropped during translation?")
 
             # Otherwise, deal with stylized or plain text runs
             else:
-                #if isinstance(current_run_or_hyperlink, docx.text.run.Run):
                 # Rename object for clarity
-                current_run = current_run_or_hyperlink        
+                current_run = current_run_or_hyperlink
                 # Take the text from the translated run
                 if "text" in current_translated_run_dict.keys():
                     current_run.text = unescape(current_translated_run_dict["text"])

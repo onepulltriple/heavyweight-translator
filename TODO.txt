@@ -16,3 +16,5 @@ include searching through headers and footers
 include manually applied bolding as a changed run (do this in cons run?)
 single vertical tick caused problems with FTL testing script
 add duration to results so I know how long it will take to run again
+Give user feedback when certain errors happen, e.g. hyperlinks/glyphs should not make it to the function: What happened there and how can the user fix it?
+Handle error: property 'text' of 'Hyperlink' has no setter, see lines 405-410 of extract_and_swap.py
