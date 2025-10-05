@@ -1,4 +1,5 @@
 import constants
+import sys
 
 #__________________________________________________________________________
 ###########################################################################
@@ -59,7 +60,8 @@ def indicate_progress(translation_dict, step, newest_print_progress_threshold, p
     if (current_op_count > newest_print_progress_threshold):
         percent_complete = current_op_count/count_of_relevant_paragraphs*100
 
-        print(f"{current_op_count} {step} operations performed ({percent_complete:.1f}% complete)...")
+        # Print progress update to console only (not added to log file)
+        print(f"{current_op_count} {step} operations performed ({percent_complete:.1f}% complete)...", file=sys.__stdout__)
         newest_print_progress_threshold += print_progress_increment
 
     return newest_print_progress_threshold

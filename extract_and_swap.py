@@ -17,11 +17,10 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import math
     from xml.sax.saxutils import escape, unescape
 
-
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract or swap text elements from a docx file
-# Argument ordering for functions: translation_dict, paragraph, current_run, variables/counters
+# Argument ordering for functions within: translation_dict, paragraph, current_run, variables/counters
 def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output_docx = None):
 
     # Read the unmodified input .docx document into memory
@@ -331,7 +330,7 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add do
     translated_runs_with_tags = split_string_into_list_of_tagged_and_untagged_elements(paragraph_tagged_translated_text)
 
     if translated_runs_with_tags == (document_components_path + "/unparseables/"):
-        print(f"Unparseable element encountered. See \"{translated_runs_with_tags}\"")
+        print(f"Unparseable element encountered. Review the element in \"{translated_runs_with_tags}\"")
         # Indicate failure
         return paragraph_with_cons_runs, 0
     
@@ -401,7 +400,7 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags): #add doc if 
                 
             # Check if the current run is actually a hyperlink whose tags were dropped
             elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
-                print(f"Erroneous hyperlink encountered: '{current_run_or_hyperlink.text}' Were the tags dropped during translation?")
+                print(f"Erroneous hyperlink encountered: \"{current_run_or_hyperlink.text}\" Were the hyperlink tags dropped during translation?")
 
             # Otherwise, deal with stylized or plain text runs
             else:
@@ -458,14 +457,14 @@ def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
         # Rename object for clarity
         current_glyph_holder = current_run_or_hyperlink
         # Do nothing (later replace with translated image)
-        print("Glyphs should not make it to this function. How could this have happened?")
+        print(f"Glyphs should not make it to this function. See \"{current_run_or_hyperlink._parent.text}\".")
         return current_glyph_holder
         
     # Otherwise, if the current object is a hyperlink
     elif isinstance(current_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
         # Rename object for clarity
         current_hyperlink = current_run_or_hyperlink
-        print("Hyperlinks should not make it to this function. How could this have happened?")
+        print(f"Hyperlinks should not make it to this function. See \"{current_run_or_hyperlink.text}\".")
         return current_hyperlink
 
     # Otherwise, if the current object is a run    
