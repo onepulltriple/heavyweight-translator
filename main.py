@@ -3,6 +3,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import file_paths as FP 
     import logging_operations as LO
     import sys
+    import time
     from dict_operations import *
     from file_operations import *
     from extract_and_swap import *
@@ -34,6 +35,9 @@ if step == constants.SWAP:
     # Create file to log output
     logfile = open(console_log_file_path,'w')
 
+    # Start timing
+    start_time = time.time()
+
     # Replace stdout and stderr with a Tee object
     sys.stdout = LO.Tee(sys.stdout, logfile)
     sys.stderr = LO.Tee(sys.stderr, logfile)
@@ -47,5 +51,20 @@ if step == constants.SWAP:
     # Swap the translations into the text elements of the source docx file
     extract_or_swap_text_in_docx(FP.source_document_path, step, translation_dict, FP.output_document_path)
 
+
+    # Stop timing
+    elapsed_time = time.time() - start_time
+
+    # Convert runtime to hours, minutes, seconds, milliseconds
+    hours = int(elapsed_time // 3600)
+    minutes = int((elapsed_time % 3600) // 60)
+    seconds = int(elapsed_time % 60)
+    milliseconds = int((elapsed_time - int(elapsed_time)) * 1000)
+
+    print(f"Total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)\n")
+
     # Close log file
     logfile.close()
+
+    # Suppress unusual error message
+    sys.unraisablehook = None

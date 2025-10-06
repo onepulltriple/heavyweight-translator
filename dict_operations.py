@@ -4,7 +4,6 @@ import pprint
 import json
 from csv_read_operations import *
 
-
 #__________________________________________________________________________
 ###########################################################################
 # Function to read in the first two entries of each row of a csv file and store them as key-value pairs in a dictionary
@@ -45,7 +44,7 @@ def insert_translations_into_translation_dict(source_file_path, target_file_path
     # Check if the number of rows in each file is the same 
     # add try catch here
     if len(temp_mapping[0]) != len(temp_mapping[1]):
-        print("Error: The counts of rows in the input files are not equal.\n")
+        print("Error: The counts of rows in the input files are not equal. This check occurs after preprocessing.\n")
         return None
 
     # Insert translations into translation dictionary
@@ -76,16 +75,16 @@ def read_json_dictionary(json_dictionary_file_path):
     try:
         with open(json_dictionary_file_path, 'r', encoding='utf-8-sig') as json_dictionary:
             json_dictionary = json.load(json_dictionary)
-            print(f"A dictionary at '{json_dictionary_file_path}' was found and will be used.\n")
+            print(f"A dictionary at \"{json_dictionary_file_path}\" was found and will be used.\n")
 
         return json_dictionary
     
     except FileNotFoundError:
-        print(f"No dictionary found at '{json_dictionary_file_path}'.\n")
+        print(f"No dictionary found at \"{json_dictionary_file_path}\".\n")
         return None
     
     except json.JSONDecodeError:
-        print(f"Error decoding JSON file '{json_dictionary_file_path}'.\n")
+        print(f"Error decoding JSON file \"{json_dictionary_file_path}\".\n")
         return None
 
 

@@ -58,7 +58,7 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
     if step == constants.SWAP:
         print(f"There were {current_op_count} {step} operations.\n")
         # Save the modified document to the output file
-        print("Saving translated document...\n")
+        print("Saving translated document...")
         doc.save(output_docx)
     
     print("Done.\n")

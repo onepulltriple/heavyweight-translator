@@ -2,6 +2,7 @@ import xml.etree.ElementTree as ET
 from file_operations import *
 from file_paths import *
 from datetime import datetime
+import re
 
 #__________________________________________________________________________
 ###########################################################################
@@ -12,23 +13,27 @@ def split_string_into_list_of_tagged_and_untagged_elements(input_str):
     input_str_with_xml_wrapper = f"<?xml version=\"1.0\" encoding=\"utf-8\" ?><paragraph>{input_str}</paragraph>"
 
     # Repair any foreseeable issues
-    input_str_with_xml_wrapper = (input_str_with_xml_wrapper
-        #.replace("&lt;br&gt;","&lt;br/&gt;") # close break tags
-        #.replace("<br>","&lt;br/&gt;") # close break tags
-    )
+    # nothing here for now
 
-    # Attempt to parse xml string
     try:
+        # First attempt to parse xml string
         root = ET.fromstring(input_str_with_xml_wrapper)
-    # If failed, write to file path
-    except Exception as e:
-        # Get time stamp
-        error_time_stamp = datetime.now().strftime('%H_%M_%S_%f')[:-3]
-        # Assemble file path
-        xml_debug_file_path = start_of_xml_debug_file_path + error_time_stamp + end_of_xml_debug_file_path
-        # Save a copy as an xml file to aid in debugging
-        save_to_text_file(xml_debug_file_path, input_str_with_xml_wrapper)
-        return start_of_xml_debug_file_path
+        # If failed, attempt to repair
+    except Exception as e1:
+        try:
+            # Attempt to restore dropped closing run tags (in this case, only the last one in a paragraph)
+            input_str_with_xml_wrapper = re.sub(r"<run (\w*)=\"(\d*)\">(.*)</paragraph>", r'<run \1="\2">\3</run></paragraph>', input_str_with_xml_wrapper)
+            # Second attempt to parse xml string
+            root = ET.fromstring(input_str_with_xml_wrapper)
+        # If failed, write to file path
+        except Exception as e:
+            # Get time stamp
+            error_time_stamp = datetime.now().strftime('%H_%M_%S_%f')[:-3]
+            # Assemble file path
+            xml_debug_file_path = start_of_xml_debug_file_path + error_time_stamp + end_of_xml_debug_file_path
+            # Save a copy as an xml file to aid in debugging
+            save_to_text_file(xml_debug_file_path, input_str_with_xml_wrapper)
+            return start_of_xml_debug_file_path
 
     # Create a list
     translated_content = []
