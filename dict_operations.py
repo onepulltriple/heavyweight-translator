@@ -42,10 +42,13 @@ def insert_translations_into_translation_dict(source_file_path, target_file_path
     temp_mapping[1] = read_csv_with_replacements(preprocessed_file_path)
 
     # Check if the number of rows in each file is the same 
-    # add try catch here
     if len(temp_mapping[0]) != len(temp_mapping[1]):
-        print("Error: The counts of rows in the input files are not equal. This check occurs after preprocessing.\n")
-        return None
+        print("Error: The counts of rows of the input files are not equal. This check occurs after preprocessing.")
+        print("Review the following files:")
+        print(f"{source_file_path}")
+        print(f"{preprocessed_file_path}\n")
+        quit()
+        #return None
 
     # Insert translations into translation dictionary
     # Loop through the temp mapping from top to bottom
