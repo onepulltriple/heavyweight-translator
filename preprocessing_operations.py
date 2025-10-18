@@ -16,7 +16,7 @@ def regex_replacements(original_content):
     preprocessed_content = re.sub(r"&lt;br&gt;", r'&lt;br/&gt;', preprocessed_content) # to close break tags
     preprocessed_content = re.sub(r"<br>", r'&lt;br/&gt;', preprocessed_content) # to close break tags
     
-    if IP.target_lang_cult == "en-UK":
+    if IP.target_lang_cult == "en-GB":
         preprocessed_content = re.sub(r'consignment', r'shipment', preprocessed_content)
         preprocessed_content = re.sub(r'Consignment', r'Shipment', preprocessed_content)
         preprocessed_content = re.sub(r'contractor', r'subcontractor', preprocessed_content)

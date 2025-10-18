@@ -14,9 +14,21 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the other(s) out
     step = constants.EXTRACT
-    #step = constants.SWAP
+    step = constants.SWAP
 
 #__________________________________________________________________________
+###########################################################################
+# Create file to log output
+logfile = open(dynamic_file_path_names[f"console_log_{step}_file_path"],'w')
+
+# Start timing
+start_time = time.time()
+
+# Replace stdout and stderr with a Tee object
+sys.stdout = LO.Tee(sys.stdout, logfile)
+sys.stderr = LO.Tee(sys.stderr, logfile)
+
+
 ###########################################################################
 # EXECUTE
 print(f"Beginning {step} operations...")
@@ -32,16 +44,6 @@ if step == constants.EXTRACT:
     save_to_text_file(FP.target_language_translations_file_path, [], "\n")
 
 if step == constants.SWAP:
-    # Create file to log output
-    logfile = open(console_log_file_path,'w')
-
-    # Start timing
-    start_time = time.time()
-
-    # Replace stdout and stderr with a Tee object
-    sys.stdout = LO.Tee(sys.stdout, logfile)
-    sys.stderr = LO.Tee(sys.stderr, logfile)
-
     # Update the translation dictionary to include the retrieved translations
     translation_dict = insert_translations_into_translation_dict(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, FP.preprocessed_translations_file_path, FP.TEMP_translation_dict_file_path)
 
@@ -52,19 +54,20 @@ if step == constants.SWAP:
     extract_or_swap_text_in_docx(FP.source_document_path, step, translation_dict, FP.output_document_path)
 
 
-    # Stop timing
-    elapsed_time = time.time() - start_time
+###########################################################################
+# Stop timing
+elapsed_time = time.time() - start_time
 
-    # Convert runtime to hours, minutes, seconds, milliseconds
-    hours = int(elapsed_time // 3600)
-    minutes = int((elapsed_time % 3600) // 60)
-    seconds = int(elapsed_time % 60)
-    milliseconds = int((elapsed_time - int(elapsed_time)) * 1000)
+# Convert runtime to hours, minutes, seconds, milliseconds
+hours = int(elapsed_time // 3600)
+minutes = int((elapsed_time % 3600) // 60)
+seconds = int(elapsed_time % 60)
+milliseconds = int((elapsed_time - int(elapsed_time)) * 1000)
 
-    print(f"Total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)\n")
+print(f"Total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)\n")
 
-    # Close log file
-    logfile.close()
+# Close log file
+logfile.close()
 
-    # Suppress unusual error message
-    sys.unraisablehook = None
+# Suppress unusual error message
+sys.unraisablehook = None
