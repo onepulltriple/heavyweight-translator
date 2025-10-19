@@ -20,8 +20,13 @@ if 'SET MODE OF EXECUTION':
 #__________________________________________________________________________
 ###########################################################################
 if 'START LOGGING':
-    # Create folder for document components (if it doesn't already exist)
-    FO.make_folder(document_components_path)
+    # Create folders for document components (if they don't already exist)
+    FO.make_folder(document_components_folder_path)
+    FO.make_folder(console_logs_folder_path)
+    FO.make_folder(source_languages_folder_path)
+    FO.make_folder(target_languages_folder_path)
+    FO.make_folder(pre_swapping_parts_folder_path)
+    FO.make_folder(maintainable_parts_folder_path)
 
     # Create file to log output
     logfile = open(dynamic_file_path_names[f"console_log_{step}_file_path"],'w')
