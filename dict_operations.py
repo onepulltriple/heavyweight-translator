@@ -51,14 +51,15 @@ def insert_translations_into_translation_dict(source_file_path, target_file_path
         #return None
 
     # Insert translations into translation dictionary
-    # Loop through the temp mapping from top to bottom
+    # Loop through the temp mapping
     for i in range(0, len(temp_mapping[0])):
         current_key = temp_mapping[0][i]
         current_value = temp_mapping[1][i]
         # After finding a full paragraph to be translated
         if current_key in translation_dict: 
-            # Insert the full paragraph tagged text translation
-            translation_dict[current_key]['paragraph_tagged_translated_text_with_preserves'] = current_value
+            # Insert the full paragraph tagged text translation with preserves
+            # formerly called 'paragraph_tagged_translated_text_with_preserves'
+            translation_dict[current_key][IP.target_lang_cult] = current_value
 
     return translation_dict
 

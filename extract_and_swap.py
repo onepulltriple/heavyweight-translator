@@ -322,7 +322,7 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add do
         #and paragraph_tagged_source_text_with_preserves in translation_dict # comment out if check is already performed above
         ):
         # Get the paragraph's translated counterpart
-        paragraph_tagged_translated_text_with_preserves = translation_dict[paragraph_tagged_source_text_with_preserves]['paragraph_tagged_translated_text_with_preserves']
+        paragraph_tagged_translated_text_with_preserves = translation_dict[paragraph_tagged_source_text_with_preserves][IP.target_lang_cult]
 
     # Unpreserve the translation pulled from the dictionary
     paragraph_tagged_translated_text = unpreserve_paragraph_translation(paragraph_tagged_translated_text_with_preserves)
@@ -518,7 +518,7 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step): #ad
                 ):
                 # Add it to the translation dictionary
                 translation_dict[paragraph_tagged_source_text_with_preserves] = {
-                    "paragraph_tagged_translated_text_with_preserves": None
+                    IP.target_lang_cult: None
                 }
             
                 # Extraction: 0 if successful

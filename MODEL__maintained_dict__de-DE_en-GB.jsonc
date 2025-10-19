@@ -1,12 +1,6 @@
 {
     "<paragraph_tagged_source_text_with_preserves>": { // "Mit hilfe der Schaltfläche <run style='01'><b/>Neu Aufträge<b/></run> in fancyprogram können neue Aufträge erstellt werden.", 
-        "paragraph_tagged_translated_text_with_preserves": "With the help of the <run style='01'><b/>New Orders<b/></run> button in fancyprogram, new orders can be created." 
-    }
-}
-
-{
-    "<paragraph_tagged_source_text_with_preserves>": { // "Mit hilfe der Schaltfläche <run style='01'><b/>Neu Aufträge<b/></run> in fancyprogram können neue Aufträge erstellt werden.", 
-        "en-GB": "With the help of the <run style='01'><b/>New Orders<b/></run> button in fancyprogram, new orders can be created." ,
-        "pl-PL": "Za pomocą przycisku <run style='01'><b/>Nowe zlecenia<b/></run> w programie fancyprogram można tworzyć nowe zlecenia." 
+        "en-GB": "With the help of the <run style='01'><b/>New Orders<b/></run> button in fancyprogram, new orders can be created." , // paragraph_tagged_translated_text_with_preserves for en-GB
+        "pl-PL": "Za pomocą przycisku <run style='01'><b/>Nowe zlecenia<b/></run> w programie fancyprogram można tworzyć nowe zlecenia." // paragraph_tagged_translated_text_with_preserves for pl-PL
     }
 }

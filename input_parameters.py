@@ -6,7 +6,7 @@ from datetime import datetime
 #source_document_file_name_without_extension = "Basic_GenericSendEmailWF_Benutzerhandbuch"
 #source_document_file_name_without_extension = "translogica Benutzerhandbuch New Design"
 #source_document_file_name_without_extension = "19.09.2025__translogica Benutzerhandbuch"
-source_document_file_name_without_extension = "Anwendungsfall"
+source_document_file_name_without_extension = "Anwendungsfall_this document has a seriuslz long title how will this look"
 
 operation_datetime = datetime.today().strftime('%Y.%m.%d %H.%M') # https://docs.python.org/3/library/time.html#time.strftime
 operation_date = datetime.today().strftime('%Y.%m.%d')

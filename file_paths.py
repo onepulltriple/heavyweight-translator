@@ -5,10 +5,10 @@ import constants
 #__________________________________________________________________________
 ###########################################################################
 # FILE PATHS
-document_components_path               = "./private/" + IP.operation_date + "__" + IP.source_document_file_name_without_extension
+document_components_path               = "./private/" + IP.source_document_file_name_without_extension + "__" + IP.operation_date
 source_document_path                   = "./private/" + IP.source_document_file_name_without_extension + ".docx"
-output_document_path                   = document_components_path + "/" + IP.source_document_file_name_without_extension + "_" + IP.target_lang_cult + ".docx"
-FO.make_folder(document_components_path)
+#output_document_path                   = document_components_path + "/" + IP.source_document_file_name_without_extension + "_" + IP.target_lang_cult + ".docx"
+output_document_path                   = "./private/" + IP.source_document_file_name_without_extension + "__" + IP.operation_date + "_" + IP.target_lang_cult + ".docx"
 
 
 dynamic_file_path_names = {
@@ -28,8 +28,9 @@ FULL_translation_dict_file_path        = document_components_path + "/" + "07__F
 
 # Set up file path to dump unparseable xml strings
 start_of_xml_debug_file_path = document_components_path + "/unparseables/"
-FO.make_folder(start_of_xml_debug_file_path)
 end_of_xml_debug_file_path = "__xml_debug_" + IP.target_lang_cult + ".xml"
+
+
 
 # Set up file path for dictionaries
 #master_document_file_path = document_components_path + "/master"
@@ -38,5 +39,3 @@ end_of_xml_debug_file_path = "__xml_debug_" + IP.target_lang_cult + ".xml"
 #FO.make_folder(subdocuments_file_path)
 #versions_file_path = document_components_path + "/versions"
 #FO.make_folder(versions_file_path)
-
-
