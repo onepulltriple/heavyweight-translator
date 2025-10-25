@@ -2,6 +2,7 @@
 import csv
 import pprint
 import json
+import input_parameters as IP
 from csv_read_operations import *
 
 #__________________________________________________________________________
@@ -71,6 +72,14 @@ def write_dict_to_json(dict, file_path):
     with open(file_path, "w", encoding='utf-8-sig') as json_file:
         json.dump(dict, json_file, ensure_ascii=False, indent=4)
 
+#__________________________________________________________________________
+###########################################################################
+# Function to pretty-print a dictionary to a json file
+def extend_json_dictionary(new_portion, original_dict):
+    # Merge new portion into existing dictionary
+    #dict_maintained_translations[IP.target_lang_cult] |= dict_translation_TEMP[IP.target_lang_cult]
+    original_dict |= new_portion
+    return original_dict
 
 #__________________________________________________________________________
 ###########################################################################

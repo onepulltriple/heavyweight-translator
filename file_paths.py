@@ -26,8 +26,8 @@ target_language_translations_file_path = target_languages_folder_path    + "/" +
 TEMP_translation_dict_file_path        = pre_swapping_parts_folder_path  + "/" + IP.operation_date + "__TEMP_translation_dict__"          + IP.target_lang_cult + ".json"
 preprocessed_translations_file_path    = pre_swapping_parts_folder_path  + "/" + IP.operation_date + "__preprocessed_text_elements__"     + IP.target_lang_cult + ".csv"
 
-preprocessing_dict_file_path           = maintainable_parts_folder_path  + "/" + "preprocessing_dict__"     + IP.target_lang_cult + ".json"
-FULL_translation_dict_file_path        = maintainable_parts_folder_path  + "/" + "MAINT_translation_dict__" + IP.target_lang_cult + ".json"
+preprocessing_dict_file_path           = maintainable_parts_folder_path  + "/" + "PREPROCESSING_dict.json"
+FULL_translation_dict_file_path        = maintainable_parts_folder_path  + "/" + "MAINTAINED_translation_dict.json"
 
 # Set up file path to dump unparseable xml strings
 start_of_xml_debug_file_path = console_logs_folder_path + "/" + IP.operation_datetime + "__unparseables/"

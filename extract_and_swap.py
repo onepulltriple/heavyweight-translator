@@ -51,6 +51,17 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
 
     # RESULTS #############################################################
     if step == constants.EXTRACT:
+        # Find existing preprocessing dicitonary
+        if os.path.isfile(FP.preprocessing_dict_file_path):
+            preprocessing_dict = read_json_dictionary(FP.preprocessing_dict_file_path)
+        # Otherwise, create a new one
+        else:
+            preprocessing_dict = {}
+        # Extend preprocessing dictionary to include current target lang-cult if not already present
+        preprocessing_dict = extend_json_dictionary({IP.target_lang_cult:{}},preprocessing_dict)
+        # Save updated preprocessing dictionary
+        write_dict_to_json(preprocessing_dict, preprocessing_dict_file_path)
+
         write_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
         write_translation_dict_to_csv_simplified(translation_dict, FP.source_language_plain_texts_file_path)
         print(f"There were {len(translation_dict)} {step} operations.\n")

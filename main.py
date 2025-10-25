@@ -3,11 +3,12 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import file_paths as FP 
     import logging_operations as LO
     import input_parameters as IP
+    import file_operations as FO
     import sys
     import time
     from dict_operations import *
-    from file_operations import *
     from extract_and_swap import *
+    import os
     print("\n")
 
 #__________________________________________________________________________
@@ -15,7 +16,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the other(s) out
     step = constants.EXTRACT
-    step = constants.SWAP
+    #step = constants.SWAP
 
 #__________________________________________________________________________
 ###########################################################################
