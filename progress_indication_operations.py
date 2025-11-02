@@ -10,20 +10,36 @@ def is_relevant_paragraph(paragraph):
 #__________________________________________________________________________
 ###########################################################################
 # Function to count paragraphs in a document (i.e. those that will be treated)
-def count_paragraphs(doc, step): 
-
+def count_relevant_paragraphs(doc, step): 
     count = 0
+
+    for section in doc.sections:
+        for part in (section.header, section.footer):
+            for paragraph in part.paragraphs:
+                count += count_paragraphs_considering_step(paragraph, step)
+            for table in part.tables:
+                count += count_table_cells(table, step)
+
     for paragraph in doc.paragraphs:
-        if step == constants.SWAP:
-            if is_relevant_paragraph(paragraph):
-                count += 1
-        else:
-            count += 1
+        count += count_paragraphs_considering_step(paragraph, step)
 
     for table in doc.tables:
         count += count_table_cells(table, step)
 
     return count
+
+#__________________________________________________________________________
+###########################################################################
+# Function to count paragraphs based on the step
+def count_paragraphs_considering_step(paragraph, step): 
+
+    if step == constants.SWAP:
+        if is_relevant_paragraph(paragraph):
+            return 1
+    else:
+        return 1
+
+    return 0
 
 #__________________________________________________________________________
 ###########################################################################
