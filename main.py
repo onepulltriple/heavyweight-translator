@@ -1,14 +1,15 @@
 if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import constants 
-    import file_paths as FP 
+    #import file_paths as FP 
     import logging_operations as LO
     import input_parameters as IP
-    import file_operations as FO
+    #import file_operations as FO
     import sys
     import time
     from dict_operations import *
     from extract_and_swap import *
     import os
+    import init
     print("\n")
 
 #__________________________________________________________________________
@@ -24,19 +25,12 @@ if 'SET MODE OF EXECUTION':
 if 'START LOGGING':
     # Create copy of parent source document in target folder
     # Do this step for the parent document only (handles master .docx paths if subdocuments are in play)
-    copy_file_lossless(parent_source_document_path, path_to_copy_of_source_parent_document)
+    path_to_source_document = copy_file_lossless(parent_source_document_path, path_to_copy_of_source_parent_document)
 
-    # Create folders for document components and output (if they don't already exist)
-    FO.make_folder(document_components_folder_path)
-    FO.make_folder(console_logs_folder_path)
-    FO.make_folder(source_languages_folder_path)
-    FO.make_folder(target_languages_folder_path)
-    FO.make_folder(pre_swapping_parts_folder_path)
-    FO.make_folder(maintainable_parts_folder_path)
-    FO.make_folder(results_history_folder_path)
+    file_path_dictionary = handle_source_file_paths(path_to_source_document, IP.path_to_output_parent_folder, file_path_dictionary = {})
 
     # Create file to log output
-    logfile = open(dynamic_file_path_names[f"console_log_{step}_file_path"],'w')
+    logfile = open(file_path_dictionary[f"console_log_{step}_file_path"],'w')
 
     # Start timing
     start_time = time.time()
@@ -52,34 +46,34 @@ print(f"Beginning {step} operations...")
 
 if step == constants.EXTRACT:
     # Extract the text elements from the source docx file
-    extract_or_swap_text_in_docx(FP.path_to_copy_of_source_parent_document, step)
+    extract_or_swap_text_in_docx(file_path_dictionary, step)
 
     # Print confirmation message to the console
-    print(f"The text file containing the untranslated source text has been written to: \n{FP.source_language_plain_texts_file_path}\n")
+    print(f"The text file containing the untranslated source text has been written to: \n{file_path_dictionary["source_language_plain_texts_file_path"]}\n")
 
     # Create an empty text files to later store retrieved translations
-    save_to_text_file(FP.target_language_translations_file_path, [], "\n")
+    save_to_text_file(file_path_dictionary["target_language_translations_file_path"], [], "\n")
 
 if step == constants.SWAP:
     # Check if the extraction step has been performed
-    if not os.path.isfile(source_language_plain_texts_file_path):
-        print(f"No file found at {source_language_plain_texts_file_path}")
+    if not os.path.isfile(file_path_dictionary["source_language_plain_texts_file_path"]):
+        print(f"No file found at {file_path_dictionary["source_language_plain_texts_file_path"]}")
         print(f"The date in the above file path should be: {IP.operation_date}\n")
         print(f"If the above dates don't match, the operation_date can be set manually in the input parameters. This issue arises when the {constants.EXTRACT} step was performed on a previous date.")
         print(f"Otherwise, it looks like the {constants.EXTRACT} step hasn't been completed yet. Perform the {constants.EXTRACT} step first.\n")
         quit()
 
     # Create folder for debug files (for now, only unparseables)
-    FO.make_folder(start_of_xml_debug_file_path)
+    #FO.make_folder(start_of_xml_debug_file_path)
 
     # Update the translation dictionary to include the retrieved translations
-    translation_dict = insert_translations_into_translation_dict(FP.source_language_plain_texts_file_path, FP.target_language_translations_file_path, FP.preprocessed_translations_file_path, FP.TEMP_translation_dict_file_path)
+    translation_dict = insert_translations_into_translation_dict(file_path_dictionary["source_language_plain_texts_file_path"], file_path_dictionary["target_language_translations_file_path"], file_path_dictionary["preprocessed_translations_file_path"], file_path_dictionary["TEMP_translation_dict_file_path"])
 
     # Save updated translation dictionary file for later review
-    write_dict_to_json(translation_dict, FP.FULL_translation_dict_file_path)
+    write_dict_to_json(translation_dict, file_path_dictionary["FULL_translation_dict_file_path"])
 
     # Swap the translations into the text elements of the source docx file
-    extract_or_swap_text_in_docx(FP.path_to_copy_of_source_parent_document, step, translation_dict, FP.output_document_path)
+    extract_or_swap_text_in_docx(file_path_dictionary, step, translation_dict)
 
 
 ###########################################################################

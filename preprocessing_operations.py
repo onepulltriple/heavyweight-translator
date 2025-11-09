@@ -1,8 +1,8 @@
 import re
 import input_parameters as IP
-import file_paths as FP
+#import file_paths as FP
 import dict_operations as DO
-import os
+from init import file_path_dictionary
 
 #__________________________________________________________________________
 ###########################################################################
@@ -19,10 +19,8 @@ def regex_replacements(original_content):
     preprocessed_content = re.sub(r"&lt;br&gt;", r'&lt;br/&gt;', preprocessed_content) # to close break tags
     preprocessed_content = re.sub(r"<br>", r'&lt;br/&gt;', preprocessed_content) # to close break tags
     
-    # Check if the file exists
-    #if os.path.isfile(FP.preprocessing_dict_file_path):
     # Load preprocessing dictionary
-    preprocessing_dict = DO.read_json_dictionary(FP.preprocessing_dict_file_path)
+    preprocessing_dict = DO.read_json_dictionary(file_path_dictionary["preprocessing_dict_file_path"])
     
     # If a preprocessing dictionary was found
     if(preprocessing_dict):

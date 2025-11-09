@@ -1,7 +1,7 @@
 if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import docx
     import constants 
-    import file_paths as FP 
+    #import file_paths as FP 
     import input_parameters as IP
     from docx import Document
     from auxiliary_operations import *
@@ -16,15 +16,16 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     from copy import deepcopy
     import math
     from xml.sax.saxutils import escape, unescape
+    from init import file_path_dictionary
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to extract or swap text elements from a docx file
 # Argument ordering for functions within: translation_dict, paragraph, current_run, variables/counters
-def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output_docx = None):
+def extract_or_swap_text_in_docx(file_path_dictionary, step, translation_dict = {}):
 
     # Read the unmodified input .docx document into memory
-    doc = Document(input_file)
+    doc = Document(file_path_dictionary["file_path_to_source_document"])
     
     # Initialize operation counters
     current_op_count = 0
@@ -61,28 +62,28 @@ def extract_or_swap_text_in_docx(input_file, step, translation_dict = {}, output
 
     # RESULTS #############################################################
     if step == constants.EXTRACT:
-        # Find existing preprocessing dicitonary
-        if os.path.isfile(FP.preprocessing_dict_file_path):
-            preprocessing_dict = read_json_dictionary(FP.preprocessing_dict_file_path)
+        # Find existing preprocessing dictionary
+        if os.path.isfile(file_path_dictionary["preprocessing_dict_file_path"]):
+            preprocessing_dict = read_json_dictionary(file_path_dictionary["preprocessing_dict_file_path"])
         # Otherwise, create a new one
         else:
             preprocessing_dict = {}
         # Extend preprocessing dictionary to include current target lang-cult if not already present
         preprocessing_dict = extend_json_dictionary({IP.target_lang_cult:{}},preprocessing_dict)
         # Save updated preprocessing dictionary
-        write_dict_to_json(preprocessing_dict, preprocessing_dict_file_path)
+        write_dict_to_json(preprocessing_dict, file_path_dictionary["preprocessing_dict_file_path"])
 
-        write_dict_to_json(translation_dict, FP.TEMP_translation_dict_file_path)
-        write_translation_dict_to_csv_simplified(translation_dict, FP.source_language_plain_texts_file_path)
+        write_dict_to_json(translation_dict, file_path_dictionary["TEMP_translation_dict_file_path"])
+        write_translation_dict_to_csv_simplified(translation_dict, file_path_dictionary["source_language_plain_texts_file_path"])
         print(f"There were {len(translation_dict)} {step} operations.\n")
         
     if step == constants.SWAP:
         print(f"There were {current_op_count} {step} operations.\n")
         # Save the modified document to the target directory
         print("Saving translated document...")
-        doc.save(output_docx)
+        doc.save(file_path_dictionary["output_document_path"])
         # Save a copy in the results history
-        doc.save(FP.output_document_path_with_datetime)
+        doc.save(file_path_dictionary["output_document_path_with_datetime"])
     
     print("Done.\n")
 
@@ -352,7 +353,7 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add do
     # Break it into objects (dictionaries)
     translated_runs_with_tags = split_string_into_list_of_tagged_and_untagged_elements(paragraph_tagged_translated_text)
 
-    if translated_runs_with_tags == (document_components_folder_path + "/unparseables/"):
+    if translated_runs_with_tags == (file_path_dictionary["document_components_folder_path"] + "/unparseables/"):
         print(f"Unparseable element encountered. Review the element in \"{translated_runs_with_tags}\"")
         # Indicate failure
         return paragraph_with_cons_runs, 0

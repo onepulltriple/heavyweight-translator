@@ -3,6 +3,12 @@ import shutil
 
 #__________________________________________________________________________
 ###########################################################################
+# Function to clean up user-entered file paths
+def clean_up_file_paths(file_path):
+    return file_path.replace("\\","/")
+
+#__________________________________________________________________________
+###########################################################################
 # Function to copy a file losslessly
 def copy_file_lossless(path_to_existing_source_file, path_to_new_copy):
     try:
@@ -14,6 +20,8 @@ def copy_file_lossless(path_to_existing_source_file, path_to_new_copy):
 
         print(f"A source document was found at:\n{path_to_existing_source_file}\n")
         print(f"A copy was created and stored here:\n{path_to_new_copy}\n")
+
+        return path_to_new_copy
 
     except FileNotFoundError:
         #print(f"The file path '{output_file}' is not valid.\n")
