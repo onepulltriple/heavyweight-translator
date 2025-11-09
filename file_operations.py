@@ -1,5 +1,25 @@
 import os
+import shutil
 
+#__________________________________________________________________________
+###########################################################################
+# Function to copy a file losslessly
+def copy_file_lossless(path_to_existing_source_file, path_to_new_copy):
+    try:
+        # Ensure the destination folder exists
+        os.makedirs(os.path.dirname(path_to_new_copy), exist_ok=True)
+
+        # Copy the file losslessly
+        shutil.copy2(path_to_existing_source_file, path_to_new_copy)
+
+        print(f"A source document was found at:\n{path_to_existing_source_file}\n")
+        print(f"A copy was created and stored here:\n{path_to_new_copy}\n")
+
+    except FileNotFoundError:
+        #print(f"The file path '{output_file}' is not valid.\n")
+        #return None
+        pass
+    
 #__________________________________________________________________________
 ###########################################################################
 # Function to save text elements to a text file

@@ -16,11 +16,16 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the other(s) out
     step = constants.EXTRACT
-    step = constants.SWAP
+    #step = constants.SWAP
+
 
 #__________________________________________________________________________
 ###########################################################################
 if 'START LOGGING':
+    # Create copy of parent source document in target folder
+    # Do this step for the parent document only (handles master .docx paths if subdocuments are in play)
+    copy_file_lossless(parent_source_document_path, path_to_copy_of_source_parent_document)
+
     # Create folders for document components and output (if they don't already exist)
     FO.make_folder(document_components_folder_path)
     FO.make_folder(console_logs_folder_path)
@@ -29,7 +34,6 @@ if 'START LOGGING':
     FO.make_folder(pre_swapping_parts_folder_path)
     FO.make_folder(maintainable_parts_folder_path)
     FO.make_folder(results_history_folder_path)
-    FO.make_folder(IP.full_path_to_output_folder)
 
     # Create file to log output
     logfile = open(dynamic_file_path_names[f"console_log_{step}_file_path"],'w')
@@ -48,7 +52,7 @@ print(f"Beginning {step} operations...")
 
 if step == constants.EXTRACT:
     # Extract the text elements from the source docx file
-    extract_or_swap_text_in_docx(FP.source_document_path, step)
+    extract_or_swap_text_in_docx(FP.path_to_copy_of_source_parent_document, step)
 
     # Print confirmation message to the console
     print(f"The text file containing the untranslated source text has been written to: \n{FP.source_language_plain_texts_file_path}\n")
@@ -75,7 +79,7 @@ if step == constants.SWAP:
     write_dict_to_json(translation_dict, FP.FULL_translation_dict_file_path)
 
     # Swap the translations into the text elements of the source docx file
-    extract_or_swap_text_in_docx(FP.source_document_path, step, translation_dict, FP.output_document_path)
+    extract_or_swap_text_in_docx(FP.path_to_copy_of_source_parent_document, step, translation_dict, FP.output_document_path)
 
 
 ###########################################################################
