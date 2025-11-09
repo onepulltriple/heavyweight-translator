@@ -11,10 +11,8 @@ add try catch to tell user that unequal csv reads usually means that deepl gave 
 determine where fill behind text is getting cleared (see changelog tables at end of documents)
 handle punctuation at ends of sentences, e.g. "Aktionsmenü im Auftrag" -> "action menu in the order"
 Handle captions of images (or at least, some are not getting translated)
-font sizes of certain stles are being "normalized"
-include searching through headers and footers
+font sizes of certain styles are being "normalized"
 include manually applied bolding as a changed run (do this in cons run?)
 single vertical tick caused problems with FTL testing script
-add duration to results so I know how long it will take to run again
 Give user feedback when certain errors happen, e.g. hyperlinks/glyphs should not make it to the function: What happened there and how can the user fix it?
 Handle error: property 'text' of 'Hyperlink' has no setter, see lines 405-410 of extract_and_swap.py

@@ -16,18 +16,20 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the other(s) out
     step = constants.EXTRACT
-    #step = constants.SWAP
+    step = constants.SWAP
 
 #__________________________________________________________________________
 ###########################################################################
 if 'START LOGGING':
-    # Create folders for document components (if they don't already exist)
+    # Create folders for document components and output (if they don't already exist)
     FO.make_folder(document_components_folder_path)
     FO.make_folder(console_logs_folder_path)
     FO.make_folder(source_languages_folder_path)
     FO.make_folder(target_languages_folder_path)
     FO.make_folder(pre_swapping_parts_folder_path)
     FO.make_folder(maintainable_parts_folder_path)
+    FO.make_folder(results_history_folder_path)
+    FO.make_folder(IP.full_path_to_output_folder)
 
     # Create file to log output
     logfile = open(dynamic_file_path_names[f"console_log_{step}_file_path"],'w')

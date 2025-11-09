@@ -32,7 +32,6 @@ def count_relevant_paragraphs(doc, step):
 ###########################################################################
 # Function to count paragraphs based on the step
 def count_paragraphs_considering_step(paragraph, step): 
-
     if step == constants.SWAP:
         if is_relevant_paragraph(paragraph):
             return 1
