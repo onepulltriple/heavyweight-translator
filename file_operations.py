@@ -10,7 +10,7 @@ def clean_up_file_paths(file_path):
 #__________________________________________________________________________
 ###########################################################################
 # Function to copy a file losslessly
-def copy_file_lossless(path_to_existing_source_file, path_to_new_copy):
+def copy_file_losslessly(path_to_existing_source_file, path_to_new_copy):
     try:
         # Ensure the destination folder exists
         os.makedirs(os.path.dirname(path_to_new_copy), exist_ok=True)

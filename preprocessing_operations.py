@@ -2,7 +2,9 @@ import re
 import input_parameters as IP
 #import file_paths as FP
 import dict_operations as DO
-from init import file_path_dictionary
+#from main import file_path_dictionary
+import init
+file_path_dictionary = init.parent_file_path_dictionary()
 
 #__________________________________________________________________________
 ###########################################################################

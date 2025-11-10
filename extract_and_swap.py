@@ -16,7 +16,9 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     from copy import deepcopy
     import math
     from xml.sax.saxutils import escape, unescape
-    from init import file_path_dictionary
+    #from main import file_path_dictionary
+    import init
+    file_path_dictionary = init.parent_file_path_dictionary()
 
 #__________________________________________________________________________
 ###########################################################################

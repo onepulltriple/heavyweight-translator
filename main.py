@@ -1,4 +1,5 @@
 if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
+    import init
     import constants 
     #import file_paths as FP 
     import logging_operations as LO
@@ -9,25 +10,25 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     from dict_operations import *
     from extract_and_swap import *
     import os
-    import init
     print("\n")
+    file_path_dictionary = None
 
 #__________________________________________________________________________
 ###########################################################################
 if 'SET MODE OF EXECUTION':
     # Select one by commenting the other(s) out
     step = constants.EXTRACT
-    #step = constants.SWAP
+    step = constants.SWAP
 
 
 #__________________________________________________________________________
 ###########################################################################
 if 'START LOGGING':
-    # Create copy of parent source document in target folder
-    # Do this step for the parent document only (handles master .docx paths if subdocuments are in play)
-    path_to_source_document = copy_file_lossless(parent_source_document_path, path_to_copy_of_source_parent_document)
+    if file_path_dictionary is None:
+        file_path_dictionary = init.parent_file_path_dictionary()
 
-    file_path_dictionary = handle_source_file_paths(path_to_source_document, IP.path_to_output_parent_folder, file_path_dictionary = {})
+
+    #file_path_dictionary = handle_source_file_paths(path_to_source_document, IP.path_to_output_parent_folder)
 
     # Create file to log output
     logfile = open(file_path_dictionary[f"console_log_{step}_file_path"],'w')
