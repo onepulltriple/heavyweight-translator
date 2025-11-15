@@ -2,6 +2,7 @@ import input_parameters as IP
 import file_operations as FO
 import file_paths as FP 
 
+
 #__________________________________________________________________________
 ###########################################################################
 def parent_file_path_dictionary():
@@ -11,3 +12,9 @@ def parent_file_path_dictionary():
     path_to_source_document = FO.copy_file_losslessly(parent_source_document_path_before_copying, FP.path_for_copy_of_source_parent_document)
 
     return FP.handle_source_file_paths(path_to_source_document, IP.path_to_output_parent_folder)
+
+#__________________________________________________________________________
+###########################################################################
+# Initialize file path dictionary
+file_path_dictionary = None
+

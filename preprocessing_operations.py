@@ -4,7 +4,8 @@ import input_parameters as IP
 import dict_operations as DO
 #from main import file_path_dictionary
 import init
-file_path_dictionary = init.parent_file_path_dictionary()
+#file_path_dictionary = init.parent_file_path_dictionary()
+from init import *
 
 #__________________________________________________________________________
 ###########################################################################
@@ -22,7 +23,7 @@ def regex_replacements(original_content):
     preprocessed_content = re.sub(r"<br>", r'&lt;br/&gt;', preprocessed_content) # to close break tags
     
     # Load preprocessing dictionary
-    preprocessing_dict = DO.read_json_dictionary(file_path_dictionary["preprocessing_dict_file_path"])
+    preprocessing_dict = DO.read_json_dictionary(init.file_path_dictionary["preprocessing_dict_file_path"])
     
     # If a preprocessing dictionary was found
     if(preprocessing_dict):

@@ -1,8 +1,13 @@
 from datetime import datetime
+import constants
 
 #__________________________________________________________________________
 ###########################################################################
-# VARIABLES
+# SET MODE OF EXECUTION
+# Select one by commenting the other(s) out
+step = constants.EXTRACT
+step = constants.SWAP
+
 # Enter a full or relative file path preceded by 'r' and wrapped in double quotes, for example:
 # path_to_source_parent_document        = r"N:\example_output_folder_name\subfolder_name\Admin_Datenbankstruktur.docx"
 # path_to_output_parent_folder          = r"N:\example_output_folder_name\subfolder_name"
