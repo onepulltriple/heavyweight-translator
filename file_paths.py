@@ -6,7 +6,7 @@ import os
 #__________________________________________________________________________
 ###########################################################################
 # FOLDER PATHS (file paths at bottom)
-if 'THIS SECTION EXECUTED UPON LOADING MAIN':
+if 'PREPARE PARENT DOCUMENT AND DIRECTORY':
     # Clean up path to output folder where the output parent document will be stored 
     cleaned_up_path_to_output_parent_folder     = FO.clean_up_file_paths(IP.path_to_output_parent_folder)
     # Derive the name of the subfolder which will be created in the output folder
@@ -15,11 +15,18 @@ if 'THIS SECTION EXECUTED UPON LOADING MAIN':
     # Create the path to the copy of the actual source parent document, i.e. the destination of the copy
     path_for_copy_of_source_parent_document     = cleaned_up_path_to_output_parent_folder + "/" + source_document_file_name_no_extension + "__" + IP.source_lang_cult + ".docx"
 
+if 'PREPARE CHILD DOCUMENT DIRECTORY':
+    # Clean up path to output folder where the output child documents will be stored 
+    #if IP.path_to_source_child_folder != "":
+    cleaned_up_path_to_source_child_folder      = FO.clean_up_file_paths(IP.path_to_source_child_folder)
+    # Derive the name of the subfolder for child documents, which will be created in the output folder
+    # This folder is named after the source child document folder
+    output_folder_for_child_documents           = cleaned_up_path_to_output_parent_folder + "/" + os.path.basename(os.path.normpath(cleaned_up_path_to_source_child_folder))
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to dynamically handle file paths
-def handle_source_file_paths(path_to_source_document, path_to_output_folder, file_path_dictionary = {}):
+def handle_source_file_paths(path_to_source_document, path_to_output_folder, child=False, file_path_dictionary = {}):
 
     # Clean up user-entered file path
     any_source_document_path = FO.clean_up_file_paths(path_to_source_document)
@@ -31,7 +38,7 @@ def handle_source_file_paths(path_to_source_document, path_to_output_folder, fil
 
     # Build then create the document components folder path
     any_parent_output_folder_path           = FO.clean_up_file_paths(path_to_output_folder)
-    document_components_folder_path         = FO.clean_up_file_paths(os.path.join(any_parent_output_folder_path, source_document_file_name_no_extension))
+    document_components_folder_path         = FO.clean_up_file_paths(os.path.join(any_parent_output_folder_path, source_document_file_name_no_extension.replace(IP.source_lang_cult,IP.target_lang_cult)))
     file_path_dictionary["document_components_folder_path"]         = document_components_folder_path
     os.makedirs(document_components_folder_path, exist_ok=True)
 
@@ -68,14 +75,18 @@ def handle_source_file_paths(path_to_source_document, path_to_output_folder, fil
     file_path_dictionary["end_of_xml_debug_file_path"]              = "__xml_debug_" + IP.target_lang_cult + ".xml"
 
     # Set the output document paths
-    file_path_dictionary["output_document_path_with_datetime"]      = results_history_folder_path + "/" + source_document_file_name_no_extension + "__" + IP.operation_datetime + "_" + IP.target_lang_cult + ".docx"
-    file_path_dictionary["output_document_path"]                    = any_parent_output_folder_path + "/" + source_document_file_name_no_extension + "__" + IP.target_lang_cult + ".docx"
+    file_path_dictionary["output_document_path_with_datetime"]      = results_history_folder_path + "/" + source_document_file_name_no_extension.replace(IP.source_lang_cult,IP.target_lang_cult) + "__" + IP.operation_datetime + ".docx"
+    if child == False:
+        file_path_dictionary["output_document_path"]                    = any_parent_output_folder_path + "/" + source_document_file_name_no_extension.replace(IP.source_lang_cult,IP.target_lang_cult) + ".docx"
+    else:
+        file_path_dictionary["output_document_path"]                    = any_parent_output_folder_path + "/" + source_document_file_name_no_extension + ".docx"
 
     return file_path_dictionary
 
 
 #__________________________________________________________________________
 ###########################################################################
+# Function to handle the parent/master (or only) document
 def parent_file_path_dictionary():
     # Create copy of parent source document in target folder
     # Do this step for the parent document only (handles master .docx paths in case subdocuments are in play)
@@ -83,6 +94,7 @@ def parent_file_path_dictionary():
     path_to_source_document = FO.copy_file_losslessly(parent_source_document_path_before_copying, path_for_copy_of_source_parent_document)
 
     return handle_source_file_paths(path_to_source_document, IP.path_to_output_parent_folder)
+
 
 #__________________________________________________________________________
 ###########################################################################

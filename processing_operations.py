@@ -13,16 +13,16 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 def process_document(step, file_path_dictionary):
 
     #######################################################################
-    if 'START LOGGING':
-        # Create file to log output
-        logfile = open(file_path_dictionary[f"console_log_{step}_file_path"],'w')
+    # if 'START LOGGING':
+    #     # Create file to log output
+    #     logfile = open(file_path_dictionary[f"console_log_{step}_file_path"],'w')
 
-        # Start timing
-        start_time = time.time()
+    #     # Start timing
+    #     start_time = time.time()
 
-        # Replace stdout and stderr with a Tee object
-        sys.stdout = LO.Tee(sys.stdout, logfile)
-        sys.stderr = LO.Tee(sys.stderr, logfile)
+    #     # Replace stdout and stderr with a Tee object
+    #     sys.stdout = LO.Tee(sys.stdout, logfile)
+    #     sys.stderr = LO.Tee(sys.stderr, logfile)
 
 
     #######################################################################
@@ -59,20 +59,20 @@ def process_document(step, file_path_dictionary):
 
 
     #######################################################################
-    if 'STOP LOGGING':
-        # Stop timing
-        elapsed_time = time.time() - start_time
+    # if 'STOP LOGGING':
+    #     # Stop timing
+    #     elapsed_time = time.time() - start_time
 
-        # Convert runtime to hours, minutes, seconds, milliseconds
-        hours = int(elapsed_time // 3600)
-        minutes = int((elapsed_time % 3600) // 60)
-        seconds = int(elapsed_time % 60)
-        milliseconds = int((elapsed_time - int(elapsed_time)) * 1000)
+    #     # Convert runtime to hours, minutes, seconds, milliseconds
+    #     hours = int(elapsed_time // 3600)
+    #     minutes = int((elapsed_time % 3600) // 60)
+    #     seconds = int(elapsed_time % 60)
+    #     milliseconds = int((elapsed_time - int(elapsed_time)) * 1000)
 
-        print(f"Total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)\n")
+    #     print(f"Total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)\n")
 
-        # Close log file
-        logfile.close()
+    #     # Close log file
+    #     logfile.close()
 
-        # Suppress unusual error message
-        sys.unraisablehook = None
+    #     # Suppress unusual error message
+    #     sys.unraisablehook = None
