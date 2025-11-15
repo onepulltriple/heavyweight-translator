@@ -1,16 +1,7 @@
 if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
-    import init
-    #import constants 
-    #import file_paths as FP 
-    import logging_operations as LO
+    import file_paths as FP
     import input_parameters as IP
-    #import file_operations as FO
-    import sys
-    import time
-    from dict_operations import *
-    from extract_and_swap import *
-    import os
-    import somewhere_else
+    import processing_operations
     print("\n")
 
 
@@ -20,11 +11,11 @@ if 'PROCESS ONE OR MORE DOCUMENTS':
         
     # For a single, large document or a master document with subdocuments, 
     # there will always be at least one document to process
-    if init.file_path_dictionary is None:
-        init.file_path_dictionary = init.parent_file_path_dictionary()
+    if FP.file_path_dictionary is None:
+        FP.file_path_dictionary = FP.parent_file_path_dictionary()
 
     # Process single/parent document
-    somewhere_else.amain(IP.step,init.file_path_dictionary)
+    processing_operations.process_document(IP.step,FP.file_path_dictionary)
 
     # Loop over documents and send them through main
     # main should probably take the file path dictionary as an argument

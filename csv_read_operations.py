@@ -44,6 +44,8 @@ def preprocess_csv(original_file_path, preprocessed_file_path):
 
         # Preprocess
         altered_content = regex_replacements(original_content)
+        altered_content = document_specific_replacements(altered_content)
+        print("Preprocessing completed...")
 
         # Save preprocessed file as new file
         with open(preprocessed_file_path, 'w', encoding='utf-8-sig') as csv_file:

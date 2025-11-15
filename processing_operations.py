@@ -1,20 +1,16 @@
 if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
-    #import init
-    #import constants 
-    #import file_paths as FP 
+    import constants
     import logging_operations as LO
     import input_parameters as IP
-    #import file_operations as FO
     import sys
     import time
     from dict_operations import *
     from extract_and_swap import *
     import os
-    print("\n")
 
 #__________________________________________________________________________
 ###########################################################################
-def amain(step, file_path_dictionary):
+def process_document(step, file_path_dictionary):
 
     #######################################################################
     if 'START LOGGING':

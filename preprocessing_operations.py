@@ -1,15 +1,12 @@
 import re
 import input_parameters as IP
-#import file_paths as FP
 import dict_operations as DO
-#from main import file_path_dictionary
-import init
-#file_path_dictionary = init.parent_file_path_dictionary()
-from init import *
+ 
 
 #__________________________________________________________________________
 ###########################################################################
 # Function to replace problematic elements of a large string
+# This function cleans up many of the artifacts created by the online translator
 def regex_replacements(original_content):
 
     preprocessed_content = re.sub(r'[‘’]', r'"', original_content)
@@ -22,8 +19,16 @@ def regex_replacements(original_content):
     preprocessed_content = re.sub(r"&lt;br&gt;", r'&lt;br/&gt;', preprocessed_content) # to close break tags
     preprocessed_content = re.sub(r"<br>", r'&lt;br/&gt;', preprocessed_content) # to close break tags
     
+    return preprocessed_content
+
+#__________________________________________________________________________
+###########################################################################
+# Function to replace common problematic translations on a per-document basis
+def document_specific_replacements(preprocessed_content):
+    from file_paths import file_path_dictionary
+
     # Load preprocessing dictionary
-    preprocessing_dict = DO.read_json_dictionary(init.file_path_dictionary["preprocessing_dict_file_path"])
+    preprocessing_dict = DO.read_json_dictionary(file_path_dictionary["preprocessing_dict_file_path"])
     
     # If a preprocessing dictionary was found
     if(preprocessing_dict):
@@ -37,6 +42,4 @@ def regex_replacements(original_content):
     else:
         pass
 
-
-    print("Preprocessing completed...")
     return preprocessed_content

@@ -1,7 +1,6 @@
 if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import docx
     import constants 
-    #import file_paths as FP 
     import input_parameters as IP
     from docx import Document
     from auxiliary_operations import *
@@ -16,9 +15,6 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     from copy import deepcopy
     import math
     from xml.sax.saxutils import escape, unescape
-    #from main import file_path_dictionary
-    import init
-    #file_path_dictionary = init.parent_file_path_dictionary()
 
 #__________________________________________________________________________
 ###########################################################################
@@ -329,6 +325,7 @@ def extract_runs(paragraph_with_cons_runs):
 # Function to orchestrate the swapping of run-level text for each paragraph
 # Returns the translated paragraph and the count of no-swaps (either 1 or 0)
 def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add doc if debugging is needed
+    from file_paths import file_path_dictionary
    
     # An untouched copy of the consolidated paragraph is needed to obtain unchanged info from the consolidated runs
     # Therefore, obtain a carbon copy to give to the extraction function, which otherwise mutates consolidate paragraphs
@@ -355,7 +352,7 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add do
     # Break it into objects (dictionaries)
     translated_runs_with_tags = split_string_into_list_of_tagged_and_untagged_elements(paragraph_tagged_translated_text)
 
-    if translated_runs_with_tags == (init.file_path_dictionary["document_components_folder_path"] + "/unparseables/"):
+    if translated_runs_with_tags == (file_path_dictionary["document_components_folder_path"] + "/unparseables/"):
         print(f"Unparseable element encountered. Review the element in \"{translated_runs_with_tags}\"")
         # Indicate failure
         return paragraph_with_cons_runs, 0
