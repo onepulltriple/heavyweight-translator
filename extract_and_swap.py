@@ -20,7 +20,10 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 ###########################################################################
 # Function to extract or swap text elements from a docx file
 # Argument ordering for functions within: translation_dict, paragraph, current_run, variables/counters
-def extract_or_swap_text_in_docx(file_path_dictionary, step, translation_dict = {}):
+def extract_or_swap_text_in_docx(file_path_dictionary, step, temp_translation_dict = None):
+    # Create a fresh dictionary on each call, unless one is passed
+    if temp_translation_dict is None:
+        temp_translation_dict = {}
 
     # Read the unmodified input .docx document into memory
     doc = Document(file_path_dictionary["file_path_to_source_document"])
@@ -41,21 +44,21 @@ def extract_or_swap_text_in_docx(file_path_dictionary, step, translation_dict = 
     for section in doc.sections:
         for part in (section.header, section.footer):
             for paragraph in part.paragraphs:
-                current_op_count += process_paragraph_and_runs_within_it(translation_dict, paragraph, step) #add doc if debugging is needed
-                newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
+                current_op_count += process_paragraph_and_runs_within_it(temp_translation_dict, paragraph, step) #add doc if debugging is needed
+                newest_print_progress_threshold = indicate_progress(temp_translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
             for table in part.tables:
-                current_op_count = process_table_cells(translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
+                current_op_count = process_table_cells(temp_translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
 
 
     # PARAGRAPHS ##########################################################
     for paragraph in doc.paragraphs:
-        current_op_count += process_paragraph_and_runs_within_it(translation_dict, paragraph, step) #add doc if debugging is needed
-        newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
+        current_op_count += process_paragraph_and_runs_within_it(temp_translation_dict, paragraph, step) #add doc if debugging is needed
+        newest_print_progress_threshold = indicate_progress(temp_translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
 
 
     # TABLES ##############################################################
     for table in doc.tables:
-        current_op_count = process_table_cells(translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
+        current_op_count = process_table_cells(temp_translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
 
 
     # RESULTS #############################################################
@@ -67,13 +70,16 @@ def extract_or_swap_text_in_docx(file_path_dictionary, step, translation_dict = 
         else:
             preprocessing_dict = {}
         # Extend preprocessing dictionary to include current target lang-cult if not already present
-        preprocessing_dict = extend_json_dictionary({IP.target_lang_cult:{}},preprocessing_dict)
+        preprocessing_dict = extend_json_dictionary({IP.target_lang_cult:{
+            "regex_to_locate_bad_translations":"the_corrected_text_to_replace_bad_translations",
+            "For demonstration":"For example"
+        }},preprocessing_dict)
         # Save updated preprocessing dictionary
         write_dict_to_json(preprocessing_dict, file_path_dictionary["preprocessing_dict_file_path"])
 
-        write_dict_to_json(translation_dict, file_path_dictionary["TEMP_translation_dict_file_path"])
-        write_translation_dict_to_csv_simplified(translation_dict, file_path_dictionary["source_language_plain_texts_file_path"])
-        print(f"There were {len(translation_dict)} {step} operations.\n")
+        write_dict_to_json(temp_translation_dict, file_path_dictionary["TEMP_translation_dict_file_path"])
+        write_translation_dict_to_csv_simplified(temp_translation_dict, file_path_dictionary["source_language_plain_texts_file_path"])
+        print(f"There were {len(temp_translation_dict)} {step} operations.\n")
         
     if step == constants.SWAP:
         print(f"There were {current_op_count} {step} operations.\n")
@@ -503,16 +509,16 @@ def clear_cons_run_and_set_to_defaults(current_run_or_hyperlink):
 #__________________________________________________________________________
 ###########################################################################
 # Function to process table cells and any further nested tables, etc.
-def process_table_cells(translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count): #add doc if debugging is needed
+def process_table_cells(temp_translation_dict, table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count): #add doc if debugging is needed
     for row in table.rows:
         for cell in row.cells:
             for paragraph in cell.paragraphs:
-                current_op_count += process_paragraph_and_runs_within_it(translation_dict, paragraph, step) #add doc if debugging is needed
-                newest_print_progress_threshold = indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
+                current_op_count += process_paragraph_and_runs_within_it(temp_translation_dict, paragraph, step) #add doc if debugging is needed
+                newest_print_progress_threshold = indicate_progress(temp_translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count)
 
             # Recursively process any nested tables inside the current cell
             for nested_table in cell.tables:
-                process_table_cells(translation_dict, nested_table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
+                process_table_cells(temp_translation_dict, nested_table, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count) #add doc if debugging is needed
 
     return current_op_count
 
@@ -520,7 +526,9 @@ def process_table_cells(translation_dict, table, step, newest_print_progress_thr
 ###########################################################################
 # Function to extract or swap a paragraph's runs after first consolidating the paragraph's runs
 # Returns: 0 if extraction successful, 1 if swapping successful, -1 if neither extraction nor swapping operations occurred
-def process_paragraph_and_runs_within_it(translation_dict, paragraph, step): #add doc if debugging is needed
+def process_paragraph_and_runs_within_it(temp_translation_dict, paragraph, step): #add doc if debugging is needed
+    from dict_operations import maint_translation_dict
+    
     if is_relevant_paragraph(paragraph):
 
         # Iterate over runs in the paragraph to consolidate them
@@ -532,10 +540,11 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step): #ad
 
             if (paragraph_tagged_source_text_with_preserves != "" 
                 and not paragraph_tagged_source_text_with_preserves.isspace()
-                and paragraph_tagged_source_text_with_preserves not in translation_dict
+                and paragraph_tagged_source_text_with_preserves not in maint_translation_dict
+                and paragraph_tagged_source_text_with_preserves not in temp_translation_dict
                 ):
-                # Add it to the translation dictionary
-                translation_dict[paragraph_tagged_source_text_with_preserves] = {
+                # Add it to the temp translation dictionary
+                temp_translation_dict[paragraph_tagged_source_text_with_preserves] = {
                     IP.target_lang_cult: None
                 }
             
@@ -544,7 +553,7 @@ def process_paragraph_and_runs_within_it(translation_dict, paragraph, step): #ad
 
         if step == constants.SWAP:
             # Iterate over runs in the paragraph to swap text on a consolidated-run basis
-            (paragraph, current_swap_count) = paragraph_level_swapper(translation_dict, cons_paragraph) #add doc if debugging is needed
+            (paragraph, current_swap_count) = paragraph_level_swapper(maint_translation_dict, cons_paragraph) #add doc if debugging is needed
             
             # Swapping: 1 if successful, 0 if failure
             return current_swap_count

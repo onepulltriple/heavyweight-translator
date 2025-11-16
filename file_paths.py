@@ -70,7 +70,7 @@ def handle_source_file_paths(path_to_source_document, path_to_output_folder, chi
     file_path_dictionary["preprocessed_translations_file_path"]         = pre_swapping_parts_folder_path  + "/" + IP.operation_date + "__preprocessed_text_elements__"     + IP.target_lang_cult + ".csv"
 
     file_path_dictionary["preprocessing_dict_file_path"]                = maintainable_parts_folder_path  + "/" + "PREPROCESSING_dict.json"
-    file_path_dictionary["FULL_translation_dict_file_path"]             = maintainable_parts_folder_path  + "/" + "MAINTAINED_translation_dict.json"
+    file_path_dictionary["MAINT_translation_dict_file_path"]            = maintainable_parts_folder_path  + "/" + "MAINTAINED_translation_dict.json"
 
     # Set the file path to dump unparseable xml strings
     file_path_dictionary["start_of_xml_debug_file_path"]                = console_logs_folder_path + "/" + IP.operation_datetime + "__unparseables/"

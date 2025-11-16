@@ -30,9 +30,9 @@ def read_csv_to_dict(file_path):
 #__________________________________________________________________________
 ###########################################################################
 # Function to add the acquired target translations to the translation dictionary
-def insert_translations_into_translation_dict(source_file_path, target_file_path, preprocessed_file_path, translation_dict_file_path):
+def insert_translations_into_translation_dict(source_file_path, target_file_path, preprocessed_file_path, temp_translation_dict_file_path):
     # Read in translation dictionary from file
-    translation_dict = read_json_dictionary(translation_dict_file_path)
+    temp_translation_dict = read_json_dictionary(temp_translation_dict_file_path)
     # Create a temporary two-dimensional array to map from source plain text to target translated text
     temp_mapping = [[],[]]
     # Collect source plain texts
@@ -57,12 +57,12 @@ def insert_translations_into_translation_dict(source_file_path, target_file_path
         current_key = temp_mapping[0][i]
         current_value = temp_mapping[1][i]
         # After finding a full paragraph to be translated
-        if current_key in translation_dict: 
+        if current_key in temp_translation_dict: 
             # Insert the full paragraph tagged text translation with preserves
             # formerly called 'paragraph_tagged_translated_text_with_preserves'
-            translation_dict[current_key][IP.target_lang_cult] = current_value
+            temp_translation_dict[current_key][IP.target_lang_cult] = current_value
 
-    return translation_dict
+    return temp_translation_dict
 
 
 #__________________________________________________________________________
@@ -75,7 +75,7 @@ def write_dict_to_json(dict, file_path):
 #__________________________________________________________________________
 ###########################################################################
 # Function to pretty-print a dictionary to a json file
-def extend_json_dictionary(new_portion, original_dict):
+def extend_json_dictionary(original_dict, new_portion):
     # Merge new portion into existing dictionary
     #dict_maintained_translations[IP.target_lang_cult] |= dict_translation_TEMP[IP.target_lang_cult]
     original_dict |= new_portion
@@ -103,22 +103,6 @@ def read_json_dictionary(json_dictionary_file_path):
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to assemble a dictionary by zipping together two lists
-def zip_to_lists_to_dict(csv_data_01, csv_data_02):
-    new_dict = {}
-
-    # Check if the number of rows in each file is the same
-    if len(csv_data_01) != len(csv_data_02):
-        print("Error: The counts of rows in the input files are not equal.\n")
-        return None
-    else:
-        # Iterate over both files simultaneously
-        for row_01, row_02 in zip(csv_data_01, csv_data_02, strict=True):
-            if row_01 not in new_dict:
-                key = row_01
-                value = row_02
-
-                # Store each entry in the dictionary
-                new_dict[key] = value
-
-        return new_dict
+# DICTIONARIES
+# Initialise the maintained dictionary
+maint_translation_dict = {}
