@@ -83,7 +83,6 @@ def extract_or_swap_text_in_docx(file_path_dictionary, step, translation_dict = 
         # Save a copy in the results history
         doc.save(file_path_dictionary["output_document_path_with_datetime"])
     
-    print("Done.\n")
 
 #__________________________________________________________________________
 ###########################################################################

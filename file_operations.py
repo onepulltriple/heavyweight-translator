@@ -18,7 +18,7 @@ def copy_file_losslessly(path_to_existing_source_file, path_to_new_copy):
         # Copy the file losslessly
         shutil.copy2(path_to_existing_source_file, path_to_new_copy)
 
-        print(f"A source document was found at:\n{path_to_existing_source_file}\n")
+        print(f"A source document was found at:\n{path_to_existing_source_file}")
         print(f"A copy was created and stored here:\n{path_to_new_copy}\n")
 
         return path_to_new_copy
