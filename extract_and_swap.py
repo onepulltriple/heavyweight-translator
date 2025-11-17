@@ -77,9 +77,21 @@ def extract_or_swap_text_in_docx(file_path_dictionary, step, temp_translation_di
         # Save updated preprocessing dictionary
         write_dict_to_json(preprocessing_dict, file_path_dictionary["preprocessing_dict_file_path"])
 
+        # Save a snapshot of the temp_translation dictionary
         write_dict_to_json(temp_translation_dict, file_path_dictionary["TEMP_translation_dict_file_path"])
-        write_translation_dict_to_csv_simplified(temp_translation_dict, file_path_dictionary["source_language_plain_texts_file_path"])
+        # If there are new entries
+        if len(temp_translation_dict) > 0:
+            # Save the source language texts
+            write_translation_dict_to_csv_simplified(temp_translation_dict, file_path_dictionary["source_language_plain_texts_file_path"])
+            # Create an empty text files to later store retrieved translations
+            save_to_text_file(file_path_dictionary["target_language_translations_file_path"], [], "\n")
+
+            # Print confirmation message to the console
+            print(f"The text file containing the untranslated source text has been written to: \n{file_path_dictionary["source_language_plain_texts_file_path"]}\n")
+            print(f"An empty text file awaiting translated text in the target language has been written to: \n{file_path_dictionary["target_language_translations_file_path"]}\n")
+
         print(f"There were {len(temp_translation_dict)} {step} operations.\n")
+
         
     if step == constants.SWAP:
         print(f"There were {current_op_count} {step} operations.\n")

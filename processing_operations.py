@@ -39,34 +39,36 @@ def process_document(step, file_path_dictionary):
         # Extract the text elements from the source docx file
         extract_or_swap_text_in_docx(file_path_dictionary, step)
 
-        # Print confirmation message to the console
-        print(f"The text file containing the untranslated source text has been written to: \n{file_path_dictionary["source_language_plain_texts_file_path"]}\n")
-        print(f"An empty text file awaiting translated text in the target language has been written to: \n{file_path_dictionary["target_language_translations_file_path"]}\n")
+        # # Print confirmation message to the console
+        # print(f"The text file containing the untranslated source text has been written to: \n{file_path_dictionary["source_language_plain_texts_file_path"]}\n")
+        # print(f"An empty text file awaiting translated text in the target language has been written to: \n{file_path_dictionary["target_language_translations_file_path"]}\n")
 
-        # Create an empty text files to later store retrieved translations
-        save_to_text_file(file_path_dictionary["target_language_translations_file_path"], [], "\n")
+        # # Create an empty text files to later store retrieved translations
+        # save_to_text_file(file_path_dictionary["target_language_translations_file_path"], [], "\n")
 
     if step == constants.SWAP:
         # Check if the extraction step has been performed
-        if not os.path.isfile(file_path_dictionary["source_language_plain_texts_file_path"]):
+        if (not os.path.isfile(file_path_dictionary["source_language_plain_texts_file_path"])
+            and len(read_json_dictionary(file_path_dictionary["TEMP_translation_dict_file_path"])) > 0):
             print(f"No file found at {file_path_dictionary["source_language_plain_texts_file_path"]}")
             print(f"The date in the above file path should be: {IP.operation_date}\n")
             print(f"If the above dates don't match, the operation_date can be set manually in the input parameters. This issue arises when the {constants.EXTRACT} step was performed on a previous date.")
             print(f"Otherwise, it looks like the {constants.EXTRACT} step hasn't been completed yet. Perform the {constants.EXTRACT} step first.\n")
             quit()
 
-        # Update the temp translation dictionary to include the retrieved translations
-        temp_translation_dict = insert_translations_into_translation_dict(file_path_dictionary["source_language_plain_texts_file_path"], file_path_dictionary["target_language_translations_file_path"], file_path_dictionary["preprocessed_translations_file_path"], file_path_dictionary["TEMP_translation_dict_file_path"])
-        # Save updated temp translation dictionary file for later review
-        write_dict_to_json(temp_translation_dict, file_path_dictionary["TEMP_translation_dict_file_path"])
+        if len(read_json_dictionary(file_path_dictionary["TEMP_translation_dict_file_path"])) > 0:
+            # Update the temp translation dictionary to include the retrieved translations
+            temp_translation_dict = insert_translations_into_translation_dict(file_path_dictionary["source_language_plain_texts_file_path"], file_path_dictionary["target_language_translations_file_path"], file_path_dictionary["preprocessed_translations_file_path"], file_path_dictionary["TEMP_translation_dict_file_path"])
+            # Save updated temp translation dictionary file for later review
+            write_dict_to_json(temp_translation_dict, file_path_dictionary["TEMP_translation_dict_file_path"])
 
-        # Merge the temp dictionary into the MAINTAINED dicationary
-        extend_json_dictionary(DO.maint_translation_dict, temp_translation_dict)
-        # Save updated MAINTAINED translation dictionary file for later review
-        write_dict_to_json(DO.maint_translation_dict, file_path_dictionary["MAINT_translation_dict_file_path"])
+            # Merge the temp dictionary into the MAINTAINED dicationary
+            extend_json_dictionary(DO.maint_translation_dict, temp_translation_dict)
+            # Save updated MAINTAINED translation dictionary file for later review
+            write_dict_to_json(DO.maint_translation_dict, file_path_dictionary["MAINT_translation_dict_file_path"])
 
-        # Swap the translations into the text elements of the source docx file
-        extract_or_swap_text_in_docx(file_path_dictionary, step, DO.maint_translation_dict)
+            # Swap the translations into the text elements of the source docx file
+            extract_or_swap_text_in_docx(file_path_dictionary, step, DO.maint_translation_dict)
 
 
     #######################################################################

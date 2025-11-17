@@ -74,10 +74,9 @@ def write_dict_to_json(dict, file_path):
 
 #__________________________________________________________________________
 ###########################################################################
-# Function to pretty-print a dictionary to a json file
+# Function to merge two dictionaries
 def extend_json_dictionary(original_dict, new_portion):
     # Merge new portion into existing dictionary
-    #dict_maintained_translations[IP.target_lang_cult] |= dict_translation_TEMP[IP.target_lang_cult]
     original_dict |= new_portion
     return original_dict
 
@@ -88,7 +87,7 @@ def read_json_dictionary(json_dictionary_file_path):
     try:
         with open(json_dictionary_file_path, 'r', encoding='utf-8-sig') as json_dictionary:
             json_dictionary = json.load(json_dictionary)
-            print(f"A dictionary at \"{json_dictionary_file_path}\" was found and will be used.\n")
+            #print(f"A dictionary at \"{json_dictionary_file_path}\" was found and will be used.\n")
 
         return json_dictionary
     
