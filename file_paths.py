@@ -71,13 +71,14 @@ def handle_source_file_paths(path_to_source_document, path_to_output_folder, chi
 
     file_path_dictionary["preprocessing_dict_file_path"]                = maintainable_parts_folder_path  + "/" + "PREPROCESSING_dict.json"
     file_path_dictionary["MAINT_translation_dict_file_path"]            = maintainable_parts_folder_path  + "/" + "MAINTAINED_translation_dict.json"
+    file_path_dictionary["MAINT_translation_dict_file_path_SNAPSHOT"]   = results_history_folder_path + "/" + IP.operation_datetime + "__MAINTAINED_translation_dict.json"
 
     # Set the file path to dump unparseable xml strings
     file_path_dictionary["start_of_xml_debug_file_path"]                = console_logs_folder_path + "/" + IP.operation_datetime + "__unparseables/"
     file_path_dictionary["end_of_xml_debug_file_path"]                  = "__xml_debug_" + IP.target_lang_cult + ".xml"
 
     # Set the output document paths
-    file_path_dictionary["output_document_path_with_datetime"]          = results_history_folder_path + "/" + source_document_file_name_no_extension.replace(IP.source_lang_cult,IP.target_lang_cult) + "__" + IP.operation_datetime + ".docx"
+    file_path_dictionary["output_document_path_with_datetime"]          = results_history_folder_path + "/" + IP.operation_datetime + "__" + source_document_file_name_no_extension.replace(IP.source_lang_cult,IP.target_lang_cult) + ".docx"
     if child == False:
         file_path_dictionary["output_document_path"]                    = any_parent_output_folder_path + "/" + source_document_file_name_no_extension.replace(IP.source_lang_cult,IP.target_lang_cult) + ".docx"
     else:

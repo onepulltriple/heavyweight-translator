@@ -64,8 +64,10 @@ def process_document(step, file_path_dictionary):
 
             # Merge the temp dictionary into the MAINTAINED dicationary
             extend_json_dictionary(DO.maint_translation_dict, temp_translation_dict)
-            # Save updated MAINTAINED translation dictionary file for later review
+            # Save updated MAINTAINED translation dictionary file 
             write_dict_to_json(DO.maint_translation_dict, file_path_dictionary["MAINT_translation_dict_file_path"])
+            # Save a copy in the results history for later review and comparison via clipboard diff (for users)
+            write_dict_to_json(DO.maint_translation_dict, file_path_dictionary["MAINT_translation_dict_file_path_SNAPSHOT"])
 
             # Swap the translations into the text elements of the source docx file
             extract_or_swap_text_in_docx(file_path_dictionary, step, DO.maint_translation_dict)
