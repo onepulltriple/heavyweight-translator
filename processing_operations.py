@@ -28,12 +28,12 @@ def process_document(step, file_path_dictionary):
 
     #######################################################################
     # EXECUTE
-    print(f"Beginning {step} operations...")
-
     # Load maintained dictionary, if there is one
     DO.maint_translation_dict = DO.read_json_dictionary(file_path_dictionary["MAINT_translation_dict_file_path"])
     if DO.maint_translation_dict == None: 
         DO.maint_translation_dict = {}
+
+    print(f"Beginning {step} operations...")
 
     if step == constants.EXTRACT:
         # Extract the text elements from the source docx file
@@ -82,9 +82,9 @@ def process_document(step, file_path_dictionary):
         seconds = int(elapsed_time % 60)
         milliseconds = int((elapsed_time - int(elapsed_time)) * 1000)
 
-        print(f"Done with '{file_path_dictionary["source_document_file_name_with_extension"]}'.")
+        #print(f"Done with '{file_path_dictionary["source_document_file_name_with_extension"]}'.")
         print(f"Total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)")
-        print("__________________________________________________________________________\n\n")
+        #print("__________________________________________________________________________\n\n")
 
         # Restore real stdout/stderr
         sys.stdout = sys.__stdout__

@@ -63,18 +63,24 @@ def extract_or_swap_text_in_docx(file_path_dictionary, step, temp_translation_di
 
     # RESULTS #############################################################
     if step == constants.EXTRACT:
-        # Find existing preprocessing dictionary
+        # Initialize preprocessing dictionary
+        preprocessing_dict = {}
+
+        # Check for existing preprocessing dictionary
         if os.path.isfile(file_path_dictionary["preprocessing_dict_file_path"]):
             preprocessing_dict = read_json_dictionary(file_path_dictionary["preprocessing_dict_file_path"])
-        # Otherwise, create a new one
-        else:
-            preprocessing_dict = {}
+
         # Extend preprocessing dictionary to include current target lang-cult if not already present
-        preprocessing_dict = extend_json_dictionary({IP.target_lang_cult:{
-            "regex_to_locate_bad_translations":"the_corrected_text_to_replace_bad_translations",
-            "For demonstration":"For example"
-        }},preprocessing_dict)
-        # Save updated preprocessing dictionary
+        if IP.target_lang_cult not in preprocessing_dict:
+            preprocessing_dict = extend_json_dictionary(preprocessing_dict,{
+                IP.target_lang_cult:{
+                    "regex_to_locate_bad_translations":"the_corrected_text_to_replace_bad_translations",
+                    "For demonstration":"For example"
+                    }
+                }
+            )
+
+        # Save new or updated preprocessing dictionary
         write_dict_to_json(preprocessing_dict, file_path_dictionary["preprocessing_dict_file_path"])
 
         # Save a snapshot of the temp_translation dictionary
@@ -87,14 +93,14 @@ def extract_or_swap_text_in_docx(file_path_dictionary, step, temp_translation_di
             save_to_text_file(file_path_dictionary["target_language_translations_file_path"], [], "\n")
 
             # Print confirmation message to the console
-            print(f"The text file containing the untranslated source text has been written to: \n{file_path_dictionary["source_language_plain_texts_file_path"]}\n")
+            print(f"\nThe text file containing the untranslated source text has been written to: \n{file_path_dictionary["source_language_plain_texts_file_path"]}\n")
             print(f"An empty text file awaiting translated text in the target language has been written to: \n{file_path_dictionary["target_language_translations_file_path"]}\n")
 
-        print(f"There were {len(temp_translation_dict)} {step} operations.\n")
+        print(f"There were {len(temp_translation_dict)} {step} operations.")
 
         
     if step == constants.SWAP:
-        print(f"There were {current_op_count} {step} operations.\n")
+        print(f"There were {current_op_count} {step} operations.")
         # Save the modified document to the target directory
         print("Saving translated document...")
         doc.save(file_path_dictionary["output_document_path"])
