@@ -3,13 +3,19 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import input_parameters as IP
     import processing_operations
     import os
+    import time
     print("\n")
+
+
+#######################################################################
+if 'STOP GLOBAL TIMER':
+    # Start timing
+    total_start_time = time.time()
 
 
 #__________________________________________________________________________
 ###########################################################################
 if 'PROCESS ONE OR MORE DOCUMENTS':
-        
     # For a single, large document or a master document with subdocuments, 
     # there will always be at least one document to process
     if FP.file_path_dictionary is None:
@@ -42,4 +48,17 @@ if 'PROCESS ONE OR MORE DOCUMENTS':
                 current_file +=1
                 print(f"...done with '{FP.file_path_dictionary["source_document_file_name_with_extension"]}'.")
 
+
+#######################################################################
+if 'STOP GLOBAL TIMER':
+    # Stop timing
+    total_elapsed_time = time.time() - total_start_time
+
+    # Convert runtime to hours, minutes, seconds, milliseconds
+    hours = int(total_elapsed_time // 3600)
+    minutes = int((total_elapsed_time % 3600) // 60)
+    seconds = int(total_elapsed_time % 60)
+    milliseconds = int((total_elapsed_time - int(total_elapsed_time)) * 1000)
+
+    print(f"\nTotal runtime for all processes: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)")
     print("\n")    

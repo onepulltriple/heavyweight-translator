@@ -85,7 +85,7 @@ def process_document(step, file_path_dictionary):
         milliseconds = int((elapsed_time - int(elapsed_time)) * 1000)
 
         #print(f"Done with '{file_path_dictionary["source_document_file_name_with_extension"]}'.")
-        print(f"Total runtime: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)")
+        print(f"Process runtime: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)")
         #print("__________________________________________________________________________\n\n")
 
         # Restore real stdout/stderr
@@ -94,6 +94,3 @@ def process_document(step, file_path_dictionary):
 
         # Close log file
         logfile.close()
-
-        # Suppress unusual error message
-        #sys.unraisablehook = None
