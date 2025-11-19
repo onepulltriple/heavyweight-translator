@@ -1,5 +1,6 @@
 import os
 import shutil
+import file_paths as FP
 
 #__________________________________________________________________________
 ###########################################################################
@@ -61,3 +62,30 @@ def read_text(file_path):
 def make_folder(folder_path):
     if not os.path.exists(folder_path):
         os.makedirs(folder_path)
+
+#__________________________________________________________________________
+###########################################################################
+# Function to check if a file was contains today's date
+def file_created_today(filename):
+    from datetime import datetime
+    import re
+    import os
+    
+    for filename in os.listdir(FP.file_path_dictionary["results_history_folder_path"]):
+        # Ignore files that are not .docx
+        if not filename.lower().endswith(".docx"):
+            continue
+
+        # Get today's date
+        todays_date = datetime.today().strftime('%Y.%m.%d')
+
+        # Regex to extract the date(s) from the filename
+        date_pattern = re.compile(r"(\d{4}\.\d{2}\.\d{2})")
+        date_in_filename = date_pattern.search(filename)
+
+        if date_in_filename: # i.e. not None
+            file_date = date_in_filename.group(1)
+            if file_date == todays_date:
+                return True
+
+    return False

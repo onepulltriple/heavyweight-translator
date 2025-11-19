@@ -3,6 +3,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import logging_operations as LO
     import input_parameters as IP
     import dict_operations as DO
+    import file_operations as FO
     import sys
     import time
     from dict_operations import *
@@ -55,8 +56,12 @@ def process_document(step, file_path_dictionary):
             print(f"If the above dates don't match, the operation_date can be set manually in the input parameters. This issue arises when the {constants.EXTRACT} step was performed on a previous date.")
             print(f"Otherwise, it looks like the {constants.EXTRACT} step hasn't been completed yet. Perform the {constants.EXTRACT} step first.\n")
             quit()
+        
+        # Check if the extraction step has been performed already
+        if (len(read_json_dictionary(file_path_dictionary["TEMP_translation_dict_file_path"])) > 0
+            # Check that the swapping operation has not already been performed for the day
+            and not FO.file_created_today(file_path_dictionary["output_document_path_with_datetime"])):
 
-        if len(read_json_dictionary(file_path_dictionary["TEMP_translation_dict_file_path"])) > 0:
             # Update the temp translation dictionary to include the retrieved translations
             temp_translation_dict = insert_translations_into_translation_dict(file_path_dictionary["source_language_plain_texts_file_path"], file_path_dictionary["target_language_translations_file_path"], file_path_dictionary["preprocessed_translations_file_path"], file_path_dictionary["TEMP_translation_dict_file_path"])
             # Save updated temp translation dictionary file for later review

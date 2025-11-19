@@ -35,6 +35,7 @@ def handle_source_file_paths(path_to_source_document, path_to_output_folder, chi
     # Create a folder based on the document's name
     # Extract directory and file name
     source_document_file_name_no_extension                              = os.path.splitext(os.path.basename(any_source_document_path))[0]
+    file_path_dictionary["source_document_file_name_no_extension"]      = source_document_file_name_no_extension
     source_document_file_name_with_extension                            = os.path.basename(any_source_document_path)
     file_path_dictionary["source_document_file_name_with_extension"]    = source_document_file_name_with_extension
 
@@ -78,6 +79,7 @@ def handle_source_file_paths(path_to_source_document, path_to_output_folder, chi
     file_path_dictionary["end_of_xml_debug_file_path"]                  = "__xml_debug_" + IP.target_lang_cult + ".xml"
 
     # Set the output document paths
+    file_path_dictionary["results_history_folder_path"]                 = results_history_folder_path
     file_path_dictionary["output_document_path_with_datetime"]          = results_history_folder_path + "/" + IP.operation_datetime + "__" + source_document_file_name_no_extension.replace(IP.source_lang_cult,IP.target_lang_cult) + ".docx"
     if child == False:
         file_path_dictionary["output_document_path"]                    = any_parent_output_folder_path + "/" + source_document_file_name_no_extension.replace(IP.source_lang_cult,IP.target_lang_cult) + ".docx"
