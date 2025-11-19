@@ -2,6 +2,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
     import docx
     import constants 
     import input_parameters as IP
+    import file_operations as FO
     from docx import Document
     from auxiliary_operations import *
     from conditions_checks import *
@@ -90,7 +91,7 @@ def extract_or_swap_text_in_docx(file_path_dictionary, step, temp_translation_di
             # Save the source language texts
             write_translation_dict_to_csv_simplified(temp_translation_dict, file_path_dictionary["source_language_plain_texts_file_path"])
             # Create an empty text files to later store retrieved translations
-            save_to_text_file(file_path_dictionary["target_language_translations_file_path"], [], "\n")
+            FO.save_to_text_file(file_path_dictionary["target_language_translations_file_path"], [], "\n")
 
             # Print confirmation message to the console
             print(f"\nThe text file containing the untranslated source text has been written to: \n{file_path_dictionary["source_language_plain_texts_file_path"]}\n")
@@ -375,7 +376,7 @@ def paragraph_level_swapper(translation_dict, paragraph_with_cons_runs): #add do
     # Break it into objects (dictionaries)
     translated_runs_with_tags = split_string_into_list_of_tagged_and_untagged_elements(paragraph_tagged_translated_text)
 
-    if translated_runs_with_tags == (file_path_dictionary["document_components_folder_path"] + "/unparseables/"):
+    if translated_runs_with_tags == file_path_dictionary["start_of_xml_debug_file_path"]:
         print(f"Unparseable element encountered. Review the element in \"{translated_runs_with_tags}\"")
         # Indicate failure
         return paragraph_with_cons_runs, 0

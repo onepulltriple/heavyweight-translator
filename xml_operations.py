@@ -1,6 +1,6 @@
 import xml.etree.ElementTree as ET
-from file_operations import *
-from file_paths import *
+import file_paths as FP
+import file_operations as FO
 from datetime import datetime
 import re
 
@@ -30,10 +30,11 @@ def split_string_into_list_of_tagged_and_untagged_elements(input_str):
             # Get time stamp
             error_time_stamp = datetime.now().strftime('%H_%M_%S_%f')[:-3]
             # Assemble file path
-            xml_debug_file_path = start_of_xml_debug_file_path + error_time_stamp + end_of_xml_debug_file_path
+            xml_debug_file_path = FP.file_path_dictionary["start_of_xml_debug_file_path"] + error_time_stamp + FP.file_path_dictionary["end_of_xml_debug_file_path"]
             # Save a copy as an xml file to aid in debugging
-            save_to_text_file(xml_debug_file_path, input_str_with_xml_wrapper)
-            return start_of_xml_debug_file_path
+            FO.make_folder(FP.file_path_dictionary["start_of_xml_debug_file_path"])
+            FO.save_to_text_file(xml_debug_file_path, input_str_with_xml_wrapper)
+            return f"{FP.file_path_dictionary["start_of_xml_debug_file_path"]}"
 
     # Create a list
     translated_content = []

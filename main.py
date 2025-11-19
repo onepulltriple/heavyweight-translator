@@ -8,7 +8,7 @@ if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
 
 
 #######################################################################
-if 'STOP GLOBAL TIMER':
+if 'START GLOBAL TIMER':
     # Start timing
     total_start_time = time.time()
 
