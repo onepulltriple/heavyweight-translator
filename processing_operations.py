@@ -48,17 +48,27 @@ def process_document(step, file_path_dictionary):
         # save_to_text_file(file_path_dictionary["target_language_translations_file_path"], [], "\n")
 
     if step == constants.SWAP:
-        # Check if the extraction step has been performed
+        # Read in the temporary translation dictionary
+        temp_translation_dict = read_json_dictionary(file_path_dictionary["TEMP_translation_dict_file_path"])
+        
+        # Check if the extraction step has been performed on the operation_date
+        # This block should handle users performing a swap on a different day than they did the extraction
+        # Check if these first two exist, i.e. has extraction been done yet at all today?
         if (not os.path.isfile(file_path_dictionary["source_language_plain_texts_file_path"])
-            and len(read_json_dictionary(file_path_dictionary["TEMP_translation_dict_file_path"])) > 0):
-            print(f"No file found at {file_path_dictionary["source_language_plain_texts_file_path"]}")
-            print(f"The date in the above file path should be: {IP.operation_date}\n")
+            or temp_translation_dict is None):
+            # Confirms that there were new contributions to the document
+            #and len(temp_translation_dict) > 0): 
+            print(f"No file found at:         '{file_path_dictionary["source_language_plain_texts_file_path"]}'")
+            print(f"No dictionary found at:   '{file_path_dictionary["TEMP_translation_dict_file_path"]}'")
+            print(f"Operation date is set to: '{IP.operation_date}'\n")
             print(f"If the above dates don't match, the operation_date can be set manually in the input parameters. This issue arises when the {constants.EXTRACT} step was performed on a previous date.")
-            print(f"Otherwise, it looks like the {constants.EXTRACT} step hasn't been completed yet. Perform the {constants.EXTRACT} step first.\n")
+            print(f"If the above dates DO match, then it looks like the {constants.EXTRACT} step hasn't been completed yet. Perform the {constants.EXTRACT} step first.\n")
             quit()
         
         # Check if the extraction step has been performed already
-        if (len(read_json_dictionary(file_path_dictionary["TEMP_translation_dict_file_path"])) > 0
+        if (temp_translation_dict is not None 
+            # Confirms that there were new contributions to the document
+            and len(temp_translation_dict) > 0
             # Check that the swapping operation has not already been performed for the day
             and not FO.file_created_today(file_path_dictionary["output_document_path_with_datetime"])):
 

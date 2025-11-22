@@ -87,16 +87,16 @@ def read_json_dictionary(json_dictionary_file_path):
     try:
         with open(json_dictionary_file_path, 'r', encoding='utf-8-sig') as json_dictionary:
             json_dictionary = json.load(json_dictionary)
-            #print(f"A dictionary at \"{json_dictionary_file_path}\" was found and will be used.\n")
+            #print(f"A dictionary at '{json_dictionary_file_path}' was found and will be used.\n")
 
         return json_dictionary
     
     except FileNotFoundError:
-        print(f"No dictionary found at \"{json_dictionary_file_path}\".\n")
+        #print(f"No dictionary found at '{json_dictionary_file_path}'.\n")
         return None
     
     except json.JSONDecodeError:
-        print(f"Error decoding JSON file \"{json_dictionary_file_path}\".\n")
+        print(f"Error decoding JSON file '{json_dictionary_file_path}'.\n")
         return None
 
 
