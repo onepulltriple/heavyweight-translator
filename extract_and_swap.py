@@ -437,8 +437,11 @@ def swap_runs(paragraph_with_cons_runs, translated_runs_with_tags): #add doc if 
                     # Rename object for clarity
                     current_hyperlink = current_run_or_hyperlink                        
                     # Take the text from the translated hyperlink's text
-                    current_hyperlink.runs[0].text = unescape(current_translated_run_dict["text"])
+                    if "text" in current_translated_run_dict.keys():
+                        current_hyperlink.runs[0].text = unescape(current_translated_run_dict["text"])
                         # If remaining runs in the hyperlink need to be cleared, do it here
+                    else:
+                        print(f"Empty hyperlink encountered in: \"{paragraph_with_cons_runs.text}\"\nAdd text between the hyperlink tags.")
                     # Increment the translated run index
                     index_of_translated_run += 1 
                 # Otherwise, clear this consolidated run and set it to default

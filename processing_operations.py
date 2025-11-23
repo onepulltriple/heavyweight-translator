@@ -69,8 +69,11 @@ def process_document(step, file_path_dictionary):
         if (temp_translation_dict is not None 
             # Confirms that there were new contributions to the document
             and len(temp_translation_dict) > 0
-            # Check that the swapping operation has not already been performed for the day
-            and not FO.file_created_today(file_path_dictionary["output_document_path_with_datetime"])):
+            and 
+                # Check that the user wants multiple swap procedures to be carried out on the same day
+                (IP.allow_multiple_swap_processes_per_day == True
+                # Check that the swapping operation has not already been performed for the day
+                or not FO.file_created_today(file_path_dictionary["output_document_path_with_datetime"]))):
 
             # Update the temp translation dictionary to include the retrieved translations
             temp_translation_dict = insert_translations_into_translation_dict(file_path_dictionary["source_language_plain_texts_file_path"], file_path_dictionary["target_language_translations_file_path"], file_path_dictionary["preprocessed_translations_file_path"], file_path_dictionary["TEMP_translation_dict_file_path"])

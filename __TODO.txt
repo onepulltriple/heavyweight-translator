@@ -21,3 +21,7 @@ determine if the temp_translation_dict belongs next to the main_translation_dict
 	this is because some check look at its length to see if anything further should be done.
 	(i.e. if the temp_translation_dict is empty for this round, do nothing)
 figure out if there is a way to handle multiple languages in a single maint_dict
+
+deal with word documents that are open ~$ 
+  don't process them (which step? swap) and ask user to close document (how to reproduce, though?)
+ 
