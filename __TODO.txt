@@ -16,6 +16,7 @@ include manually applied bolding as a changed run (do this in cons run?)
 single vertical tick caused problems with FTL testing script
 Give user feedback when certain errors happen, e.g. hyperlinks/glyphs should not make it to the function: What happened there and how can the user fix it?
 Handle error: property 'text' of 'Hyperlink' has no setter, see lines 405-410 of extract_and_swap.py
+check if all style properties are being carried over to the new run during the swapping step, e.g. color, size, isHidden, and whatever else is avialable
 
 determine if the temp_translation_dict belongs next to the main_translation_dict (i.e. inthe dict_operations.py file)
 	this is because some check look at its length to see if anything further should be done.

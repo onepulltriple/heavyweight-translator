@@ -1,17 +1,23 @@
 # Heavyweight Translator
 
-The heavyweight translator is a tool used to translate extremely large Microsoft Word documents. Word documents that are too large to process for either DeepL, ChatGPT, or another online translation tool are considered to be "extremely large". For example, an 800-page user manual containing hundreds of figures with an overall size of 70MB was the document which inspired this project. In late 2023, no online translation tool would allow uploading a document of such size for processing.
+The heavyweight translator is a tool used to translate extremely large Microsoft Word documents. Word documents that are too large to process for either DeepL, ChatGPT, or another online translation tool are considered to be "extremely large". For example, an 800-page user manual containing hundreds of figures with an overall size of 70MB was the document which inspired this project. In late 2023, no online translation tool would allow uploading a document of such size for processing. The question then became one of how to upload only the text for translating.
 
-The heavyweight translator aims to circumvent such size limitations by extracting the plain text from the Word document, having it translated by the user (or later, via an API), and then swapping in the translated text at the correct locations. The user may use their online translator of choice, but DeepL is the translator that was used during development of this project.
+The heavyweight translator aims to circumvent document size limitations by extracting the plain text from the Word document, having the user translate the text with the help of an online translator (or later, via an API), and then swapping in the translated text at the correct locations in the document. The user may use their online translator of choice, but DeepL is the translator that was used during development of this project.
 
 The python docx library is used extensively to convert a Microsoft Word document into a mutable object which contains other mutable objects. Specifically, the docx library is used to access each paragraph and its runs for manipulation. This includes paragraphs inside of tables.
 
 
 ## Key features list
- - Enables translation without size limitations
- - Retains all paragraph-styled formatting that was present prior to translation
+ - Enables translation of .docx files without size limitations, that is, for extremely large documents in a single .docx file , but also...
+ - Capable of handling extremely large documents which have been split into a master document with many sub-documents
+ - Uses document-specfic regex dictionaries to handle correcting of terms which were poorly translated by the online translation tool
+ - Builds document-specific, maintainable dictionaries so that the user can edit any translation
+ - Optionally only treats the newest contributions to the source document(s)
+ - Retains all paragraph-type styling/formatting that was present prior to translation
  - Consolidates broken runs (explained below)
- - Extracts paragraph-level text to get the best translations and re-applies run-level character formatting to the correct text regardless of word ordering
+ - Extracts consolidated, paragraph-level texts, which will obtain the best translations, since the full context is provided to the online translation tool, but also...
+ - Applies run-level paragraph/character styling/formatting to the correct text segments, even when translation results in a re-ordering of the words in the paragraph
+ - Reports and logs document-specific processing errors which enables the user to manually repair any broken translations (< 0.003% of cases)
 
 
 ## Complications
@@ -78,3 +84,8 @@ To translate a document using the heavyweight translator:
 7. The language of the document must be set manually to the target larguage (for now). Be sure to select the option which applies the language to the whole document.
 8. Update the table of contents and any other dynamically generated collections of fields (if applicable). For now, the header, footer, and cover page will have to be translated manually during this step.
 9. Save the Word document and optionally rename it so the file name is in the target language.
+
+
+## Not supported
+- Floating shapes with text (as opposed to inline shapes with text) are not currently supported by the docx library. This means that, for example, a floating text box on the cover page hosting the document title cannot currently be accessed computationally. Floating shapees with text would need to be translated manually.
+- Translation of text within images is not supported. However, image captions are treated.

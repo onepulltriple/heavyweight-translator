@@ -7,6 +7,7 @@ import constants
 # Select one by commenting the other(s) out
 step = constants.EXTRACT
 step = constants.SWAP
+allow_multiple_swap_processes_per_day = False
 
 #__________________________________________________________________________
 ###########################################################################
@@ -17,7 +18,7 @@ step = constants.SWAP
 # In Microsoft Windows, Shift + Right-click on source document, then select 'Copy as path'
 #__________________________________________________________________________
 path_to_source_parent_document          = r"N:\test_zentralen\test_Handbuch für Administratoren.docx"
-path_to_output_parent_folder            = r"N:\fourth new english central"
+path_to_output_parent_folder            = r"N:\fifth new english central"
 #path_to_source_child_folder             = ""
 path_to_source_child_folder             = r"N:\test_zentralen\filialen"
 keyword_in_child_document_titles        = "Admin_"
