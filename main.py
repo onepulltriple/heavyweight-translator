@@ -37,13 +37,12 @@ if 'PROCESS ONE OR MORE DOCUMENTS':
         for filename in os.listdir(FP.cleaned_up_path_to_source_child_folder):
             # Narrow down treatment to only certain files
             if IP.keyword_in_child_document_titles in filename:
-                print("__________________________________________________________________________\n\n")
-                print(f"Starting document {current_file} of {file_count}, which is named: '{FP.file_path_dictionary["source_document_file_name_with_extension"]}'")
-
                 file_path = FP.cleaned_up_path_to_source_child_folder + "/" + filename
                 if os.path.isfile(file_path):
                     # For child documents (subdocuments) the output document paths do not include the target language
                     FP.file_path_dictionary = FP.handle_source_file_paths(file_path, FP.output_folder_for_child_documents, True)
+                    print("__________________________________________________________________________\n\n")
+                    print(f"Starting document {current_file} of {file_count}, which is named: '{FP.file_path_dictionary["source_document_file_name_with_extension"]}'")
                     processing_operations.process_document(IP.step,FP.file_path_dictionary)
             
                 current_file +=1
