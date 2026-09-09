@@ -29,7 +29,10 @@ def preprocess_csv(original_file_path, preprocessed_file_path):
             original_content = csv_file.read()
 
         if os.stat(original_file_path).st_size == 0:
-            print("Error: Empty input file encountered. This check occurs before preprocessing.")
+            print(
+                "Error: Empty input file encountered. "
+                "This check occurs before preprocessing."
+            )
             print(f"Were translations added to the following file?:")
             print(f"{original_file_path}\n")
             quit()
@@ -49,7 +52,9 @@ def preprocess_csv(original_file_path, preprocessed_file_path):
 def read_csv_with_replacements(file_path):
     try:
         with open(file_path, 'r', encoding='utf-8-sig') as csv_file:
-            csv_reader = csv.reader(csv_file, quotechar='¥', delimiter='¥', lineterminator='\n')
+            csv_reader = csv.reader(
+                csv_file, quotechar='¥', delimiter='¥', lineterminator='\n'
+            )
             csv_data = []
 
             for row in csv_reader:

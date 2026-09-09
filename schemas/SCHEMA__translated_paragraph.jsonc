@@ -1,4 +1,5 @@
-[ // Model of list of segments 
+// Example of list of segments 
+[ 
     {
         "text": "Alternatively, the revaluation can also be triggered manually via the "
     },

@@ -13,8 +13,14 @@ def copy_file_losslessly(path_to_existing_source_file, path_to_new_copy):
 
         shutil.copy2(path_to_existing_source_file, path_to_new_copy)
 
-        print(f"A master/parent document was found at:\n{path_to_existing_source_file}")
-        print(f"A copy was created and stored here:\n{path_to_new_copy}\n")
+        print(
+            "A master/parent document was found at:"
+            f"\n{path_to_existing_source_file}"
+        )
+        print(
+            "A copy was created and stored here:"
+            f"\n{path_to_new_copy}\n"
+        )
 
         return path_to_new_copy
 
@@ -53,7 +59,9 @@ def file_created_today(filename):
     import re
     import os
     
-    for filename in os.listdir(FP.file_path_dictionary["results_history_folder_path"]):
+    for filename in os.listdir(
+        FP.file_path_dictionary["results_history_folder_path"]
+    ):
         if not filename.lower().endswith(".docx"):
             continue
 

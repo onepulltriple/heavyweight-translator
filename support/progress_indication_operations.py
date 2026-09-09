@@ -3,7 +3,11 @@ from domain import constants as CONST
 
 
 def is_relevant_paragraph(paragraph):
-    return paragraph.text is not None and paragraph.text != "" and not paragraph.text.isspace()
+    return (
+        paragraph.text is not None 
+        and paragraph.text != "" 
+        and not paragraph.text.isspace()
+    )
 
 
 def count_relevant_paragraphs(doc, step): 
@@ -53,7 +57,14 @@ def count_table_cells(table, step):
     return count
 
 
-def indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count):
+def indicate_progress(
+        translation_dict, 
+        step, 
+        newest_print_progress_threshold, 
+        print_progress_increment, 
+        count_of_relevant_paragraphs, 
+        current_op_count
+    ):
     
     if step == CONST.EXTRACT:
         count_of_relevant_paragraphs += current_op_count
@@ -62,7 +73,11 @@ def indicate_progress(translation_dict, step, newest_print_progress_threshold, p
     if (current_op_count > newest_print_progress_threshold):
         percent_complete = current_op_count/count_of_relevant_paragraphs*100
 
-        print(f"{current_op_count} {step} operations performed ({percent_complete:.1f}% complete)...", file=sys.__stdout__)
+        print(
+            f"{current_op_count} {step} operations performed ("
+            f"{percent_complete:.1f}% complete)...",
+            file=sys.__stdout__,
+        )
         newest_print_progress_threshold += print_progress_increment
 
     return newest_print_progress_threshold

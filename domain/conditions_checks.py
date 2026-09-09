@@ -11,7 +11,9 @@ def the_current_run_has_an_R_character(current_run):
     return False
 
 
-def button_like_formatting_starts_and_ends_in_the_current_run(current_run, text_consolidator):
+def button_like_formatting_starts_and_ends_in_the_current_run(
+        current_run, text_consolidator
+    ):
     blank_char = re.compile("(\\xa0)")
 
     if (len(re.findall(blank_char, current_run.text)) > 0 
@@ -23,7 +25,9 @@ def button_like_formatting_starts_and_ends_in_the_current_run(current_run, text_
     return False
 
 
-def button_like_formatting_starts_and_ends_in_the_next_run(next_run_or_hyperlink, text_consolidator):
+def button_like_formatting_starts_and_ends_in_the_next_run(
+        next_run_or_hyperlink, text_consolidator
+    ):
     if next_run_or_hyperlink == None:
         return False
     
@@ -41,7 +45,9 @@ def button_like_formatting_starts_and_ends_in_the_next_run(next_run_or_hyperlink
     return False
 
 
-def weird_symbol_bracketed_by_blank_char_starts_in_the_current_run(current_run, next_run_or_hyperlink, text_consolidator):
+def weird_symbol_bracketed_by_blank_char_starts_in_the_current_run(
+        current_run, next_run_or_hyperlink, text_consolidator
+    ):
     blank_char = re.compile("(\\xa0)")
 
     if (re.search(blank_char, current_run.text) 
@@ -53,7 +59,9 @@ def weird_symbol_bracketed_by_blank_char_starts_in_the_current_run(current_run, 
     return False
 
 
-def weird_symbol_bracketed_by_blank_char_ends_in_the_current_run(previous_run, current_run, next_run_or_hyperlink, text_consolidator):
+def weird_symbol_bracketed_by_blank_char_ends_in_the_current_run(
+        previous_run, current_run, next_run_or_hyperlink, text_consolidator
+    ):
     blank_char = re.compile("(\\xa0)")
 
     if (re.search(blank_char, current_run.text) 
@@ -66,13 +74,18 @@ def weird_symbol_bracketed_by_blank_char_ends_in_the_current_run(previous_run, c
     return False
 
 
-def button_like_formatting_starts_in_next_run(next_run_or_hyperlink, text_collector):
+def button_like_formatting_starts_in_next_run(
+        next_run_or_hyperlink, text_collector
+    ):
     blank_char = re.compile("(\\xa0)")
 
     if next_run_or_hyperlink == None: 
         return False
 
-    if re.search(blank_char, next_run_or_hyperlink.text) and text_collector != "":
+    if (
+        re.search(blank_char, next_run_or_hyperlink.text) 
+        and text_collector != ""
+    ):
         return True
     
     return False
@@ -81,19 +94,27 @@ def button_like_formatting_starts_in_next_run(next_run_or_hyperlink, text_collec
 def button_like_formatting_ends_in_this_run(current_run, text_collector):
     blank_char = re.compile("(\\xa0)")
 
-    if re.search(blank_char, current_run.text) and re.search(blank_char, text_collector):
+    if (
+        re.search(blank_char, current_run.text) 
+        and re.search(blank_char, text_collector)
+    ):
         return True
     
     return False
 
 
-def button_like_formatting_ends_in_the_next_run(next_run_or_hyperlink, text_collector):
+def button_like_formatting_ends_in_the_next_run(
+        next_run_or_hyperlink, text_collector
+    ):
     blank_char = re.compile("(\\xa0)")
 
     if next_run_or_hyperlink == None: 
         return False
 
-    if re.search(blank_char, next_run_or_hyperlink.text) and re.search(blank_char, text_collector):
+    if (
+        re.search(blank_char, next_run_or_hyperlink.text) 
+        and re.search(blank_char, text_collector)
+    ):
         return True
     
     return False
@@ -201,7 +222,9 @@ def there_is_no_text_in_the_last_run(previous_run):
     return False
 
 
-def bogus_change_of_nature_conditions_are_found(previous_run, current_run, next_run_or_hyperlink):
+def bogus_change_of_nature_conditions_are_found(
+        previous_run, current_run, next_run_or_hyperlink
+    ):
     if next_run_or_hyperlink == None: 
         return False
      
@@ -295,7 +318,9 @@ def either_has_special_characters(current_run, next_run_or_hyperlink):
     return False
 
 
-def button_like_formatting_starts_in_this_run(current_run, next_run_or_hyperlink, text_collector):
+def button_like_formatting_starts_in_this_run(
+        current_run, next_run_or_hyperlink, text_collector
+    ):
     blank_char = re.compile("(\\xa0)")
 
     if next_run_or_hyperlink == None: 

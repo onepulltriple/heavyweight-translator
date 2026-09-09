@@ -19,7 +19,12 @@ def read_csv_to_dict(file_path):
     return data_dict     
 
 
-def insert_translations_into_translation_dict(source_file_path, target_file_path, preprocessed_file_path, temp_translation_dict_file_path):
+def insert_translations_into_translation_dict(
+        source_file_path, 
+        target_file_path, 
+        preprocessed_file_path, 
+        temp_translation_dict_file_path,
+    ):
     temp_translation_dict = read_json_dictionary(temp_translation_dict_file_path)
     temp_mapping = [[],[]]
     temp_mapping[0] = CSVR.read_csv_no_changes(source_file_path)
@@ -27,7 +32,10 @@ def insert_translations_into_translation_dict(source_file_path, target_file_path
     temp_mapping[1] = CSVR.read_csv_with_replacements(preprocessed_file_path)
 
     if len(temp_mapping[0]) != len(temp_mapping[1]):
-        print("Error: The counts of rows of the input files are not equal. This check occurs after preprocessing.")
+        print(
+            "Error: The counts of rows of the input files are not equal. "
+            "This check occurs after preprocessing."
+        )
         print("Review the following files:")
         print(f"{source_file_path}")
         print(f"{preprocessed_file_path}\n")
@@ -54,7 +62,9 @@ def extend_json_dictionary(original_dict, new_portion):
 
 def read_json_dictionary(json_dictionary_file_path):
     try:
-        with open(json_dictionary_file_path, 'r', encoding='utf-8-sig') as json_dictionary:
+        with open(
+            json_dictionary_file_path, 'r', encoding='utf-8-sig'
+        ) as json_dictionary:
             json_dictionary = json.load(json_dictionary)
 
         return json_dictionary

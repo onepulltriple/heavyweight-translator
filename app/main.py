@@ -27,13 +27,27 @@ if 'PROCESS ONE OR MORE DOCUMENTS':
             if IP.keyword_in_child_document_titles in filename:
                 file_path = FP.cleaned_up_path_to_source_child_folder + "/" + filename
                 if os.path.isfile(file_path):
-                    FP.file_path_dictionary = FP.handle_source_file_paths(file_path, FP.output_folder_for_child_documents, True)
-                    print("__________________________________________________________________________\n\n")
-                    print(f"Starting document {current_file} of {file_count}, which is named: '{FP.file_path_dictionary["source_document_file_name_with_extension"]}'")
+                    FP.file_path_dictionary = FP.handle_source_file_paths(
+                        file_path, 
+                        FP.output_folder_for_child_documents, 
+                        True,
+                        )
+                    print(
+                        "_____________________________________"
+                        "_____________________________________\n\n"
+                    )
+                    print(
+                        f"Starting document {current_file} of {file_count}, "
+                        f"which is named: "
+                        f"'{FP.file_path_dictionary["source_document_file_name_with_extension"]}'"
+                    )
                     PROC.process_document(IP.step,FP.file_path_dictionary)
             
                 current_file +=1
-                print(f"...done with '{FP.file_path_dictionary["source_document_file_name_with_extension"]}'.")
+                print(
+                    f"...done with "
+                    f"'{FP.file_path_dictionary["source_document_file_name_with_extension"]}'."
+                )
 
 if 'STOP GLOBAL TIMER':
     total_elapsed_time = time.time() - total_start_time
@@ -43,5 +57,9 @@ if 'STOP GLOBAL TIMER':
     seconds = int(total_elapsed_time % 60)
     milliseconds = int((total_elapsed_time - int(total_elapsed_time)) * 1000)
 
-    print(f"\nTotal runtime for all processes: {hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} (hh:mm:ss.mmm)")
+    print(
+        f"\nTotal runtime for all processes: "
+        f"{hours:02d}:{minutes:02d}:{seconds:02d}.{milliseconds:03d} "
+        "(hh:mm:ss.mmm)"
+    )
     print("\n")    
