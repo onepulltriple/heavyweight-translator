@@ -45,16 +45,17 @@ To translate a document using the heavyweight translator:
 2. Set the initial parameters:
     * Save a copy of your .docx file in the `./private` folder.
     * Copy the name of the .docx file to the clipboard (without the file extension).
-    * Open `input_parameters.py`.
+    * Open `app/input_parameters.py`.
     * Assign the file name to `source_document_file_name_without_extension`.
     * Set the creation date to today's date. For now, setting this manually is preferred.
     * Set the `target_language` and `target_culture` parameters. These can be freely named, but using ISO2 codes is advisable. In this example, `de-DE` will be translated to `en-UK`.
-    * Save the changes to the `input_parameters.py` file.
+    * Save the changes to the `app/input_parameters.py` file.
 3. Set the mode of execution to `EXTRACT`:
-    * Open `main.py`.
+    * Open `app/main.py`.
     * Comment out the line containing `SWAP`.
-    * Save the changes to the `main.py` file.
-4. Run `main.py` to perform the extraction step.
+    * Save the changes to the `app/main.py` file.
+4. Run `app/main.py` to perform the extraction step. This can be done by running `python -m app.main`
+    from the project root.
 
 ### Translate text
 1. Locate the results of the extraction and open the files.
@@ -70,16 +71,16 @@ To translate a document using the heavyweight translator:
 
 ### Swap in translations
 1. Set the mode of execution to `SWAP`:
-    * Open `main.py`.
+    * Open `app/main.py`.
     * Uncomment the line containing `SWAP`.
-    * Save the changes to the `main.py` file.
-2. Run `main.py` to perform the swapping step for the first time.
+    * Save the changes to the `app/main.py` file.
+2. Run `app/main.py` to perform the swapping step for the first time.
 3. Open the `./private/<today's date>__<source_document_file_name_without_extension>` directory.
 4. Open the `./unparseables` folder. Here a collection of unparseable xml files may be found. During the translation step, the online translator introduced characters that broke the xml tagging that was applied to the paragraphs runs. Then heavyweight translator failed to parse the translations because they are no longer in valid xml format. If there are unparseable translations found, there are two options to repair them:
-    * Extend the regex statements at the beginning of `preprocessing_operations.py` so that they repair any broken tags. This step is performed prior to xml-parsing of the translations, so the translations will first be repaired and then parsed.
+    * Extend the regex statements at the beginning of `domain/preprocessing_operations.py` so that they repair any broken tags. This step is performed prior to xml-parsing of the translations, so the translations will first be repaired and then parsed.
     * Note that some dropped closing run tags may not be repairable using regex during the preprocessing step. This is because restoring missing closing tags via regex often adds superflous closing tags to markup that was already working, causing it to break. Rather, such repairs may be attempted just prior to parsing but only after a first attempt at parsing has failed.
     * Manually correct the individual broken tags in the `02__translated_text_elements_en-UK.py` file. The unparseable files should aid with this find-and-replace process. While these corrections may be tedious, the occurrence rate of the failures that lead to such corrections is currently less than 0.15%.
-5. Run `main.py` to perform another interation of the swapping step. Perform steps 3-5 until a satisfactory level of completion is reached.
+5. Run `app/main.py` to perform another interation of the swapping step. Perform steps 3-5 until a satisfactory level of completion is reached.
 6. Open the new Word document in `./private/<today's date>__<source_document_file_name_without_extension>`.
 7. The language of the document must be set manually to the target larguage (for now). Be sure to select the option which applies the language to the whole document.
 8. Update the table of contents and any other dynamically-generated collections of fields (if applicable). For now, the header, footer, and cover page will have to be translated manually during this step.

@@ -1,24 +1,19 @@
 from datetime import datetime
 from domain import constants as CONST
 
-#__________________________________________________________________________
-###########################################################################
 # SET MODE OF EXECUTION
-# Select one by commenting the other(s) out
+# Select mode by commenting out the other
 step = CONST.EXTRACT
 #step = CONST.SWAP
 
 # SETTINGS
 allow_multiple_swap_processes_per_day = True
 
-#__________________________________________________________________________
-###########################################################################
 # SET PATHS TO FILES/FOLDERS
 # Enter a full or relative file path preceded by 'r' and wrapped in double quotes, for example:
 # path_to_source_parent_document        = r"N:\example_output_folder_name\subfolder_name\Admin_Datenbankstruktur.docx"
 # path_to_output_parent_folder          = r"N:\example_output_folder_name\subfolder_name"
 # In Microsoft Windows, Shift + Right-click on source document, then select 'Copy as path'
-#__________________________________________________________________________
 path_to_source_parent_document          = r"N:\test_zentralen\test_Handbuch für Administratoren.docx"
 path_to_output_parent_folder            = r"N:\sixth new english central"
 #path_to_source_child_folder             = ""
@@ -26,8 +21,6 @@ path_to_source_child_folder             = r"N:\test_zentralen\filialen"
 keyword_in_child_document_titles        = "Admin_"
 
 
-#__________________________________________________________________________
-###########################################################################
 # SET LANGUAGE PARAMETERS
 # Set the language of the source document
 source_language                         = "de"
@@ -40,15 +33,11 @@ target_culture                          = "GB"
 target_lang_cult                        = target_language + "-" + target_culture
 
 
-#__________________________________________________________________________
-###########################################################################
 # SET REPORTING PARAMETERS
 # Set the progress reporting frequency (prints progress to console after every % increment completed)
 percentage_increment_to_report          = 1 
 
 
-#__________________________________________________________________________
-###########################################################################
 # SET OPERATION DATE/TIME
 # Operation date and time (comment in last line to set manually)
 operation_datetime                      = datetime.today().strftime('%Y.%m.%d %H.%M') # https://docs.python.org/3/library/time.html#time.strftime
