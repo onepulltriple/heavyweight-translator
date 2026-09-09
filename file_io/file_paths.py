@@ -1,14 +1,13 @@
-import input_parameters as IP # type: ignore
-import file_operations as FO
-import constants
 import os
+from app import input_parameters as IP # type: ignore
+from domain import constants as CONST
 
 #__________________________________________________________________________
 ###########################################################################
 # FOLDER PATHS (file paths at bottom)
 if 'PREPARE PARENT DOCUMENT AND DIRECTORY':
     # Clean up path to output folder where the output parent document will be stored 
-    cleaned_up_path_to_output_parent_folder     = FO.clean_up_file_paths(IP.path_to_output_parent_folder)
+    cleaned_up_path_to_output_parent_folder     = IP.path_to_output_parent_folder.replace("\\","/")
     # Derive the name of the subfolder which will be created in the output folder
     # This folder is named after the source parent document
     source_document_file_name_no_extension      = os.path.splitext(os.path.basename(IP.path_to_source_parent_document))[0]
@@ -18,7 +17,7 @@ if 'PREPARE PARENT DOCUMENT AND DIRECTORY':
 if 'PREPARE CHILD DOCUMENT DIRECTORY':
     # Clean up path to output folder where the output child documents will be stored 
     #if IP.path_to_source_child_folder != "":
-    cleaned_up_path_to_source_child_folder      = FO.clean_up_file_paths(IP.path_to_source_child_folder)
+    cleaned_up_path_to_source_child_folder      = IP.path_to_source_child_folder.replace("\\","/")
     # Derive the name of the subfolder for child documents, which will be created in the output folder
     # This folder is named after the source child document folder
     output_folder_for_child_documents           = cleaned_up_path_to_output_parent_folder + "/" + os.path.basename(os.path.normpath(cleaned_up_path_to_source_child_folder))
@@ -27,6 +26,7 @@ if 'PREPARE CHILD DOCUMENT DIRECTORY':
 ###########################################################################
 # Function to dynamically handle file paths
 def handle_source_file_paths(path_to_source_document, path_to_output_folder, child=False, file_path_dictionary = {}):
+    from file_io import file_operations as FO
 
     # Clean up user-entered file path
     any_source_document_path                                            = FO.clean_up_file_paths(path_to_source_document)
@@ -62,8 +62,8 @@ def handle_source_file_paths(path_to_source_document, path_to_output_folder, chi
     FO.make_folder(results_history_folder_path)
 
     # Set further dynamic file path names
-    file_path_dictionary["console_log_extraction_file_path"]            = console_logs_folder_path + "/" + IP.operation_datetime + "__" + constants.EXTRACT + "_step_for_" + IP.target_lang_cult + ".log"
-    file_path_dictionary["console_log_swapping_file_path"]              = console_logs_folder_path + "/" + IP.operation_datetime + "__" + constants.SWAP    + "_step_for_" + IP.target_lang_cult + ".log"
+    file_path_dictionary["console_log_extraction_file_path"]            = console_logs_folder_path + "/" + IP.operation_datetime + "__" + CONST.EXTRACT + "_step_for_" + IP.target_lang_cult + ".log"
+    file_path_dictionary["console_log_swapping_file_path"]              = console_logs_folder_path + "/" + IP.operation_datetime + "__" + CONST.SWAP    + "_step_for_" + IP.target_lang_cult + ".log"
 
     file_path_dictionary["source_language_plain_texts_file_path"]       = source_languages_folder_path    + "/" + IP.operation_date + "__extracted_source_text_elements__" + IP.source_lang_cult + ".csv"
     file_path_dictionary["target_language_translations_file_path"]      = target_languages_folder_path    + "/" + IP.operation_date + "__translated_text_elements__"       + IP.target_lang_cult + ".csv"
@@ -93,6 +93,8 @@ def handle_source_file_paths(path_to_source_document, path_to_output_folder, chi
 ###########################################################################
 # Function to handle the parent/master (or only) document
 def parent_file_path_dictionary():
+    from file_io import file_operations as FO
+
     # Create copy of parent source document in target folder
     # Do this step for the parent document only (handles master .docx paths in case subdocuments are in play)
     parent_source_document_path_before_copying  = FO.clean_up_file_paths(IP.path_to_source_parent_document)

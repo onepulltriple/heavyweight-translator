@@ -2,8 +2,8 @@
 import csv
 import pprint
 import json
-import input_parameters as IP
-from csv_read_operations import *
+from app import input_parameters as IP
+from file_io import csv_read_operations as CSVR
 
 #__________________________________________________________________________
 ###########################################################################
@@ -36,11 +36,11 @@ def insert_translations_into_translation_dict(source_file_path, target_file_path
     # Create a temporary two-dimensional array to map from source plain text to target translated text
     temp_mapping = [[],[]]
     # Collect source plain texts
-    temp_mapping[0] = read_csv_no_changes(source_file_path)
+    temp_mapping[0] = CSVR.read_csv_no_changes(source_file_path)
     # Preprocess target translated texts
-    preprocess_csv(target_file_path, preprocessed_file_path)
+    CSVR.preprocess_csv(target_file_path, preprocessed_file_path)
     # Collect preprocessed target translated texts
-    temp_mapping[1] = read_csv_with_replacements(preprocessed_file_path)
+    temp_mapping[1] = CSVR.read_csv_with_replacements(preprocessed_file_path)
 
     # Check if the number of rows in each file is the same 
     if len(temp_mapping[0]) != len(temp_mapping[1]):

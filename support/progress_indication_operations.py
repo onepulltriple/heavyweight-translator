@@ -1,5 +1,5 @@
-import constants
 import sys
+from domain import constants as CONST
 
 #__________________________________________________________________________
 ###########################################################################
@@ -32,7 +32,7 @@ def count_relevant_paragraphs(doc, step):
 ###########################################################################
 # Function to count paragraphs based on the step
 def count_paragraphs_considering_step(paragraph, step): 
-    if step == constants.SWAP:
+    if step == CONST.SWAP:
         if is_relevant_paragraph(paragraph):
             return 1
     else:
@@ -49,7 +49,7 @@ def count_table_cells(table, step):
     for row in table.rows:
         for cell in row.cells:
             for paragraph in cell.paragraphs:
-                if step == constants.SWAP:
+                if step == CONST.SWAP:
                     if is_relevant_paragraph(paragraph):
                         count += 1
                 else:
@@ -66,7 +66,7 @@ def count_table_cells(table, step):
 # Function to indicate progress to the user
 def indicate_progress(translation_dict, step, newest_print_progress_threshold, print_progress_increment, count_of_relevant_paragraphs, current_op_count):
     
-    if step == constants.EXTRACT:
+    if step == CONST.EXTRACT:
         # Correct the count of relevant paragraphs
         count_of_relevant_paragraphs += current_op_count
         # How many extraction operations have been completed so far?

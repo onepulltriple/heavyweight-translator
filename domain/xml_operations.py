@@ -1,8 +1,8 @@
-import xml.etree.ElementTree as ET
-import file_paths as FP
-import file_operations as FO
-from datetime import datetime
 import re
+import xml.etree.ElementTree as ET
+from datetime import datetime
+from file_io import file_operations as FO
+from file_io import file_paths as FP
 
 #__________________________________________________________________________
 ###########################################################################

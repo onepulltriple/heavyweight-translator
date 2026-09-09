@@ -1,12 +1,12 @@
 from datetime import datetime
-import constants
+from domain import constants as CONST
 
 #__________________________________________________________________________
 ###########################################################################
 # SET MODE OF EXECUTION
 # Select one by commenting the other(s) out
-step = constants.EXTRACT
-step = constants.SWAP
+step = CONST.EXTRACT
+#step = CONST.SWAP
 
 # SETTINGS
 allow_multiple_swap_processes_per_day = True

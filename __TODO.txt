@@ -1,28 +1,26 @@
-set language to target language (document or run level?)
-turn manually added changes into a new style and use that style instead
-deepl api?
-user interface?
+set new document language to target language (document or run level?)
+turn manually added changes, i.e. manually-applied character styling into a new style and use that style instead
+use deepl api?
+create user interface?
 refactor newest functions
 adjust print progress threshold to not use a hard-coded value
 add try catch to deal with the user starting with the swap step "Please perform the extraction step first"
  - you need to look through the existing files to see if extraction was indeed performed in the past, and use those dates when telling the user which dates should match
- - using the operation date in both the file paths and the reported operation date will always result in a match, was tells the user nothing
-add try catch to tell user that unequal csv reads usually means that deepl gave back something weird
+ - using the operation date in both the file paths and the reported operation date will always result in a match, which tells the user nothing
+add try catch to tell user that unequal csv reads usually means that deepl gave back something weird, i.e. introduced artifacts
 determine where fill behind text is getting cleared (see changelog tables at end of documents)
 handle punctuation at ends of sentences, e.g. "Aktionsmenü im Auftrag" -> "action menu in the order"
 Handle captions of images (or at least, some are not getting translated)
 font sizes of certain styles are being "normalized"
-include manually applied bolding as a changed run (do this in cons run?)
+include manually applied bolding as a changed run (do this in cons run function?)
 single vertical tick caused problems with FTL testing script
-Give user feedback when certain errors happen, e.g. hyperlinks/glyphs should not make it to the function: What happened there and how can the user fix it?
-Handle error: property 'text' of 'Hyperlink' has no setter, see lines 405-410 of extract_and_swap.py
+give user feedback when certain errors happen, e.g. hyperlinks/glyphs should not make it to the function: What happened there and how can the user fix it?
+handle error: property 'text' of 'Hyperlink' has no setter, see lines 405-410 of extract_and_swap.py
 check if all style properties are being carried over to the new run during the swapping step, e.g. color, size, isHidden, and whatever else is avialable
-
 determine if the temp_translation_dict belongs next to the main_translation_dict (i.e. inthe dict_operations.py file)
 	this is because some check look at its length to see if anything further should be done.
 	(i.e. if the temp_translation_dict is empty for this round, do nothing)
 figure out if there is a way to handle multiple languages in a single maint_dict
-
 deal with word documents that are open ~$ 
   don't process them (which step? swap) and ask user to close document (how to reproduce, though?)
  

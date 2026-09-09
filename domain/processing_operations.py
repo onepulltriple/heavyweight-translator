@@ -1,14 +1,14 @@
 if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
-    import constants
-    import logging_operations as LO
-    import input_parameters as IP
-    import dict_operations as DO
-    import file_operations as FO
+    import os
     import sys
     import time
-    from dict_operations import *
-    from extract_and_swap import *
-    import os
+
+    from app import input_parameters as IP
+    from domain import constants as CONST
+    from domain import extract_and_swap as EXSWAP
+    from file_io import dict_operations as DO
+    from file_io import file_operations as FO
+    from support import logging_operations as LO
 
 #__________________________________________________________________________
 ###########################################################################
@@ -36,9 +36,9 @@ def process_document(step, file_path_dictionary):
 
     print(f"Beginning {step} operations...")
 
-    if step == constants.EXTRACT:
+    if step == CONST.EXTRACT:
         # Extract the text elements from the source docx file
-        extract_or_swap_text_in_docx(file_path_dictionary, step)
+        EXSWAP.extract_or_swap_text_in_docx(file_path_dictionary, step)
 
         # # Print confirmation message to the console
         # print(f"The text file containing the untranslated source text has been written to: \n{file_path_dictionary["source_language_plain_texts_file_path"]}\n")
@@ -47,9 +47,9 @@ def process_document(step, file_path_dictionary):
         # # Create an empty text files to later store retrieved translations
         # save_to_text_file(file_path_dictionary["target_language_translations_file_path"], [], "\n")
 
-    if step == constants.SWAP:
+    if step == CONST.SWAP:
         # Read in the temporary translation dictionary
-        temp_translation_dict = read_json_dictionary(file_path_dictionary["TEMP_translation_dict_file_path"])
+        temp_translation_dict = DO.read_json_dictionary(file_path_dictionary["TEMP_translation_dict_file_path"])
         
         # Check if the extraction step has been performed on the operation_date
         # This block should handle users performing a swap on a different day than they did the extraction
@@ -61,8 +61,8 @@ def process_document(step, file_path_dictionary):
             print(f"No file found at:         '{file_path_dictionary["source_language_plain_texts_file_path"]}'")
             print(f"No dictionary found at:   '{file_path_dictionary["TEMP_translation_dict_file_path"]}'")
             print(f"Operation date is set to: '{IP.operation_date}'\n")
-            print(f"If the above dates don't match, the operation_date can be set manually in the input parameters. This issue arises when the {constants.EXTRACT} step was performed on a previous date.")
-            print(f"If the above dates DO match, then it looks like the {constants.EXTRACT} step hasn't been completed yet. Perform the {constants.EXTRACT} step first.\n")
+            print(f"If the above dates don't match, the operation_date can be set manually in the input parameters. This issue arises when the {CONST.EXTRACT} step was performed on a previous date.")
+            print(f"If the above dates DO match, then it looks like the {CONST.EXTRACT} step hasn't been completed yet. Perform the {CONST.EXTRACT} step first.\n")
             quit()
         
         # Check if the extraction step has been performed already
@@ -76,19 +76,19 @@ def process_document(step, file_path_dictionary):
                 or not FO.file_created_today(file_path_dictionary["output_document_path_with_datetime"]))):
 
             # Update the temp translation dictionary to include the retrieved translations
-            temp_translation_dict = insert_translations_into_translation_dict(file_path_dictionary["source_language_plain_texts_file_path"], file_path_dictionary["target_language_translations_file_path"], file_path_dictionary["preprocessed_translations_file_path"], file_path_dictionary["TEMP_translation_dict_file_path"])
+            temp_translation_dict = DO.insert_translations_into_translation_dict(file_path_dictionary["source_language_plain_texts_file_path"], file_path_dictionary["target_language_translations_file_path"], file_path_dictionary["preprocessed_translations_file_path"], file_path_dictionary["TEMP_translation_dict_file_path"])
             # Save updated temp translation dictionary file for later review
-            write_dict_to_json(temp_translation_dict, file_path_dictionary["TEMP_translation_dict_file_path"])
+            DO.write_dict_to_json(temp_translation_dict, file_path_dictionary["TEMP_translation_dict_file_path"])
 
             # Merge the temp dictionary into the MAINTAINED dicationary
-            extend_json_dictionary(DO.maint_translation_dict, temp_translation_dict)
+            DO.extend_json_dictionary(DO.maint_translation_dict, temp_translation_dict)
             # Save updated MAINTAINED translation dictionary file 
-            write_dict_to_json(DO.maint_translation_dict, file_path_dictionary["MAINT_translation_dict_file_path"])
+            DO.write_dict_to_json(DO.maint_translation_dict, file_path_dictionary["MAINT_translation_dict_file_path"])
             # Save a copy in the results history for later review and comparison via clipboard diff (for users)
-            write_dict_to_json(DO.maint_translation_dict, file_path_dictionary["MAINT_translation_dict_file_path_SNAPSHOT"])
+            DO.write_dict_to_json(DO.maint_translation_dict, file_path_dictionary["MAINT_translation_dict_file_path_SNAPSHOT"])
 
             # Swap the translations into the text elements of the source docx file
-            extract_or_swap_text_in_docx(file_path_dictionary, step, DO.maint_translation_dict)
+            EXSWAP.extract_or_swap_text_in_docx(file_path_dictionary, step, DO.maint_translation_dict)
 
 
     #######################################################################

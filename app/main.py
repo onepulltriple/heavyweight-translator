@@ -1,9 +1,9 @@
 if 'IMPORT LIBRARIES, VARIABLES, AND FILE PATHS':
-    import file_paths as FP
-    import input_parameters as IP
-    import processing_operations
     import os
     import time
+    from app import input_parameters as IP
+    from domain import processing_operations as PROC
+    from file_io import file_paths as FP
     print("\n")
 
 
@@ -22,7 +22,7 @@ if 'PROCESS ONE OR MORE DOCUMENTS':
         FP.file_path_dictionary = FP.parent_file_path_dictionary()
 
     # Process single/parent document
-    processing_operations.process_document(IP.step,FP.file_path_dictionary)
+    PROC.process_document(IP.step,FP.file_path_dictionary)
 
     # Process child documents
     if FP.cleaned_up_path_to_source_child_folder != "":
@@ -43,7 +43,7 @@ if 'PROCESS ONE OR MORE DOCUMENTS':
                     FP.file_path_dictionary = FP.handle_source_file_paths(file_path, FP.output_folder_for_child_documents, True)
                     print("__________________________________________________________________________\n\n")
                     print(f"Starting document {current_file} of {file_count}, which is named: '{FP.file_path_dictionary["source_document_file_name_with_extension"]}'")
-                    processing_operations.process_document(IP.step,FP.file_path_dictionary)
+                    PROC.process_document(IP.step,FP.file_path_dictionary)
             
                 current_file +=1
                 print(f"...done with '{FP.file_path_dictionary["source_document_file_name_with_extension"]}'.")

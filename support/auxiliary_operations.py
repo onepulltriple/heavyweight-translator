@@ -1,7 +1,5 @@
 from itertools import pairwise, zip_longest, tee
 
-#__________________________________________________________________________
-###########################################################################
 # Function to extend pairwise to include a "wrap-around" effect 
 # Enables recognition of and access to the last run in a paragraph
 def pairwise_circular(iterable):

@@ -1,5 +1,5 @@
 *.docx
-legacy/
+__legacy/
 private/
 glyphs/
 __pycache__/

@@ -1,7 +1,6 @@
 import re
-import input_parameters as IP
-import dict_operations as DO
- 
+from app import input_parameters as IP
+from file_io import dict_operations as DO
 
 #__________________________________________________________________________
 ###########################################################################
@@ -25,7 +24,7 @@ def regex_replacements(original_content):
 ###########################################################################
 # Function to replace common problematic translations on a per-document basis
 def document_specific_replacements(preprocessed_content):
-    from file_paths import file_path_dictionary
+    from file_io.file_paths import file_path_dictionary
 
     # Load preprocessing dictionary
     preprocessing_dict = DO.read_json_dictionary(file_path_dictionary["preprocessing_dict_file_path"])
