@@ -1,17 +1,6 @@
-#ignore .docx files
 *.docx
-
-#ignore legacy files
 legacy/
-
-#ignore private files
 private/
-
-#ignore glyphs
 glyphs/
-
-#ignore python cache
 __pycache__/
-
-#ignore links
 __LINKS.txt

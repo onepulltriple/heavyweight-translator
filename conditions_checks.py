@@ -2,6 +2,7 @@
 import re
 import docx
 
+#__________________________________________________________________________
 ###########################################################################
 # Conditions which should cause a dump
 def the_current_run_has_an_R_character(current_run):
@@ -14,7 +15,8 @@ def the_current_run_has_an_R_character(current_run):
 
     return False
 
-
+#__________________________________________________________________________
+###########################################################################
 def button_like_formatting_starts_and_ends_in_the_current_run(current_run, text_consolidator):
     # Regular expression pattern for the blank character
     blank_char = re.compile("(\\xa0)")
@@ -28,6 +30,8 @@ def button_like_formatting_starts_and_ends_in_the_current_run(current_run, text_
     
     return False
 
+#__________________________________________________________________________
+###########################################################################
 def button_like_formatting_starts_and_ends_in_the_next_run(next_run_or_hyperlink, text_consolidator):
     if next_run_or_hyperlink == None: # this check avoids null exceptions
         return False
@@ -47,7 +51,8 @@ def button_like_formatting_starts_and_ends_in_the_next_run(next_run_or_hyperlink
     
     return False
 
-
+#__________________________________________________________________________
+###########################################################################
 def weird_symbol_bracketed_by_blank_char_starts_in_the_current_run(current_run, next_run_or_hyperlink, text_consolidator):
     # Regular expression pattern for the blank character
     blank_char = re.compile("(\\xa0)")
@@ -62,7 +67,8 @@ def weird_symbol_bracketed_by_blank_char_starts_in_the_current_run(current_run, 
     
     return False
 
-
+#__________________________________________________________________________
+###########################################################################
 def weird_symbol_bracketed_by_blank_char_ends_in_the_current_run(previous_run, current_run, next_run_or_hyperlink, text_consolidator):
     # Regular expression pattern for the blank character
     blank_char = re.compile("(\\xa0)")
@@ -79,7 +85,8 @@ def weird_symbol_bracketed_by_blank_char_ends_in_the_current_run(previous_run, c
     
     return False
 
-
+#__________________________________________________________________________
+###########################################################################
 def button_like_formatting_starts_in_next_run(next_run_or_hyperlink, text_collector):
     # Regular expression pattern for the blank character
     blank_char = re.compile("(\\xa0)")
@@ -93,7 +100,8 @@ def button_like_formatting_starts_in_next_run(next_run_or_hyperlink, text_collec
     
     return False
 
-
+#__________________________________________________________________________
+###########################################################################
 def button_like_formatting_ends_in_this_run(current_run, text_collector):
     # Regular expression pattern for the blank character
     blank_char = re.compile("(\\xa0)")
@@ -105,6 +113,8 @@ def button_like_formatting_ends_in_this_run(current_run, text_collector):
     return False
 
 
+#__________________________________________________________________________
+###########################################################################
 def button_like_formatting_ends_in_the_next_run(next_run_or_hyperlink, text_collector):
     # Regular expression pattern for the blank character
     blank_char = re.compile("(\\xa0)")
@@ -119,6 +129,8 @@ def button_like_formatting_ends_in_the_next_run(next_run_or_hyperlink, text_coll
     return False
 
 
+#__________________________________________________________________________
+###########################################################################
 def internal_hidden_text_style_has_been_reached(next_run_or_hyperlink):
     # the next run contains text that is of the style TLInternZchn, which is normally hidden
     if next_run_or_hyperlink == None:
@@ -130,7 +142,8 @@ def internal_hidden_text_style_has_been_reached(next_run_or_hyperlink):
     
     return False
 
-
+#__________________________________________________________________________
+###########################################################################
 def the_last_run_in_the_paragraph_has_been_reached(next_run_or_hyperlink):
     # the last run is equal to the first run (circle has closed, i.e. all runs were seen)
     if next_run_or_hyperlink == None:
@@ -142,7 +155,8 @@ def the_last_run_in_the_paragraph_has_been_reached(next_run_or_hyperlink):
     
     return False
 
-
+#__________________________________________________________________________
+###########################################################################
 def there_is_a_change_of_nature(current_run, next_run_or_hyperlink):
     if next_run_or_hyperlink == None: # this check avoids null exceptions
         return False
@@ -162,9 +176,15 @@ def there_is_a_change_of_nature(current_run, next_run_or_hyperlink):
     # the font name changes 
     if next_run_or_hyperlink.font.name != current_run.font.name:
         return True
+    
+    # the font hidden property changes 
+    if next_run_or_hyperlink.font.hidden != current_run.font.hidden:
+        return True
 
     return False
 
+#__________________________________________________________________________
+###########################################################################
 def there_WAS_a_change_of_nature(current_run, previous_run_or_hyperlink):
     # the previous run was a hyperlink
     if isinstance(previous_run_or_hyperlink, docx.text.hyperlink.Hyperlink):
@@ -184,15 +204,16 @@ def there_WAS_a_change_of_nature(current_run, previous_run_or_hyperlink):
     # the font name has returned to normal (no run-level name applied)
     if current_run.font.name == None:
         return False
+    
+    # the font hidden property has returned to normal (no run-level hidden applied)
+    if current_run.font.hidden == None:
+        return False
+
 
     # the font color changed
     if previous_run_or_hyperlink.font.color != current_run.font.color:
         return True
-    
-    # the style name changed
-    # if previous_run_or_hyperlink.style.name != current_run.style.name:
-    #     return True
-    
+       
     # the font size changed
     if previous_run_or_hyperlink.font.size != current_run.font.size:
         return True
@@ -200,9 +221,15 @@ def there_WAS_a_change_of_nature(current_run, previous_run_or_hyperlink):
     # the font name changed 
     if previous_run_or_hyperlink.font.name != current_run.font.name:
         return True
+    
+    # the font hidden property changed 
+    if previous_run_or_hyperlink.font.hidden != current_run.font.hidden:
+        return True
 
     return False
 
+#__________________________________________________________________________
+###########################################################################
 def there_is_no_text_in_the_next_run(next_run_or_hyperlink):
     if next_run_or_hyperlink == None: # this check avoids null exceptions
         return False
@@ -215,7 +242,8 @@ def there_is_no_text_in_the_next_run(next_run_or_hyperlink):
     
     return False
 
-
+#__________________________________________________________________________
+###########################################################################
 def there_is_no_text_in_the_last_run(previous_run):
     if previous_run == None: # this check avoids null exceptions
         return False
@@ -228,6 +256,7 @@ def there_is_no_text_in_the_last_run(previous_run):
     
     return False
 
+#__________________________________________________________________________
 ###########################################################################
 # Conditions under which to keep collecting
 def bogus_change_of_nature_conditions_are_found(previous_run, current_run, next_run_or_hyperlink):
@@ -266,7 +295,8 @@ def bogus_change_of_nature_conditions_are_found(previous_run, current_run, next_
         
     return False
     
-
+#__________________________________________________________________________
+###########################################################################
 def the_next_run_has_one_or_two_special_characters(next_run_or_hyperlink):
     if next_run_or_hyperlink == None: # this check avoids null exceptions
         return False
@@ -301,7 +331,8 @@ def the_next_run_has_one_or_two_special_characters(next_run_or_hyperlink):
     
     return False
 
-
+#__________________________________________________________________________
+###########################################################################
 def the_current_run_has_one_or_two_special_characters(current_run):
     # Regular expression pattern for the blank character (which should not contribute towards the character count)
     blank_char = re.compile("(\\xa0)")
@@ -327,6 +358,8 @@ def the_current_run_has_one_or_two_special_characters(current_run):
     
     return False
 
+#__________________________________________________________________________
+###########################################################################
 def either_has_special_characters(current_run, next_run_or_hyperlink):
     # Regular expression pattern for special German characters
     de_chars = re.compile("[äöüÄÖÜß]") #®
@@ -344,6 +377,8 @@ def either_has_special_characters(current_run, next_run_or_hyperlink):
 
     return False
 
+#__________________________________________________________________________
+###########################################################################
 def button_like_formatting_starts_in_this_run(current_run, next_run_or_hyperlink, text_collector):
     # Regular expression pattern for the blank character
     blank_char = re.compile("(\\xa0)")
@@ -357,6 +392,8 @@ def button_like_formatting_starts_in_this_run(current_run, next_run_or_hyperlink
     
     return False
 
+#__________________________________________________________________________
+###########################################################################
 def this_run_occurs_within_a_table(current_run):
 
     if (current_run._parent == None 
